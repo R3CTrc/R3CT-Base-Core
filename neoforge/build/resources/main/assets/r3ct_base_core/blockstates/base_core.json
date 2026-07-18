@@ -1,0 +1,20 @@
+{
+  "multipart": [
+    {
+      "when": { "facing": "north" },
+      "apply": { "model": "r3ct_base_core:block/base_core" }
+    },
+    {
+      "when": { "facing": "east" },
+      "apply": { "model": "r3ct_base_core:block/base_core", "y": 90 }
+    },
+    {
+      "when": { "facing": "south" },
+      "apply": { "model": "r3ct_base_core:block/base_core", "y": 180 }
+    },
+    {
+      "when": { "facing": "west" },
+      "apply": { "model": "r3ct_base_core:block/base_core", "y": 270 }
+    }
+  ]
+}

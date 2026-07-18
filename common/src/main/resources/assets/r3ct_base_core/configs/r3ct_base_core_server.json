@@ -1,0 +1,95 @@
+{
+  "_comment_version": "Do not change the version number! It is used for automatic config updates.",
+  "version": 1,
+
+  "settings": {
+    "xpLevelsCostPerEffect": 50,
+    "allowBeaconSynergy": true
+  },
+
+  "tiers": [
+    {
+      "tierLevel": 1,
+      "mainItem": "minecraft:oak_log", "mainAmount": 64,
+      "bulkItem": "minecraft:smooth_stone", "bulkAmount": 128,
+      "bonusRadius": 16, "bonusSlots": 1, "unlocksPool": 1
+    },
+    {
+      "tierLevel": 2,
+      "mainItem": "minecraft:copper_block", "mainAmount": 32,
+      "bulkItem": "minecraft:bricks", "bulkAmount": 128,
+      "bonusRadius": 8, "bonusSlots": 0, "unlocksPool": 0
+    },
+    {
+      "tierLevel": 3,
+      "mainItem": "minecraft:iron_block", "mainAmount": 16,
+      "bulkItem": "minecraft:cobbled_deepslate", "bulkAmount": 256,
+      "bonusRadius": 0, "bonusSlots": 1, "unlocksPool": 0
+    },
+    {
+      "tierLevel": 4,
+      "mainItem": "minecraft:gold_block", "mainAmount": 16,
+      "bulkItem": "minecraft:netherrack", "bulkAmount": 256,
+      "bonusRadius": 0, "bonusSlots": 0, "unlocksPool": 2
+    },
+    {
+      "tierLevel": 5,
+      "mainItem": "minecraft:amethyst_block", "mainAmount": 32,
+      "bulkItem": "minecraft:calcite", "bulkAmount": 128,
+      "bonusRadius": 8, "bonusSlots": 0, "unlocksPool": 0
+    },
+    {
+      "tierLevel": 6,
+      "mainItem": "minecraft:emerald_block", "mainAmount": 16,
+      "bulkItem": "minecraft:moss_block", "bulkAmount": 128,
+      "bonusRadius": 0, "bonusSlots": 1, "unlocksPool": 0
+    },
+    {
+      "tierLevel": 7,
+      "mainItem": "minecraft:diamond_block", "mainAmount": 8,
+      "bulkItem": "minecraft:obsidian", "bulkAmount": 64,
+      "bonusRadius": 0, "bonusSlots": 0, "unlocksPool": 3
+    },
+    {
+      "tierLevel": 8,
+      "mainItem": "minecraft:netherite_block", "mainAmount": 2,
+      "bulkItem": "minecraft:crying_obsidian", "bulkAmount": 32,
+      "bonusRadius": 16, "bonusSlots": 0, "unlocksPool": 0
+    },
+    {
+      "tierLevel": 9,
+      "mainItem": "minecraft:nether_star", "mainAmount": 1,
+      "bulkItem": "minecraft:glowstone", "bulkAmount": 256,
+      "bonusRadius": 0, "bonusSlots": 1, "unlocksPool": 0
+    },
+    {
+      "tierLevel": 10,
+      "mainItem": "minecraft:dragon_breath", "mainAmount": 16,
+      "bulkItem": "minecraft:purpur_block", "bulkAmount": 256,
+      "bonusRadius": 0, "bonusSlots": 0, "unlocksPool": 4
+    }
+  ],
+
+  "pool_1": [
+    "anti_spawn",
+    "growth_aura",
+    "satiated"
+  ],
+  "pool_2": [
+    "grief_ward",
+    "feather_fall",
+    "overclock",
+    "fire_immunity"
+  ],
+  "pool_3": [
+    "passive_breeding",
+    "builders_reach",
+    "night_vision"
+  ],
+  "pool_4": [
+    "mending_pulse",
+    "anti_trample",
+    "slow_falling",
+    "pet_ward"
+  ]
+}

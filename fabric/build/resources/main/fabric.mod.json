@@ -1,0 +1,42 @@
+{
+    "schemaVersion": 1,
+    "id": "r3ct_base_core",
+    "version": "1.0.0",
+    "name": "R3CT Base Core",
+    "description": "-------",
+    "authors": [
+        "R3CT"
+    ],
+    "contact": {
+        "homepage": "https://modrinth.com/mod/r3ct-base-core",
+        "sources": "https://github.com/R3CTrc/R3CT-Base-Core",
+        "issues": "https://github.com/R3CTrc/R3CT-Base-Core/issues"
+    },
+    "license": "MIT",
+    "icon": "assets/r3ct_base_core/icon.png",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "com.r3ct.base_core.BaseCoreFabric"
+        ],
+        "client": [
+            "com.r3ct.base_core.BaseCoreFabricClient"
+        ],
+        "modmenu": [
+            "com.r3ct.base_core.compat.ModMenuIntegration"
+        ]
+    },
+    "mixins": [
+        "r3ct_base_core.mixins.json",
+        "r3ct_base_core.fabric.mixins.json"
+    ],
+    "depends": {
+        "fabricloader": ">=0.18.4",
+        "fabric-api": "*",
+        "minecraft": ">=26.1.2",
+        "java": ">=25"
+    },
+    "suggests": {
+        "modmenu": ">=18.0.0"
+    }
+}

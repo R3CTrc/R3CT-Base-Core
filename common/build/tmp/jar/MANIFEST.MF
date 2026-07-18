@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Specification-Title: R3CT Base Core
+Specification-Vendor: R3CT
+Specification-Version: 1.0.0
+Implementation-Title: common
+Implementation-Version: 1.0.0
+Implementation-Vendor: R3CT
+Built-On-Minecraft: 26.1.2
+

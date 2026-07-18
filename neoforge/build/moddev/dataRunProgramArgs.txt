@@ -1,0 +1,17 @@
+# Main Class
+net.neoforged.fml.startup.DataClient
+
+# NeoForge Run-Type Program Arguments
+--assetIndex
+30
+--assetsDir
+C:\\Users\\radek\\.gradle\\caches\\neoformruntime\\assets
+
+# User Supplied Program Arguments
+--mod
+r3ct_base_core
+--all
+--output
+C:\\Users\\radek\\IdeaProjects\\R3CT-Base-Core\\neoforge\\src\\generated\\resources
+--existing
+C:\\Users\\radek\\IdeaProjects\\R3CT-Base-Core\\neoforge\\src\\main\\resources
