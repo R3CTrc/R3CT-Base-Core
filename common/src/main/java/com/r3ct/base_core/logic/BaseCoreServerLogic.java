@@ -106,22 +106,28 @@ public class BaseCoreServerLogic {
 
         } else {
             int maxSlots = BaseCoreServerConfig.calculateTotalSlots(data.baseCoreTier);
+            if (payload.slotIndex() >= maxSlots || payload.slotIndex() < 0) return;
 
-            if (payload.slotIndex() >= maxSlots || payload.slotIndex() < 0) {
-                player.sendSystemMessage(Component.literal("Ten slot jest jeszcze zablokowany!").withStyle(ChatFormatting.RED), true);
-                return;
+            if (payload.effectId().equals("empty")) {
+                data.activeSlots.set(payload.slotIndex(), "empty");
+                player.sendSystemMessage(Component.literal("Wyczyszczono slot " + (payload.slotIndex() + 1)).withStyle(ChatFormatting.YELLOW), true);
+            }
+            else {
+                if (!data.activeEffects.contains(payload.effectId())) return;
+
+                for (int i = 0; i < data.activeSlots.size(); i++) {
+                    if (i != payload.slotIndex() && data.activeSlots.get(i).equals(payload.effectId())) {
+                        player.sendSystemMessage(Component.literal("Ten efekt jest już używany w innym slocie!").withStyle(ChatFormatting.RED), true);
+                        return;
+                    }
+                }
+
+                data.activeSlots.set(payload.slotIndex(), payload.effectId());
+                player.sendSystemMessage(Component.literal("Przypisano efekt do slotu " + (payload.slotIndex() + 1)).withStyle(ChatFormatting.AQUA), true);
             }
 
-            if (data.activeSlots.contains(payload.effectId())) {
-                player.sendSystemMessage(Component.literal("Ten efekt jest już aktywny!").withStyle(ChatFormatting.RED), true);
-                return;
-            }
-
-            data.activeSlots.set(payload.slotIndex(), payload.effectId());
             ModState.get(level.getServer()).setDirty();
-
-            level.playSound(null, payload.pos(), SoundEvents.UI_BUTTON_CLICK.value(), SoundSource.BLOCKS, 1.0f, 1.0f);
-            player.sendSystemMessage(Component.literal("Przypisano efekt " + effectConfig.name + " do slotu " + (payload.slotIndex() + 1)).withStyle(ChatFormatting.AQUA), true);
+            level.playSound(null, payload.pos(), net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK.value(), net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
 
             refreshGuiForPlayer(player, payload.pos(), data);
         }

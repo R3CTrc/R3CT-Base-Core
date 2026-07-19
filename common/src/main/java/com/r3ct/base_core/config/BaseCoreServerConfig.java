@@ -153,6 +153,17 @@ public class BaseCoreServerConfig {
         return totalSlots;
     }
 
+    public static int getMaxUnlockedPool(int currentTier) {
+        int maxPool = 0;
+        for (int i = 1; i <= currentTier; i++) {
+            TierUpgrade tier = getTier(i);
+            if (tier != null && tier.unlocksPool > maxPool) {
+                maxPool = tier.unlocksPool;
+            }
+        }
+        return maxPool;
+    }
+
     public static String getServerConfigString() {
         if (!CONFIG_FILE.exists()) return "{}";
         try {
