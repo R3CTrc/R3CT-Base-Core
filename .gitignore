@@ -15,7 +15,7 @@ out
 !.idea/scopes
 
 # gradle
-../../Downloads/core base/build
+build
 .gradle
 
 # other
