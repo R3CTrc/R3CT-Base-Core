@@ -6,12 +6,15 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PlayerData {
     public int baseCoreTier = 0;
 
     public List<String> activeEffects = new ArrayList<>();
+
+    public List<String> activeSlots = new ArrayList<>(Arrays.asList("empty", "empty", "empty", "empty"));
 
     public boolean hasPlacedCore = false;
     public String coreDimension = "";
@@ -41,6 +44,12 @@ public class PlayerData {
         }
         nbt.put("activeEffects", effectsList);
 
+        ListTag slotsList = new ListTag();
+        for (String slot : activeSlots) {
+            slotsList.add(StringTag.valueOf(slot != null ? slot : "empty"));
+        }
+        nbt.put("activeSlots", slotsList);
+
         return nbt;
     }
 
@@ -62,6 +71,19 @@ public class PlayerData {
                     data.activeEffects.add(list.getString(i).orElse(""));
                 }
             }
+        }
+
+        if (nbt.contains("activeSlots")) {
+            data.activeSlots.clear();
+            if (nbt.get("activeSlots") instanceof ListTag list) {
+                for (int i = 0; i < list.size(); i++) {
+                    data.activeSlots.add(list.getString(i).orElse("empty"));
+                }
+            }
+        }
+
+        while (data.activeSlots.size() < 4) {
+            data.activeSlots.add("empty");
         }
 
         return data;

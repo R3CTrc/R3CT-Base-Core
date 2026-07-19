@@ -1,5 +1,6 @@
 package com.r3ct.base_core.client.screen;
 
+import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.network.OpenBaseCoreGuiPayload;
 import com.r3ct.base_core.network.UnlockEffectPayload;
 import com.r3ct.base_core.network.UpgradeBaseCorePayload;
@@ -7,13 +8,20 @@ import com.r3ct.base_core.platform.Services;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Item;
 import org.jspecify.annotations.NonNull;
+
+import java.util.List;
 
 public class BaseCoreScreen extends Screen {
 
     private final OpenBaseCoreGuiPayload data;
     private Tab currentTab = Tab.OVERVIEW;
+
+    private int selectedSlot = 0;
 
     private final int imageWidth = 300;
     private final int imageHeight = 220;
@@ -47,9 +55,6 @@ public class BaseCoreScreen extends Screen {
 
     @Override
     public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        // Usunięto this.renderBackground() dla jaśniejszego tła gry w tle
-
-        // --- RYSOWANIE ZAKŁADEK ---
         int totalTabsWidth = (tabWidth * 3) + (tabSpacing * 2);
         int startX = this.leftPos + (this.imageWidth - totalTabsWidth) / 2;
         int tabY = this.topPos - tabHeight + 2;
@@ -65,7 +70,6 @@ public class BaseCoreScreen extends Screen {
             renderCustomTab(graphics, currentTabX, tabY, tabWidth, tabHeight, tab.name, isSelected, isHovered);
         }
 
-        // --- GŁÓWNE TŁO OKNA ---
         graphics.fill(this.leftPos, this.topPos, this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 0xFF242424);
         graphics.outline(this.leftPos, this.topPos, this.imageWidth, this.imageHeight, 0xFF4A4A4A);
 
@@ -77,7 +81,6 @@ public class BaseCoreScreen extends Screen {
                 this.imageWidth - (innerMargin * 2), this.imageHeight - 25 - innerMargin,
                 0xFF333333);
 
-        // --- NAGŁÓWEK ---
         String tierText = "Poziom " + toRoman(data.tier());
         int titleWidth = this.font.width("Serce Bazy");
         int tierWidth = this.font.width(tierText);
@@ -86,7 +89,6 @@ public class BaseCoreScreen extends Screen {
         graphics.text(this.font, tierText, this.leftPos + this.imageWidth - tierWidth - 12, this.topPos + 10, 0xFFD700, true);
         graphics.fill(this.leftPos + 12, this.topPos + 21, this.leftPos + titleWidth + 12, this.topPos + 22, 0x88FFD700);
 
-        // --- RENDEROWANIE ZAWARTOŚCI ZAKŁADEK ---
         switch (currentTab) {
             case OVERVIEW -> renderOverviewTab(graphics, mouseX, mouseY);
             case EFFECTS -> renderEffectsTab(graphics, mouseX, mouseY);
@@ -118,7 +120,6 @@ public class BaseCoreScreen extends Screen {
         graphics.text(this.font, text, textX, textY, textColor, false);
     }
 
-    // --- POPRAWIONA LOGIKA KLIKANIA (1.21.2+) ---
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         if (super.mouseClicked(event, doubleClick)) return true;
@@ -127,7 +128,6 @@ public class BaseCoreScreen extends Screen {
             double mouseX = event.x();
             double mouseY = event.y();
 
-            // 1. Sprawdzanie kliknięcia w zakładki
             int totalTabsWidth = (tabWidth * 3) + (tabSpacing * 2);
             int startX = this.leftPos + (this.imageWidth - totalTabsWidth) / 2;
             int tabY = this.topPos - tabHeight + 2;
@@ -141,16 +141,32 @@ public class BaseCoreScreen extends Screen {
                 }
             }
 
-            // 2. Obsługa kliknięcia w efekt na Zakładce Efektów
+            if (this.currentTab == Tab.OVERVIEW) {
+                int contentX = this.leftPos + 8 + 10;
+                int slotsStartY = this.topPos + 35 + 15;
+                int maxSlots = BaseCoreServerConfig.calculateTotalSlots(data.tier());
+
+                for (int i = 0; i < 4; i++) {
+                    int slotX = contentX + (i * 44);
+                    if (mouseX >= slotX && mouseX < slotX + 36 && mouseY >= slotsStartY && mouseY < slotsStartY + 36) {
+                        if (i < maxSlots) {
+                            this.selectedSlot = i;
+                        }
+                        return true;
+                    }
+                }
+            }
+
             if (this.currentTab == Tab.EFFECTS) {
                 handleEffectClick(mouseX, mouseY);
                 return true;
             }
 
-            // 3. Obsługa kliknięcia "Ulepsz"
             if (this.currentTab == Tab.UPGRADES) {
                 int currentTier = data.tier();
-                if (currentTier < 10) {
+                BaseCoreServerConfig.TierUpgrade nextTierConfig = BaseCoreServerConfig.getTier(currentTier + 1);
+
+                if (nextTierConfig != null) {
                     int panelY = this.topPos + 30 + 25;
                     int costY = panelY + 90 + 15;
                     int btnWidth = 100;
@@ -159,8 +175,16 @@ public class BaseCoreScreen extends Screen {
                     int btnY = costY + 40;
 
                     if (mouseX >= btnX && mouseX < btnX + btnWidth && mouseY >= btnY && mouseY < btnY + btnHeight) {
-                        // Wysłanie żądania ulepszenia!
-                        Services.PLATFORM.sendToServer(new UpgradeBaseCorePayload(data.pos()));
+
+                        Item mainItem = BuiltInRegistries.ITEM.get(Identifier.parse(nextTierConfig.mainItem)).map(net.minecraft.core.Holder::value).orElse(net.minecraft.world.item.Items.AIR);
+                        Item bulkItem = BuiltInRegistries.ITEM.get(Identifier.parse(nextTierConfig.bulkItem)).map(net.minecraft.core.Holder::value).orElse(net.minecraft.world.item.Items.AIR);
+
+                        boolean canAfford = countItemInClientInventory(mainItem) >= nextTierConfig.mainAmount &&
+                                countItemInClientInventory(bulkItem) >= nextTierConfig.bulkAmount;
+
+                        if (canAfford) {
+                            Services.PLATFORM.sendToServer(new UpgradeBaseCorePayload(data.pos()));
+                        }
                         return true;
                     }
                 }
@@ -177,8 +201,10 @@ public class BaseCoreScreen extends Screen {
         int startX = this.leftPos + 8 + 25;
         int startY = this.topPos + 30 + 15;
 
-        for (int i = 0; i < AVAILABLE_EFFECTS.length; i++) {
-            EffectInfo effect = AVAILABLE_EFFECTS[i];
+        List<BaseCoreServerConfig.EffectConfig> allEffects = BaseCoreServerConfig.getInstance().effects;
+
+        for (int i = 0; i < allEffects.size(); i++) {
+            BaseCoreServerConfig.EffectConfig effect = allEffects.get(i);
             int col = i % columns;
             int row = i / columns;
             int x = startX + (col * (iconSize + spacingX));
@@ -188,87 +214,80 @@ public class BaseCoreScreen extends Screen {
                 boolean isUnlocked = data.unlockedEffects().contains(effect.id);
 
                 if (!isUnlocked) {
-                    // Kupowanie efektu (używamy slotIndex -1 jako flagi zakupu)
-                    Services.PLATFORM.sendToServer(new UnlockEffectPayload(data.pos(), effect.id, -1));
+                    Item costItem = BuiltInRegistries.ITEM.get(Identifier.parse(effect.itemCost)).map(net.minecraft.core.Holder::value).orElse(net.minecraft.world.item.Items.AIR);
+                    if (getTotalExperienceClient() >= effect.xpCost && countItemInClientInventory(costItem) >= effect.itemAmount) {
+                        Services.PLATFORM.sendToServer(new UnlockEffectPayload(data.pos(), effect.id, -1));
+                    }
                 } else {
-                    // Przypisywanie odblokowanego (tymczasowo zawsze do slotu 0)
-                    // TODO: Dodać logikę wybierania aktywnego slotu przez gracza na zakładce Przegląd
-                    Services.PLATFORM.sendToServer(new UnlockEffectPayload(data.pos(), effect.id, 0));
+                    Services.PLATFORM.sendToServer(new UnlockEffectPayload(data.pos(), effect.id, this.selectedSlot));
                 }
                 return;
             }
         }
     }
 
-    // --- ZAKŁADKA 1: GŁÓWNA ---
     private void renderOverviewTab(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         int innerMargin = 8;
         int contentX = this.leftPos + innerMargin + 10;
         int contentY = this.topPos + 35;
 
-        // Tytuł sekcji slotów
         graphics.text(this.font, "Zainstalowane Moduły", contentX, contentY, 0xFFDDDDDD, false);
 
-        // 4 Ramki dla aktywnych slotów (wyśrodkowane po lewej stronie ekranu)
         int slotSize = 36;
         int slotSpacing = 8;
         int slotsStartX = contentX;
         int slotsStartY = contentY + 15;
 
+        int maxSlots = BaseCoreServerConfig.calculateTotalSlots(data.tier());
+
         for (int i = 0; i < 4; i++) {
             int slotX = slotsStartX + (i * (slotSize + slotSpacing));
+            boolean isLocked = i >= maxSlots;
 
-            // Tło slota (ciemne wgłębienie)
-            graphics.fill(slotX, slotsStartY, slotX + slotSize, slotsStartY + slotSize, 0xFF101010);
+            graphics.fill(slotX, slotsStartY, slotX + slotSize, slotsStartY + slotSize, isLocked ? 0xFF0A0A0A : 0xFF101010);
+            graphics.outline(slotX, slotsStartY, slotSize, slotSize, 0xFF555555);
 
-            // Ramka slota
-            int borderColor = 0xFF555555;
-            graphics.outline(slotX, slotsStartY, slotSize, slotSize, borderColor);
-
-            // Pobieramy ID efektu z naszej paczki sieciowej (lub "empty", jeśli pusty)
-            String effectId = "empty";
-            if (i < data.activeSlots().size()) {
-                effectId = data.activeSlots().get(i);
+            if (i == selectedSlot && !isLocked) {
+                graphics.outline(slotX - 1, slotsStartY - 1, slotSize + 2, slotSize + 2, 0xFFD700);
             }
 
-            // Jeśli slot jest pusty, rysujemy znak zapytania/plus
-            if (effectId.equals("empty")) {
-                String emptyText = "+";
-                int textW = this.font.width(emptyText);
-                graphics.text(this.font, emptyText, slotX + (slotSize - textW) / 2, slotsStartY + (slotSize - 8) / 2, 0xFF444444, false);
+            if (isLocked) {
+                graphics.centeredText(this.font, "x", slotX + (slotSize / 2), slotsStartY + (slotSize / 2) - 4, 0xFF550000);
             } else {
-                // TODO: Tutaj w przyszłości wyrysujemy ładną ikonę efektu (np. blitSprite)
-                graphics.text(this.font, "ON", slotX + 10, slotsStartY + 14, 0xFF00FF00, false);
-            }
+                String effectId = "empty";
+                if (i < data.activeSlots().size()) {
+                    effectId = data.activeSlots().get(i);
+                }
 
-            // Podświetlenie hover na slocie
-            if (mouseX >= slotX && mouseX < slotX + slotSize && mouseY >= slotsStartY && mouseY < slotsStartY + slotSize) {
-                graphics.fill(slotX + 1, slotsStartY + 1, slotX + slotSize - 1, slotsStartY + slotSize - 1, 0x44FFFFFF);
+                if (effectId.equals("empty")) {
+                    String emptyText = "+";
+                    int textW = this.font.width(emptyText);
+                    graphics.text(this.font, emptyText, slotX + (slotSize - textW) / 2, slotsStartY + (slotSize - 8) / 2, 0xFF444444, false);
+                } else {
+                    BaseCoreServerConfig.EffectConfig ec = BaseCoreServerConfig.getEffect(effectId);
+                    String initial = ec != null ? ec.name.substring(0, 1) : "?";
+                    graphics.centeredText(this.font, initial, slotX + (slotSize / 2), slotsStartY + (slotSize / 2) - 4, 0xFF00FF00);
+                }
             }
         }
 
-        // --- SEKCJA ZASIĘGU (Po prawej stronie) ---
         int rangeBoxX = this.leftPos + this.imageWidth - 100 - innerMargin;
         int rangeBoxY = contentY;
         int rangeBoxWidth = 90;
         int rangeBoxHeight = 60;
 
-        // Panel zasięgu
         graphics.fill(rangeBoxX, rangeBoxY, rangeBoxX + rangeBoxWidth, rangeBoxY + rangeBoxHeight, 0xFF202020);
         graphics.outline(rangeBoxX, rangeBoxY, rangeBoxWidth, rangeBoxHeight, 0xFF444444);
 
         graphics.centeredText(this.font, "Zasięg Rdzenia", rangeBoxX + (rangeBoxWidth / 2), rangeBoxY + 8, 0xFFAAAAAA);
 
-        // Obliczony zasięg na podstawie Tieru (np. 16 bloków + 8 za każdy Tier)
-        int currentRange = 16 + (data.tier() * 8);
+        int currentRange = calculateRangeUpToTier(data.tier());
 
-        // Duży, wyraźny tekst zasięgu (zazwyczaj byśmy tu powiększyli font, ale w domyślnym GUI po prostu go ładnie wyśrodkujemy i damy złoty kolor)
         String rangeValue = currentRange + "x" + currentRange;
         graphics.centeredText(this.font, rangeValue, rangeBoxX + (rangeBoxWidth / 2), rangeBoxY + 30, 0xFFFF55);
         graphics.centeredText(this.font, "bloków", rangeBoxX + (rangeBoxWidth / 2), rangeBoxY + 45, 0xFF777777);
     }
 
-    // --- ZAKŁADKA 2: EFEKTY ---
     private void renderEffectsTab(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         int innerMargin = 8;
         int contentX = this.leftPos + innerMargin;
@@ -276,7 +295,6 @@ public class BaseCoreScreen extends Screen {
 
         graphics.text(this.font, "Dostępne Protokoły i Efekty", contentX + 8, contentY, 0xFFDDDDDD, false);
 
-        // Parametry siatki efektów
         int columns = 5;
         int iconSize = 24;
         int spacingX = 20;
@@ -284,11 +302,11 @@ public class BaseCoreScreen extends Screen {
         int startX = contentX + 25;
         int startY = contentY + 15;
 
-        // Iterujemy przez naszą listę wszystkich możliwych efektów
-        for (int i = 0; i < AVAILABLE_EFFECTS.length; i++) {
-            EffectInfo effect = AVAILABLE_EFFECTS[i];
+        List<BaseCoreServerConfig.EffectConfig> allEffects = BaseCoreServerConfig.getInstance().effects;
 
-            // Obliczanie pozycji X i Y w siatce
+        for (int i = 0; i < allEffects.size(); i++) {
+            BaseCoreServerConfig.EffectConfig effect = allEffects.get(i);
+
             int col = i % columns;
             int row = i / columns;
             int x = startX + (col * (iconSize + spacingX));
@@ -297,56 +315,53 @@ public class BaseCoreScreen extends Screen {
             boolean isUnlocked = data.unlockedEffects().contains(effect.id);
             boolean isHovered = mouseX >= x && mouseX < x + iconSize && mouseY >= y && mouseY < y + iconSize;
 
-            // Tło ikony (szare jeśli zablokowane, złote/jasne jeśli odblokowane)
             int bgColor = isUnlocked ? 0xFF2A2A1A : 0xFF151515;
             int borderColor = isUnlocked ? 0xFFD700 : 0xFF444444;
 
             if (isHovered && !isUnlocked) {
-                bgColor = 0xFF252525; // Lekkie podświetlenie, gdy zablokowane
+                bgColor = 0xFF252525;
             } else if (isHovered && isUnlocked) {
-                bgColor = 0xFF3A3A20; // Silniejsze podświetlenie, gdy odblokowane
+                bgColor = 0xFF3A3A20;
             }
 
             graphics.fill(x, y, x + iconSize, y + iconSize, bgColor);
             graphics.outline(x, y, iconSize, iconSize, borderColor);
 
-            // Ikona (Placeholder - pierwsza litera ID)
             String shortName = effect.name.substring(0, 1);
             int textColor = isUnlocked ? 0xFFFFFF : 0xFF777777;
             graphics.centeredText(this.font, shortName, x + (iconSize / 2), y + (iconSize / 2) - 4, textColor);
 
-            // Rysowanie ikony "Kłódki", jeśli efekt jest zablokowany
             if (!isUnlocked) {
                 graphics.fill(x + iconSize - 6, y + iconSize - 6, x + iconSize, y + iconSize, 0xAA000000);
                 graphics.text(this.font, "X", x + iconSize - 5, y + iconSize - 6, 0xFFFF5555, false);
             }
 
-            // --- OBSŁUGA HOVER I TOOLTIPÓW ---
             if (isHovered) {
-                // W nowoczesnym systemie nie rysujemy tooltipu bezpośrednio w pętli.
-                // Używamy zlecenia na następną klatkę (Deferred Tooltip), by rysował się ZAWSZE na wierzchu!
                 renderEffectTooltip(graphics, effect, isUnlocked, mouseX, mouseY);
             }
         }
     }
 
-    private void renderEffectTooltip(GuiGraphicsExtractor graphics, EffectInfo effect, boolean isUnlocked, int mouseX, int mouseY) {
+    private void renderEffectTooltip(GuiGraphicsExtractor graphics, BaseCoreServerConfig.EffectConfig effect, boolean isUnlocked, int mouseX, int mouseY) {
         java.util.List<Component> tooltipLines = new java.util.ArrayList<>();
 
-        // Tytuł (Złoty, jeśli odblokowany)
         tooltipLines.add(Component.literal(effect.name).withStyle(isUnlocked ? net.minecraft.ChatFormatting.GOLD : net.minecraft.ChatFormatting.GRAY));
-
-        // Opis
         tooltipLines.add(Component.literal(effect.description).withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
 
-        // Koszt (tylko, jeśli zablokowane)
         if (!isUnlocked) {
-            tooltipLines.add(Component.literal("")); // Pusta linia dla odstępu
-            tooltipLines.add(Component.literal("Wymagania:").withStyle(net.minecraft.ChatFormatting.RED));
+            Item costItem = BuiltInRegistries.ITEM.get(Identifier.parse(effect.itemCost)).map(net.minecraft.core.Holder::value).orElse(net.minecraft.world.item.Items.AIR);
+            int playerXp = getTotalExperienceClient();
+            int playerItemCount = countItemInClientInventory(costItem);
 
-            // TODO: W przyszłości podepniemy tu faktyczne sprawdzanie ekwipunku gracza
-            // np. "64/128 Diamenty" (zielone/czerwone w zależności od tego, czy gracz ma przedmioty)
-            tooltipLines.add(Component.literal("- " + effect.costDescription).withStyle(net.minecraft.ChatFormatting.WHITE));
+            tooltipLines.add(Component.literal(""));
+            tooltipLines.add(Component.literal("Wymagania (Pula " + effect.pool + "):").withStyle(net.minecraft.ChatFormatting.RED));
+
+            tooltipLines.add(Component.literal("- Koszt XP: " + effect.xpCost + " (Masz: " + playerXp + ")")
+                    .withStyle(playerXp >= effect.xpCost ? net.minecraft.ChatFormatting.GREEN : net.minecraft.ChatFormatting.RED));
+
+            String itemName = costItem.getName(costItem.getDefaultInstance()).getString();
+            tooltipLines.add(Component.literal("- Koszt przedmiotu: " + effect.itemAmount + "x " + itemName + " (Masz: " + playerItemCount + ")")
+                    .withStyle(playerItemCount >= effect.itemAmount ? net.minecraft.ChatFormatting.GREEN : net.minecraft.ChatFormatting.RED));
 
             tooltipLines.add(Component.literal(""));
             tooltipLines.add(Component.literal("Kliknij, aby odblokować").withStyle(net.minecraft.ChatFormatting.YELLOW));
@@ -358,38 +373,6 @@ public class BaseCoreScreen extends Screen {
         graphics.setComponentTooltipForNextFrame(this.font, tooltipLines, mouseX, mouseY);
     }
 
-    private static class EffectInfo {
-        final String id;
-        final String name;
-        final String description;
-        final String costDescription;
-
-        EffectInfo(String id, String name, String description, String costDescription) {
-            this.id = id;
-            this.name = name;
-            this.description = description;
-            this.costDescription = costDescription;
-        }
-    }
-
-    private static final EffectInfo[] AVAILABLE_EFFECTS = {
-            new EffectInfo("haste", "Wzmocnienie Kopania", "Zwiększa prędkość niszczenia bloków.", "250 XP, 10x Blok Złota"),
-            new EffectInfo("resistance", "Tarcza Bazy", "Redukuje obrażenia otrzymywane w zasięgu bazy.", "500 XP, 1x Tarcza, 5x Żelazo"),
-            new EffectInfo("healing", "Pole Leczące", "Powoli regeneruje zdrowie sojuszników.", "800 XP, 1x Złote Jabłko"),
-            new EffectInfo("grief_ward", "Zabezpieczenie", "Creepery nie niszczą terenu.", "1200 XP, 10x Obsydian"),
-            new EffectInfo("pet_ward", "Ochrona Zwierząt", "Zwierzęta są niewrażliwe na obrażenia.", "300 XP, 5x Pszenica"),
-            new EffectInfo("flight", "Strefa Lotu", "Pozwala na latanie wewnątrz bazy.", "5000 XP, 1x Elytra, 1x Gwiazda Netheru"),
-            new EffectInfo("night_vision", "Noktowizja", "Usuwa ciemność na terenie bazy.", "150 XP, 1x Złota Marchew"),
-            new EffectInfo("water_breathing", "Podwodna Kopuła", "Nieskończone oddychanie w wodzie.", "200 XP, 1x Skorupa Żółwia"),
-            new EffectInfo("speed", "Szybkość", "Zwiększona prędkość poruszania się.", "150 XP, 10x Cukier"),
-            new EffectInfo("jump_boost", "Skok", "Zwiększona wysokość skoku.", "150 XP, 1x Kurza Łapka"),
-            new EffectInfo("fire_resistance", "Odporność na Ogień", "Odporność na lawę i ogień.", "250 XP, 1x Magmowy Krem"),
-            new EffectInfo("strength", "Siła", "Zwiększone obrażenia w walce.", "350 XP, 5x Płomienna Różdżka"),
-            new EffectInfo("invisibility", "Niewidzialność", "Pozwala ukryć graczy przed potworami.", "400 XP, 1x Sfermentowane Oko Pająka"),
-            new EffectInfo("slow_falling", "Powolne Opadanie", "Ochrona przed obrażeniami od upadku.", "150 XP, 1x Membrana Fentoma")
-    };
-
-    // --- ZAKŁADKA 3: ULEPSZENIA ---
     private void renderUpgradesTab(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         int innerMargin = 8;
         int contentX = this.leftPos + innerMargin;
@@ -398,9 +381,10 @@ public class BaseCoreScreen extends Screen {
         graphics.text(this.font, "Architektura Rdzenia", contentX + 8, contentY, 0xFFDDDDDD, false);
 
         int currentTier = data.tier();
-        boolean isMaxTier = currentTier >= 10; // Zakładamy, że 10 to maks
+        BaseCoreServerConfig.TierUpgrade nextTierConfig = BaseCoreServerConfig.getTier(currentTier + 1);
 
-        // --- GŁÓWNY PANEL ULEPSZENIA (Centralnie) ---
+        boolean isMaxTier = (nextTierConfig == null);
+
         int panelWidth = 200;
         int panelHeight = 90;
         int panelX = this.leftPos + (this.imageWidth - panelWidth) / 2;
@@ -412,92 +396,64 @@ public class BaseCoreScreen extends Screen {
         if (isMaxTier) {
             graphics.centeredText(this.font, "Rdzeń Osiągnął Limit Architektury", panelX + (panelWidth / 2), panelY + 40, 0xFFFF55);
             graphics.centeredText(this.font, "Maksymalny Poziom: " + toRoman(currentTier), panelX + (panelWidth / 2), panelY + 55, 0xFFD700);
-            return; // Przerwij rysowanie, bo nie ma już ulepszeń
+            return;
         }
 
-        int nextTier = currentTier + 1;
-
-        // Rysowanie graficznego przejścia: "Poziom I -> Poziom II"
         int centerX = panelX + (panelWidth / 2);
 
-        // Lewy blok (Obecny poziom)
         graphics.fill(centerX - 70, panelY + 15, centerX - 30, panelY + 55, 0xFF2A2A2A);
         graphics.outline(centerX - 70, panelY + 15, 40, 40, 0xFF555555);
         graphics.centeredText(this.font, toRoman(currentTier), centerX - 50, panelY + 31, 0xFFD700);
         graphics.centeredText(this.font, "Obecny", centerX - 50, panelY + 60, 0xFFAAAAAA);
 
-        // Strzałka (Klimatyczna, składana z linii)
-        graphics.fill(centerX - 15, panelY + 33, centerX + 10, panelY + 37, 0xFF777777); // Rdzeń strzałki
-        graphics.fill(centerX + 5, panelY + 28, centerX + 10, panelY + 42, 0xFF777777);  // Grot
+        graphics.fill(centerX - 15, panelY + 33, centerX + 10, panelY + 37, 0xFF777777);
+        graphics.fill(centerX + 5, panelY + 28, centerX + 10, panelY + 42, 0xFF777777);
         graphics.fill(centerX + 10, panelY + 30, centerX + 13, panelY + 40, 0xFF777777);
         graphics.fill(centerX + 13, panelY + 32, centerX + 16, panelY + 38, 0xFF777777);
 
-        // Prawy blok (Następny poziom)
-        graphics.fill(centerX + 30, panelY + 15, centerX + 70, panelY + 55, 0xFF333322); // Lekko złotawy odcień
+        graphics.fill(centerX + 30, panelY + 15, centerX + 70, panelY + 55, 0xFF333322);
         graphics.outline(centerX + 30, panelY + 15, 40, 40, 0xFFD700);
-        graphics.centeredText(this.font, toRoman(nextTier), centerX + 50, panelY + 31, 0xFFFFFF);
-        graphics.centeredText(this.font, "Następny", centerX + 50, panelY + 60, 0xFFD700);
+        graphics.centeredText(this.font, toRoman(currentTier + 1), centerX + 50, panelY + 31, 0xFFFFFF);
 
-        // --- KOSZT I PRZYCISK ULEPSZENIA ---
-        UpgradeCost cost = getUpgradeCost(nextTier);
+        graphics.centeredText(this.font, nextTierConfig.title, centerX + 50, panelY + 60, 0xFFD700);
 
-        // Wyświetlanie kosztów pod panelem
+        Item mainItem = BuiltInRegistries.ITEM.get(Identifier.parse(nextTierConfig.mainItem)).map(net.minecraft.core.Holder::value).orElse(net.minecraft.world.item.Items.AIR);
+        Item bulkItem = BuiltInRegistries.ITEM.get(Identifier.parse(nextTierConfig.bulkItem)).map(net.minecraft.core.Holder::value).orElse(net.minecraft.world.item.Items.AIR);
+
+        int playerMainCount = countItemInClientInventory(mainItem);
+        int playerBulkCount = countItemInClientInventory(bulkItem);
+        boolean canAfford = playerMainCount >= nextTierConfig.mainAmount && playerBulkCount >= nextTierConfig.bulkAmount;
+
         int costY = panelY + panelHeight + 15;
         graphics.centeredText(this.font, "Wymagane zasoby:", centerX, costY, 0xFFDDDDDD);
 
-        // TODO: Logika sprawdzająca czy gracz ma przedmioty w eq
-        boolean hasItems = false; // Zakładamy false dla placeholdera, dopóki nie dopiszemy sprawdzania
+        String mainName = mainItem.getName(mainItem.getDefaultInstance()).getString();
+        String mainText = "Główny: " + nextTierConfig.mainAmount + "x " + mainName + " (Masz: " + playerMainCount + ")";
+        graphics.centeredText(this.font, mainText, centerX, costY + 12, playerMainCount >= nextTierConfig.mainAmount ? 0xFF55FF55 : 0xFFFF5555);
 
-        // Rysujemy pasek XP
-        String xpText = "Koszt XP: " + cost.xpRequired + " punktów";
-        graphics.centeredText(this.font, xpText, centerX, costY + 12, hasItems ? 0xFF55FF55 : 0xFFFF5555);
+        String bulkName = bulkItem.getName(bulkItem.getDefaultInstance()).getString();
+        String bulkText = "Pospolity: " + nextTierConfig.bulkAmount + "x " + bulkName + " (Masz: " + playerBulkCount + ")";
+        graphics.centeredText(this.font, bulkText, centerX, costY + 24, playerBulkCount >= nextTierConfig.bulkAmount ? 0xFF55FF55 : 0xFFFF5555);
 
-        // Rysujemy koszt w itemach
-        String itemText = "Przedmioty: " + cost.itemAmount + "x " + cost.itemName;
-        graphics.centeredText(this.font, itemText, centerX, costY + 24, hasItems ? 0xFFFFFFFF : 0xFFFF5555);
-
-        // --- PRZYCISK "ULEPSZ" ---
         int btnWidth = 100;
         int btnHeight = 20;
         int btnX = centerX - (btnWidth / 2);
         int btnY = costY + 40;
 
         boolean isBtnHovered = mouseX >= btnX && mouseX < btnX + btnWidth && mouseY >= btnY && mouseY < btnY + btnHeight;
-        int btnColor = isBtnHovered ? 0xFF2A8B2A : 0xFF1B5E1B; // Zielony przycisk
+        int btnColor = isBtnHovered ? 0xFF2A8B2A : 0xFF1B5E1B;
         int btnOutline = isBtnHovered ? 0xFF3CDA3C : 0xFF288B28;
+        int textColor = 0xFFFFFFFF;
 
-        if (!hasItems) {
-            btnColor = 0xFF4A4A4A; // Szary, jeśli nas nie stać
-            btnOutline = 0xFF6A6A6A;
+        if (!canAfford) {
+            btnColor = 0xFF333333;
+            btnOutline = 0xFF555555;
+            textColor = 0xFFAAAAAA;
         }
 
         graphics.fill(btnX, btnY, btnX + btnWidth, btnY + btnHeight, btnColor);
         graphics.outline(btnX, btnY, btnWidth, btnHeight, btnOutline);
-        graphics.centeredText(this.font, "ROZPOCZNIJ ULEPSZENIE", centerX, btnY + 6, hasItems ? 0xFFFFFFFF : 0xFFAAAAAA);
-    }
-
-    private static class UpgradeCost {
-        final int xpRequired;
-        final int itemAmount;
-        final String itemName; // Placeholderowa nazwa
-        // TODO: W przyszłości zamienimy String itemName na prawdziwe Ingredient/Item
-
-        UpgradeCost(int xpRequired, int itemAmount, String itemName) {
-            this.xpRequired = xpRequired;
-            this.itemAmount = itemAmount;
-            this.itemName = itemName;
-        }
-    }
-
-    private UpgradeCost getUpgradeCost(int targetTier) {
-        return switch (targetTier) {
-            case 1 -> new UpgradeCost(100, 10, "Blok Żelaza");
-            case 2 -> new UpgradeCost(250, 15, "Blok Złota");
-            case 3 -> new UpgradeCost(500, 5, "Diament");
-            case 4 -> new UpgradeCost(1000, 1, "Sztabka Netherytu");
-            case 5 -> new UpgradeCost(2000, 1, "Gwiazda Netheru");
-            default -> new UpgradeCost(targetTier * 1000, targetTier, "Tajemniczy Artefakt");
-        };
+        graphics.centeredText(this.font, "ROZPOCZNIJ ULEPSZENIE", centerX, btnY + 6, textColor);
     }
 
     @Override
@@ -517,5 +473,48 @@ public class BaseCoreScreen extends Screen {
             }
         }
         return result.toString();
+    }
+
+    private int calculateRangeUpToTier(int currentTier) {
+        int totalRange = 0;
+        for (int i = 1; i <= currentTier; i++) {
+            BaseCoreServerConfig.TierUpgrade tier = BaseCoreServerConfig.getTier(i);
+            if (tier != null) {
+                totalRange += tier.bonusRadius;
+            }
+        }
+        return totalRange == 0 ? 16 : totalRange;
+    }
+
+    private int getTotalExperienceClient() {
+        net.minecraft.client.player.LocalPlayer player = this.minecraft.player;
+        if (player == null) return 0;
+
+        int level = player.experienceLevel;
+        int totalExp = 0;
+
+        if (level >= 0 && level <= 15) {
+            totalExp = level * level + 6 * level;
+        } else if (level > 15 && level <= 30) {
+            totalExp = (int) (2.5 * level * level - 40.5 * level + 360.0);
+        } else if (level > 30) {
+            totalExp = (int) (4.5 * level * level - 162.5 * level + 2220.0);
+        }
+
+        return totalExp + Math.round(player.experienceProgress * player.getXpNeededForNextLevel());
+    }
+
+    private int countItemInClientInventory(Item itemType) {
+        net.minecraft.client.player.LocalPlayer player = this.minecraft.player;
+        if (player == null) return 0;
+
+        int count = 0;
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            net.minecraft.world.item.ItemStack stack = player.getInventory().getItem(i);
+            if (!stack.isEmpty() && stack.getItem() == itemType) {
+                count += stack.getCount();
+            }
+        }
+        return count;
     }
 }

@@ -3,93 +3,166 @@
   "version": 1,
 
   "settings": {
-    "xpLevelsCostPerEffect": 50,
     "allowBeaconSynergy": true
   },
 
   "tiers": [
     {
       "tierLevel": 1,
+      "title": "Przebudzenie",
       "mainItem": "minecraft:oak_log", "mainAmount": 64,
       "bulkItem": "minecraft:smooth_stone", "bulkAmount": 128,
       "bonusRadius": 16, "bonusSlots": 1, "unlocksPool": 1
     },
     {
       "tierLevel": 2,
+      "title": "Ekspansja",
       "mainItem": "minecraft:copper_block", "mainAmount": 32,
       "bulkItem": "minecraft:bricks", "bulkAmount": 128,
       "bonusRadius": 8, "bonusSlots": 0, "unlocksPool": 0
     },
     {
       "tierLevel": 3,
+      "title": "Przemysł",
       "mainItem": "minecraft:iron_block", "mainAmount": 16,
       "bulkItem": "minecraft:cobbled_deepslate", "bulkAmount": 256,
       "bonusRadius": 0, "bonusSlots": 1, "unlocksPool": 0
     },
     {
       "tierLevel": 4,
+      "title": "Bogactwo",
       "mainItem": "minecraft:gold_block", "mainAmount": 16,
       "bulkItem": "minecraft:netherrack", "bulkAmount": 256,
       "bonusRadius": 0, "bonusSlots": 0, "unlocksPool": 2
     },
     {
       "tierLevel": 5,
+      "title": "Rezonans",
       "mainItem": "minecraft:amethyst_block", "mainAmount": 32,
       "bulkItem": "minecraft:calcite", "bulkAmount": 128,
       "bonusRadius": 8, "bonusSlots": 0, "unlocksPool": 0
     },
     {
       "tierLevel": 6,
+      "title": "Natura",
       "mainItem": "minecraft:emerald_block", "mainAmount": 16,
       "bulkItem": "minecraft:moss_block", "bulkAmount": 128,
       "bonusRadius": 0, "bonusSlots": 1, "unlocksPool": 0
     },
     {
       "tierLevel": 7,
+      "title": "Rdzeń",
       "mainItem": "minecraft:diamond_block", "mainAmount": 8,
       "bulkItem": "minecraft:obsidian", "bulkAmount": 64,
       "bonusRadius": 0, "bonusSlots": 0, "unlocksPool": 3
     },
     {
       "tierLevel": 8,
-      "mainItem": "minecraft:netherite_block", "mainAmount": 2,
+      "title": "Wzmocnienie",
+      "mainItem": "minecraft:netherite_block", "mainAmount": 1,
       "bulkItem": "minecraft:crying_obsidian", "bulkAmount": 32,
       "bonusRadius": 16, "bonusSlots": 0, "unlocksPool": 0
     },
     {
       "tierLevel": 9,
+      "title": "Potęga Gwiazdy",
       "mainItem": "minecraft:nether_star", "mainAmount": 1,
-      "bulkItem": "minecraft:glowstone", "bulkAmount": 256,
+      "bulkItem": "minecraft:glowstone", "bulkAmount": 128,
       "bonusRadius": 0, "bonusSlots": 1, "unlocksPool": 0
     },
     {
       "tierLevel": 10,
+      "title": "Ostateczność",
       "mainItem": "minecraft:dragon_breath", "mainAmount": 16,
-      "bulkItem": "minecraft:purpur_block", "bulkAmount": 256,
+      "bulkItem": "minecraft:purpur_block", "bulkAmount": 128,
       "bonusRadius": 0, "bonusSlots": 0, "unlocksPool": 4
     }
   ],
 
-  "pool_1": [
-    "anti_spawn",
-    "growth_aura",
-    "satiated"
-  ],
-  "pool_2": [
-    "grief_ward",
-    "feather_fall",
-    "overclock",
-    "fire_immunity"
-  ],
-  "pool_3": [
-    "passive_breeding",
-    "builders_reach",
-    "night_vision"
-  ],
-  "pool_4": [
-    "mending_pulse",
-    "anti_trample",
-    "slow_falling",
-    "pet_ward"
+  "effects": [
+    {
+      "id": "anti_spawn",
+      "name": "Blokada Spawnu",
+      "description": "Wrogie moby nie mogą się naturalnie pojawiać w promieniu bazy.",
+      "xpCost": 250, "itemCost": "minecraft:torch", "itemAmount": 32, "pool": 1
+    },
+    {
+      "id": "growth_aura",
+      "name": "Aura Wzrostu",
+      "description": "Wszelkie rośliny i uprawy rosną znacznie szybciej.",
+      "xpCost": 300, "itemCost": "minecraft:bone_meal", "itemAmount": 64, "pool": 1
+    },
+    {
+      "id": "satiated",
+      "name": "Aura Sytości",
+      "description": "Pasek głodu spada wolniej w obrębie bazy.",
+      "xpCost": 350, "itemCost": "minecraft:golden_carrot", "itemAmount": 16, "pool": 1
+    },
+    {
+      "id": "grief_ward",
+      "name": "Pacyfikator Eksplozji",
+      "description": "Wybuchy Creeperów i Ghastów nie niszczą bloków.",
+      "xpCost": 400, "itemCost": "minecraft:obsidian", "itemAmount": 16, "pool": 2
+    },
+    {
+      "id": "feather_fall",
+      "name": "Bezpieczny Upadek",
+      "description": "Redukuje lub całkowicie niweluje obrażenia od upadku.",
+      "xpCost": 350, "itemCost": "minecraft:feather", "itemAmount": 32, "pool": 2
+    },
+    {
+      "id": "overclock",
+      "name": "Przyspieszenie Maszyn",
+      "description": "Wszystkie piece przepalają surowce odczuwalnie szybciej.",
+      "xpCost": 500, "itemCost": "minecraft:coal_block", "itemAmount": 16, "pool": 2
+    },
+    {
+      "id": "fire_immunity",
+      "name": "Aura Ognioodporności",
+      "description": "Stała odporność na ogień i lawę.",
+      "xpCost": 450, "itemCost": "minecraft:magma_cream", "itemAmount": 10, "pool": 2
+    },
+    {
+      "id": "passive_breeding",
+      "name": "Aura Hodowcy",
+      "description": "Młode zwierzęta hodowlane dorastają w przyspieszonym tempie.",
+      "xpCost": 600, "itemCost": "minecraft:wheat", "itemAmount": 64, "pool": 3
+    },
+    {
+      "id": "builders_reach",
+      "name": "Wydłużone Ramię",
+      "description": "Zwiększa zasięg stawiania i niszczenia bloków.",
+      "xpCost": 800, "itemCost": "minecraft:ender_pearl", "itemAmount": 16, "pool": 3
+    },
+    {
+      "id": "night_vision",
+      "name": "Kocie Oczy",
+      "description": "Doskonałe widzenie w ciemnościach.",
+      "xpCost": 550, "itemCost": "minecraft:golden_carrot", "itemAmount": 32, "pool": 3
+    },
+    {
+      "id": "mending_pulse",
+      "name": "Pulsacyjna Naprawa",
+      "description": "Powoli naprawia przedmioty z zaklęciem Naprawa.",
+      "xpCost": 1500, "itemCost": "minecraft:echo_shard", "itemAmount": 4, "pool": 4
+    },
+    {
+      "id": "anti_trample",
+      "name": "Nietykalne Uprawy",
+      "description": "Chodzenie po zaoranej ziemi nie niszczy plonów.",
+      "xpCost": 600, "itemCost": "minecraft:leather", "itemAmount": 32, "pool": 4
+    },
+    {
+      "id": "slow_falling",
+      "name": "Lekkość",
+      "description": "Gracz opada na ziemię powoli.",
+      "xpCost": 500, "itemCost": "minecraft:phantom_membrane", "itemAmount": 8, "pool": 4
+    },
+    {
+      "id": "pet_ward",
+      "name": "Ochrona Pupili",
+      "description": "Oswojone zwierzęta są niewrażliwe na obrażenia.",
+      "xpCost": 800, "itemCost": "minecraft:name_tag", "itemAmount": 4, "pool": 4
+    }
   ]
 }

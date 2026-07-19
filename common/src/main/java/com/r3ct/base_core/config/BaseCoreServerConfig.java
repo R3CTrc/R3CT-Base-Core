@@ -27,6 +27,7 @@ public class BaseCoreServerConfig {
 
     public static class TierUpgrade {
         public int tierLevel;
+        public String title;
         public String mainItem;
         public int mainAmount;
         public String bulkItem;
@@ -36,8 +37,17 @@ public class BaseCoreServerConfig {
         public int unlocksPool;
     }
 
+    public static class EffectConfig {
+        public String id;
+        public String name;
+        public String description;
+        public int xpCost;
+        public String itemCost;
+        public int itemAmount;
+        public int pool;
+    }
+
     public static class EffectSettings {
-        public int xpLevelsCostPerEffect = 50;
         public boolean allowBeaconSynergy = true;
     }
 
@@ -45,10 +55,7 @@ public class BaseCoreServerConfig {
     public EffectSettings settings = new EffectSettings();
     public List<TierUpgrade> tiers = new ArrayList<>();
 
-    public List<String> pool_1 = new ArrayList<>();
-    public List<String> pool_2 = new ArrayList<>();
-    public List<String> pool_3 = new ArrayList<>();
-    public List<String> pool_4 = new ArrayList<>();
+    public List<EffectConfig> effects = new ArrayList<>();
 
     private static BaseCoreServerConfig instance = new BaseCoreServerConfig();
 
@@ -129,6 +136,21 @@ public class BaseCoreServerConfig {
 
     public static TierUpgrade getTier(int level) {
         return instance.tiers.stream().filter(t -> t.tierLevel == level).findFirst().orElse(null);
+    }
+
+    public static EffectConfig getEffect(String effectId) {
+        return instance.effects.stream().filter(e -> e.id.equals(effectId)).findFirst().orElse(null);
+    }
+
+    public static int calculateTotalSlots(int currentTier) {
+        int totalSlots = 0;
+        for (int i = 1; i <= currentTier; i++) {
+            TierUpgrade tier = getTier(i);
+            if (tier != null) {
+                totalSlots += tier.bonusSlots;
+            }
+        }
+        return totalSlots;
     }
 
     public static String getServerConfigString() {
