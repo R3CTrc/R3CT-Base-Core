@@ -28,6 +28,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -38,7 +40,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
@@ -73,6 +74,20 @@ public class BaseCoreBlock extends Block implements EntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new BaseCoreBlockEntity(ModBlocks.BASE_CORE_BE_TYPE, pos, state);
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        if (level.isClientSide()) {
+            return null;
+        }
+
+        if (type == ModBlocks.BASE_CORE_BE_TYPE) {
+            return (lvl, pos, st, be) -> BaseCoreBlockEntity.tick(lvl, pos, st, (BaseCoreBlockEntity) be);
+        }
+
+        return null;
     }
 
     @Override
@@ -194,14 +209,11 @@ public class BaseCoreBlock extends Block implements EntityBlock {
                 if (coreBE.getOwnerUUID().equals(player.getUUID().toString())) {
 
                     PlayerData data = ModState.getPlayerData(level.getServer(), player.getUUID());
-
-                    List<String> activeSlots = List.of("empty", "empty", "empty", "empty");
-
                     OpenBaseCoreGuiPayload payload = new OpenBaseCoreGuiPayload(
                             pos,
                             data.baseCoreTier,
                             data.activeEffects,
-                            activeSlots
+                            data.activeSlots
                     );
 
                     Services.PLATFORM.sendToPlayer(serverPlayer, payload);

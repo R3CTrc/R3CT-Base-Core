@@ -153,6 +153,17 @@ public class BaseCoreServerConfig {
         return totalSlots;
     }
 
+    public static int calculateRangeUpToTier(int currentTier) {
+        int totalRange = 0;
+        for (int i = 1; i <= currentTier; i++) {
+            TierUpgrade tier = getTier(i);
+            if (tier != null) {
+                totalRange += tier.bonusRadius;
+            }
+        }
+        return totalRange == 0 ? 16 : totalRange;
+    }
+
     public static int getMaxUnlockedPool(int currentTier) {
         int maxPool = 0;
         for (int i = 1; i <= currentTier; i++) {

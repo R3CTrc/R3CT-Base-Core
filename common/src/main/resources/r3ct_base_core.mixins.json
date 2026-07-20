@@ -3,7 +3,16 @@
   "minVersion": "0.8",
   "package": "com.r3ct.base_core.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [],
+  "mixins": [
+    "AntiTrampleMixin",
+    "BuildersReachMixin",
+    "ExplosionMixin",
+    "FeatherFallMixin",
+    "OverclockMixin",
+    "PassiveBreedingMixin",
+    "PetWardMixin",
+    "SpawnPlacementsMixin"
+  ],
   "client": [],
   "server": [],
   "injectors": {

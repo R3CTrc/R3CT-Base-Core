@@ -262,7 +262,6 @@ public class BaseCoreScreen extends Screen {
                 Services.PLATFORM.sendToServer(new UnlockEffectPayload(data.pos(), "empty", this.openedSlotDropdown));
             } else if (clickedRow > 0 && clickedRow <= unlockedOnly.size()) {
                 BaseCoreServerConfig.EffectConfig ec = unlockedOnly.get(clickedRow - 1);
-
                 if (!data.activeSlots().contains(ec.id)) {
                     Services.PLATFORM.sendToServer(new UnlockEffectPayload(data.pos(), ec.id, this.openedSlotDropdown));
                 }

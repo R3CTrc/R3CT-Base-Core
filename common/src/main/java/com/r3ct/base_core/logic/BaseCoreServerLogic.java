@@ -73,64 +73,75 @@ public class BaseCoreServerLogic {
         Level level = player.level();
         PlayerData data = ModState.getPlayerData(level.getServer(), player.getUUID());
 
-        BaseCoreServerConfig.EffectConfig effectConfig = BaseCoreServerConfig.getEffect(payload.effectId());
-        if (effectConfig == null) return;
-
         if (payload.slotIndex() == -1) {
+            BaseCoreServerConfig.EffectConfig effectConfig = BaseCoreServerConfig.getEffect(payload.effectId());
+            if (effectConfig == null) return;
+
+            int maxPool = BaseCoreServerConfig.getMaxUnlockedPool(data.baseCoreTier);
+            if (effectConfig.pool > maxPool) {
+                player.sendSystemMessage(Component.literal("Ta pula efektów jest jeszcze zablokowana!").withStyle(net.minecraft.ChatFormatting.RED), true);
+                return;
+            }
+
             if (data.activeEffects.contains(payload.effectId())) {
-                player.sendSystemMessage(Component.literal("Ten protokół został już odblokowany!").withStyle(ChatFormatting.RED), true);
+                player.sendSystemMessage(Component.literal("Ten protokół został już odblokowany!").withStyle(net.minecraft.ChatFormatting.RED), true);
                 return;
             }
 
             Item costItem = BuiltInRegistries.ITEM.get(Identifier.parse(effectConfig.itemCost)).map(Holder::value).orElse(Items.AIR);
 
             if (getTotalExperience(player) < effectConfig.xpCost) {
-                player.sendSystemMessage(Component.literal("Brak wystarczającej ilości XP do odblokowania efektu.").withStyle(ChatFormatting.RED), true);
+                player.sendSystemMessage(Component.literal("Brak wystarczającej ilości XP do odblokowania efektu.").withStyle(net.minecraft.ChatFormatting.RED), true);
                 return;
             }
 
             if (!consumeItems(player.getInventory(), costItem, effectConfig.itemAmount)) {
-                player.sendSystemMessage(Component.literal("Brak wymaganych przedmiotów do odblokowania!").withStyle(ChatFormatting.RED), true);
+                player.sendSystemMessage(Component.literal("Brak wymaganych przedmiotów do odblokowania!").withStyle(net.minecraft.ChatFormatting.RED), true);
                 return;
             }
 
             removeExperience(player, effectConfig.xpCost);
-
             data.activeEffects.add(payload.effectId());
-            ModState.get(level.getServer()).setDirty();
-
-            level.playSound(null, payload.pos(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.BLOCKS, 1.0f, 1.0f);
-            player.sendSystemMessage(Component.literal("Odblokowano protokół: " + effectConfig.name).withStyle(ChatFormatting.GOLD), true);
-
-            refreshGuiForPlayer(player, payload.pos(), data);
-
-        } else {
-            int maxSlots = BaseCoreServerConfig.calculateTotalSlots(data.baseCoreTier);
-            if (payload.slotIndex() >= maxSlots || payload.slotIndex() < 0) return;
-
-            if (payload.effectId().equals("empty")) {
-                data.activeSlots.set(payload.slotIndex(), "empty");
-                player.sendSystemMessage(Component.literal("Wyczyszczono slot " + (payload.slotIndex() + 1)).withStyle(ChatFormatting.YELLOW), true);
-            }
-            else {
-                if (!data.activeEffects.contains(payload.effectId())) return;
-
-                for (int i = 0; i < data.activeSlots.size(); i++) {
-                    if (i != payload.slotIndex() && data.activeSlots.get(i).equals(payload.effectId())) {
-                        player.sendSystemMessage(Component.literal("Ten efekt jest już używany w innym slocie!").withStyle(ChatFormatting.RED), true);
-                        return;
-                    }
-                }
-
-                data.activeSlots.set(payload.slotIndex(), payload.effectId());
-                player.sendSystemMessage(Component.literal("Przypisano efekt do slotu " + (payload.slotIndex() + 1)).withStyle(ChatFormatting.AQUA), true);
-            }
 
             ModState.get(level.getServer()).setDirty();
-            level.playSound(null, payload.pos(), net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK.value(), net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
+            level.playSound(null, payload.pos(), net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
+            player.sendSystemMessage(Component.literal("Odblokowano protokół: " + effectConfig.name).withStyle(net.minecraft.ChatFormatting.GOLD), true);
 
             refreshGuiForPlayer(player, payload.pos(), data);
+            return;
         }
+
+        int maxSlots = BaseCoreServerConfig.calculateTotalSlots(data.baseCoreTier);
+        if (payload.slotIndex() >= maxSlots || payload.slotIndex() < 0) return;
+
+        if (payload.effectId().equals("empty")) {
+            data.activeSlots.set(payload.slotIndex(), "empty");
+            player.sendSystemMessage(Component.literal("Wyczyszczono slot " + (payload.slotIndex() + 1)).withStyle(net.minecraft.ChatFormatting.YELLOW), true);
+        }
+        else {
+            BaseCoreServerConfig.EffectConfig effectConfig = BaseCoreServerConfig.getEffect(payload.effectId());
+            if (effectConfig == null) return;
+
+            if (!data.activeEffects.contains(payload.effectId())) {
+                player.sendSystemMessage(Component.literal("Nie odblokowałeś jeszcze tego efektu!").withStyle(net.minecraft.ChatFormatting.RED), true);
+                return;
+            }
+
+            for (int i = 0; i < data.activeSlots.size(); i++) {
+                if (i != payload.slotIndex() && data.activeSlots.get(i).equals(payload.effectId())) {
+                    player.sendSystemMessage(Component.literal("Ten efekt jest już używany w innym slocie!").withStyle(net.minecraft.ChatFormatting.RED), true);
+                    return;
+                }
+            }
+
+            data.activeSlots.set(payload.slotIndex(), payload.effectId());
+            player.sendSystemMessage(Component.literal("Przypisano efekt do slotu " + (payload.slotIndex() + 1)).withStyle(net.minecraft.ChatFormatting.AQUA), true);
+        }
+
+        ModState.get(level.getServer()).setDirty();
+        level.playSound(null, payload.pos(), net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK.value(), net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
+
+        refreshGuiForPlayer(player, payload.pos(), data);
     }
 
     private static void refreshGuiForPlayer(ServerPlayer player, BlockPos pos, PlayerData data) {
