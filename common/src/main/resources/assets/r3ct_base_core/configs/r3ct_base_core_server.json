@@ -23,7 +23,7 @@
       "title": "Ekspansja",
       "mainItem": "minecraft:copper_block",
       "mainAmount": 32,
-      "bulkItem": "minecraft:bricks",
+      "bulkItem": "minecraft:brick",
       "bulkAmount": 128,
       "bonusRadius": 8,
       "bonusSlots": 0,
@@ -31,7 +31,7 @@
     },
     {
       "tierLevel": 3,
-      "title": "Przemysł",
+      "title": "Twierdza",
       "mainItem": "minecraft:iron_block",
       "mainAmount": 16,
       "bulkItem": "minecraft:cobbled_deepslate",
@@ -53,10 +53,10 @@
     },
     {
       "tierLevel": 5,
-      "title": "Rezonans",
+      "title": "Magia",
       "mainItem": "minecraft:amethyst_block",
       "mainAmount": 32,
-      "bulkItem": "minecraft:calcite",
+      "bulkItem": "minecraft:quartz_block",
       "bulkAmount": 128,
       "bonusRadius": 8,
       "bonusSlots": 0,
@@ -75,7 +75,7 @@
     },
     {
       "tierLevel": 7,
-      "title": "Rdzeń",
+      "title": "Potęga",
       "mainItem": "minecraft:diamond_block",
       "mainAmount": 8,
       "bulkItem": "minecraft:obsidian",
@@ -86,7 +86,7 @@
     },
     {
       "tierLevel": 8,
-      "title": "Wzmocnienie",
+      "title": "Dominacja",
       "mainItem": "minecraft:netherite_block",
       "mainAmount": 1,
       "bulkItem": "minecraft:crying_obsidian",
@@ -97,7 +97,7 @@
     },
     {
       "tierLevel": 9,
-      "title": "Potęga Gwiazdy",
+      "title": "Triumf",
       "mainItem": "minecraft:nether_star",
       "mainAmount": 1,
       "bulkItem": "minecraft:glowstone",
@@ -132,130 +132,130 @@
 
   "effects": [
     {
-      "id": "anti_spawn",
-      "name": "Blokada Spawnu",
-      "description": "Wrogie moby nie mogą się naturalnie pojawiać w promieniu bazy.",
-      "xpCost": 250,
-      "itemCost": "minecraft:torch",
-      "itemAmount": 32,
+      "id": "overclock",
+      "name": "Przyspieszenie Maszyn",
+      "description": "Wszystkie piece w obrębie bazy przepalają surowce o 25% szybciej.",
+      "xpCost": 150,
+      "itemCost": "minecraft:blast_furnace",
+      "itemAmount": 3,
+      "pool": 1
+    },
+    {
+      "id": "anti_trample",
+      "name": "Nietykalne Uprawy",
+      "description": "Skakanie po zaoranej ziemi w obrębie bazy nie niszczy plonów.",
+      "xpCost": 100,
+      "itemCost": "minecraft:slime_ball",
+      "itemAmount": 16,
       "pool": 1
     },
     {
       "id": "growth_aura",
       "name": "Aura Wzrostu",
-      "description": "Wszelkie rośliny i uprawy rosną znacznie szybciej.",
-      "xpCost": 300,
+      "description": "Losowo przyspiesza wzrost upraw i roślin w obrębie bazy.",
+      "xpCost": 250,
       "itemCost": "minecraft:bone_meal",
       "itemAmount": 64,
       "pool": 1
     },
     {
-      "id": "satiated",
-      "name": "Aura Sytości",
-      "description": "Pasek głodu spada wolniej w obrębie bazy.",
-      "xpCost": 350,
-      "itemCost": "minecraft:golden_carrot",
-      "itemAmount": 16,
-      "pool": 1
-    },
-    {
-      "id": "grief_ward",
-      "name": "Pacyfikator Eksplozji",
-      "description": "Wybuchy Creeperów i Ghastów nie niszczą bloków.",
-      "xpCost": 400,
-      "itemCost": "minecraft:obsidian",
-      "itemAmount": 16,
-      "pool": 2
-    },
-    {
       "id": "feather_fall",
       "name": "Bezpieczny Upadek",
-      "description": "Redukuje lub całkowicie niweluje obrażenia od upadku.",
+      "description": "Zmniejsza otrzymywane obrażenia od upadku o 25% w obrębie bazy.",
       "xpCost": 350,
-      "itemCost": "minecraft:feather",
-      "itemAmount": 32,
-      "pool": 2
-    },
-    {
-      "id": "overclock",
-      "name": "Przyspieszenie Maszyn",
-      "description": "Wszystkie piece przepalają surowce odczuwalnie szybciej.",
-      "xpCost": 500,
-      "itemCost": "minecraft:coal_block",
+      "itemCost": "minecraft:hay_block",
       "itemAmount": 16,
       "pool": 2
     },
     {
-      "id": "fire_immunity",
-      "name": "Aura Ognioodporności",
-      "description": "Stała odporność na ogień i lawę.",
-      "xpCost": 450,
-      "itemCost": "minecraft:magma_cream",
-      "itemAmount": 10,
+      "id": "satiated",
+      "name": "Aura Sytości",
+      "description": "Automatycznie odnawia pasek nasycenia głodu graczom w obrębie bazy.",
+      "xpCost": 400,
+      "itemCost": "minecraft:golden_carrot",
+      "itemAmount": 16,
       "pool": 2
+    },
+    {
+      "id": "anti_spawn",
+      "name": "Blokada Spawnu",
+      "description": "Całkowicie blokuje naturalne pojawianie się potworów w obrębie bazy.",
+      "xpCost": 500,
+      "itemCost": "minecraft:carved_pumpkin",
+      "itemAmount": 16,
+      "pool": 2
+    },
+    {
+      "id": "night_vision",
+      "name": "Kocie Oczy",
+      "description": "Zapewnia doskonałe widzenie w ciemnościach graczom w obrębie bazy.",
+      "xpCost": 600,
+      "itemCost": "minecraft:glowstone",
+      "itemAmount": 32,
+      "pool": 3
     },
     {
       "id": "passive_breeding",
       "name": "Aura Hodowcy",
-      "description": "Młode zwierzęta hodowlane dorastają w przyspieszonym tempie.",
-      "xpCost": 600,
-      "itemCost": "minecraft:wheat",
-      "itemAmount": 64,
+      "description": "Młode zwierzęta hodowlane znajdujące się w obrębie bazy dorastają o 25% szybciej.",
+      "xpCost": 650,
+      "itemCost": "minecraft:golden_apple",
+      "itemAmount": 4,
       "pool": 3
     },
     {
       "id": "builders_reach",
       "name": "Wydłużone Ramię",
-      "description": "Zwiększa zasięg stawiania i niszczenia bloków.",
+      "description": "Zwiększa o 1 zasięg stawiania i niszczenia bloków dla graczy w obrębie bazy.",
       "xpCost": 800,
       "itemCost": "minecraft:ender_pearl",
       "itemAmount": 16,
       "pool": 3
     },
     {
-      "id": "night_vision",
-      "name": "Kocie Oczy",
-      "description": "Doskonałe widzenie w ciemnościach.",
-      "xpCost": 550,
-      "itemCost": "minecraft:golden_carrot",
-      "itemAmount": 32,
-      "pool": 3
-    },
-    {
-      "id": "mending_pulse",
-      "name": "Pulsacyjna Naprawa",
-      "description": "Powoli naprawia przedmioty z zaklęciem Naprawa.",
-      "xpCost": 1500,
-      "itemCost": "minecraft:echo_shard",
-      "itemAmount": 4,
-      "pool": 4
-    },
-    {
-      "id": "anti_trample",
-      "name": "Nietykalne Uprawy",
-      "description": "Chodzenie po zaoranej ziemi nie niszczy plonów.",
-      "xpCost": 600,
-      "itemCost": "minecraft:leather",
+      "id": "fire_immunity",
+      "name": "Aura Ognioodporności",
+      "description": "Zapewnia graczom całkowitą odporność na ogień i lawę w obrębie bazy.",
+      "xpCost": 900,
+      "itemCost": "minecraft:magma_cream",
       "itemAmount": 32,
       "pool": 4
     },
     {
-      "id": "slow_falling",
-      "name": "Lekkość",
-      "description": "Gracz opada na ziemię powoli.",
-      "xpCost": 500,
-      "itemCost": "minecraft:phantom_membrane",
+      "id": "grief_ward",
+      "name": "Pacyfikator Eksplozji",
+      "description": "Eksplozje w obrębie bazy nie niszczą żadnych bloków.",
+      "xpCost": 1000,
+      "itemCost": "minecraft:crying_obsidian",
       "itemAmount": 8,
       "pool": 4
     },
     {
       "id": "pet_ward",
       "name": "Ochrona Pupili",
-      "description": "Oswojone zwierzęta są niewrażliwe na obrażenia.",
-      "xpCost": 800,
-      "itemCost": "minecraft:name_tag",
-      "itemAmount": 4,
+      "description": "Pupile w obrębie bazy otrzymują 25% mniej obrażeń oraz ignorują wybuchy i ogień.",
+      "xpCost": 1100,
+      "itemCost": "minecraft:diamond_horse_armor",
+      "itemAmount": 1,
       "pool": 4
+    },
+    {
+      "id": "slow_falling",
+      "name": "Lekkość",
+      "description": "Spowalnia opadanie i niweluje obrażenia od upadku dla graczy w obrębie bazy.",
+      "xpCost": 1200,
+      "itemCost": "minecraft:phantom_membrane",
+      "itemAmount": 16,
+      "pool": 5
+    },
+    {
+      "id": "mending_pulse",
+      "name": "Pulsacyjna Naprawa",
+      "description": "Co 5 sekund odnawia 5 pkt. wytrzymałości losowego przedmiotu z Naprawą u graczy w obrębie bazy.",
+      "xpCost": 1500,
+      "itemCost": "minecraft:nether_star",
+      "itemAmount": 1,
+      "pool": 5
     }
   ]
 }
