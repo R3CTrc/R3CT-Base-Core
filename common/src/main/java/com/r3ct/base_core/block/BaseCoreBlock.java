@@ -45,7 +45,7 @@ import java.util.function.BiConsumer;
 
 public class BaseCoreBlock extends Block implements EntityBlock {
 
-    public static final IntegerProperty TIER = IntegerProperty.create("tier", 0, 10);
+    public static final IntegerProperty TIER = IntegerProperty.create("tier", 0, 11);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     private static final VoxelShape SHAPE = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 25.0D, 14.0D);

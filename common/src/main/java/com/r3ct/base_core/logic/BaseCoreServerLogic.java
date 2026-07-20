@@ -32,7 +32,7 @@ public class BaseCoreServerLogic {
         Level level = player.level();
         PlayerData data = ModState.getPlayerData(level.getServer(), player.getUUID());
 
-        if (data.baseCoreTier >= 10) {
+        if (data.baseCoreTier >= 11) {
             player.sendSystemMessage(Component.literal("Osiągnięto limit architektury.").withStyle(ChatFormatting.RED), true);
             return;
         }
