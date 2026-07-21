@@ -73,17 +73,14 @@ public class PlayerData {
             }
         }
 
-        data.activeSlots.clear();
+        data.activeSlots = new ArrayList<>(Arrays.asList("empty", "empty", "empty", "empty"));
         if (nbt.contains("activeSlots") && nbt.get("activeSlots") instanceof ListTag list) {
-            for (int i = 0; i < list.size(); i++) {
+            int limit = Math.min(4, list.size());
+            for (int i = 0; i < limit; i++) {
                 String val = list.getString(i).orElse("empty");
                 if (val.isEmpty()) val = "empty";
-                data.activeSlots.add(val);
+                data.activeSlots.set(i, val);
             }
-        }
-
-        while (data.activeSlots.size() < 4) {
-            data.activeSlots.add("empty");
         }
 
         return data;

@@ -47,12 +47,8 @@ public class BaseCoreServerConfig {
         public int pool;
     }
 
-    public static class EffectSettings {
-        public boolean allowBeaconSynergy = true;
-    }
-
     public int version = CONFIG_VERSION;
-    public EffectSettings settings = new EffectSettings();
+
     public List<TierUpgrade> tiers = new ArrayList<>();
 
     public List<EffectConfig> effects = new ArrayList<>();

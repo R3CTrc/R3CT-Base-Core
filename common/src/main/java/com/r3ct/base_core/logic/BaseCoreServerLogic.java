@@ -115,6 +115,9 @@ public class BaseCoreServerLogic {
         if (payload.slotIndex() >= maxSlots || payload.slotIndex() < 0) return;
 
         if (payload.effectId().equals("empty")) {
+            if (data.activeSlots.get(payload.slotIndex()).equals("empty")) {
+                return;
+            }
             data.activeSlots.set(payload.slotIndex(), "empty");
             player.sendSystemMessage(Component.literal("Wyczyszczono slot " + (payload.slotIndex() + 1)).withStyle(net.minecraft.ChatFormatting.YELLOW), true);
         }
@@ -124,6 +127,10 @@ public class BaseCoreServerLogic {
 
             if (!data.activeEffects.contains(payload.effectId())) {
                 player.sendSystemMessage(Component.literal("Nie odblokowałeś jeszcze tego efektu!").withStyle(net.minecraft.ChatFormatting.RED), true);
+                return;
+            }
+
+            if (data.activeSlots.get(payload.slotIndex()).equals(payload.effectId())) {
                 return;
             }
 

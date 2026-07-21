@@ -1,6 +1,6 @@
 package com.r3ct.base_core;
 
-import com.r3ct.base_core.Constants;
+import com.r3ct.base_core.client.screen.ConfigMainScreen;
 import com.r3ct.base_core.config.BaseCoreClientConfig;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.network.ConfigSyncPayload;
@@ -11,11 +11,12 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
 public class BaseCoreNeoForgeClient {
 
     public static void init(ModContainer modContainer) {
-        // Tu można w przyszłości zarejestrować ekran ustawień (Config Screen)
+        modContainer.registerExtensionPoint(IConfigScreenFactory.class, (minecraft, parent) -> new ConfigMainScreen(parent));
     }
 
     @EventBusSubscriber(modid = Constants.MOD_ID, value = Dist.CLIENT)

@@ -8,10 +8,12 @@ import com.r3ct.base_core.platform.Services;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -49,6 +51,17 @@ public class BaseCoreScreen extends Screen {
         this.data = data;
     }
 
+    public float calculateEffectiveScale() {
+        int actualWidth = this.width > 0 ? this.width : this.minecraft.getWindow().getGuiScaledWidth();
+        int actualHeight = this.height > 0 ? this.height : this.minecraft.getWindow().getGuiScaledHeight();
+
+        float maxPossibleScale = Math.min((float) actualWidth / (imageWidth + 20), (float) actualHeight / (imageHeight + 40));
+
+        float configScale = com.r3ct.base_core.config.BaseCoreClientConfig.getInstance().guiScale;
+
+        return Math.min(configScale, maxPossibleScale);
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -57,10 +70,21 @@ public class BaseCoreScreen extends Screen {
     }
 
     @Override
-    public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+    public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int rawMouseX, int rawMouseY, float partialTick) {
+        float scale = calculateEffectiveScale();
+        int mouseX = (int)((rawMouseX - this.width / 2f) / scale + this.width / 2f);
+        int mouseY = (int)((rawMouseY - this.height / 2f) / scale + this.height / 2f);
+
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(this.width / 2f, this.height / 2f);
+        graphics.pose().scale(scale, scale);
+        graphics.pose().translate(-this.width / 2f, -this.height / 2f);
+
         int totalTabsWidth = (tabWidth * 3) + (tabSpacing * 2);
         int startX = this.leftPos + (this.imageWidth - totalTabsWidth) / 2;
         int tabY = this.topPos - tabHeight + 2;
+
+        boolean blink = (System.currentTimeMillis() / 400L) % 2 == 0;
 
         for (int i = 0; i < Tab.values().length; i++) {
             Tab tab = Tab.values()[i];
@@ -71,52 +95,55 @@ public class BaseCoreScreen extends Screen {
             renderCustomTab(graphics, currentTabX, tabY, tabWidth, tabHeight, tab.name, isSelected, isHovered);
         }
 
-        graphics.fill(this.leftPos, this.topPos, this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 0xFF3C3C3C);
-        graphics.outline(this.leftPos, this.topPos, this.imageWidth, this.imageHeight, 0xFF5A5A5A);
+        graphics.fill(this.leftPos, this.topPos, this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 0xFFF5DEB3);
+        drawThickOutline(graphics, this.leftPos, this.topPos, this.imageWidth, this.imageHeight, 2, 0xFF3E2723);
 
         int innerMargin = 8;
         graphics.fill(this.leftPos + innerMargin, this.topPos + 25,
                 this.leftPos + this.imageWidth - innerMargin, this.topPos + this.imageHeight - innerMargin,
-                0xFF2A2A2A);
-        graphics.outline(this.leftPos + innerMargin, this.topPos + 25,
-                this.imageWidth - (innerMargin * 2), this.imageHeight - 25 - innerMargin, 0xFF4A4A4A);
+                0xFFFFF8DC);
+        drawThickOutline(graphics, this.leftPos + innerMargin, this.topPos + 25,
+                this.imageWidth - (innerMargin * 2), this.imageHeight - 25 - innerMargin, 2, 0xFF8D6E63);
 
-        String tierText = "Poziom " + toRoman(data.tier());
+        String tierDisplay = data.tier() == 0 ? "Baza (Poziom 0)" : "Poziom " + toRoman(data.tier());
         int titleWidth = this.font.width("Serce Bazy");
-        int tierWidth = this.font.width(tierText);
+        int tierWidth = this.font.width(tierDisplay);
 
-        graphics.text(this.font, "Serce Bazy", this.leftPos + 12, this.topPos + 10, 0xFFFFFF, true);
-        graphics.text(this.font, tierText, this.leftPos + this.imageWidth - tierWidth - 12, this.topPos + 10, 0xFFD700, true);
-        graphics.fill(this.leftPos + 12, this.topPos + 21, this.leftPos + titleWidth + 12, this.topPos + 22, 0x88FFD700);
+        graphics.text(this.font, "Serce Bazy", this.leftPos + 12, this.topPos + 10, 0xFF000000, false);
+        graphics.text(this.font, tierDisplay, this.leftPos + this.imageWidth - tierWidth - 12, this.topPos + 10, 0xFF3E2723, false);
+        graphics.fill(this.leftPos + 12, this.topPos + 21, this.leftPos + titleWidth + 12, this.topPos + 22, 0xFF8D6E63);
 
         switch (currentTab) {
             case OVERVIEW -> renderOverviewTab(graphics, mouseX, mouseY);
-            case EFFECTS -> renderEffectsTab(graphics, mouseX, mouseY);
-            case UPGRADES -> renderUpgradesTab(graphics, mouseX, mouseY);
+            case EFFECTS -> renderEffectsTab(graphics, mouseX, mouseY, blink);
+            case UPGRADES -> renderUpgradesTab(graphics, mouseX, mouseY, blink);
         }
 
         if (openedSlotDropdown != -1) {
             renderSlotDropdown(graphics, mouseX, mouseY);
         }
 
-        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+        graphics.pose().popMatrix();
+        super.extractRenderState(graphics, rawMouseX, rawMouseY, partialTick);
     }
 
     private void renderCustomTab(GuiGraphicsExtractor graphics, int x, int y, int width, int height, String text, boolean isSelected, boolean isHovered) {
-        int bgColor = isSelected ? 0xFF3C3C3C : (isHovered ? 0xFF444444 : 0xFF282828);
-        int borderColor = isSelected ? 0xFF5A5A5A : 0xFF444444;
-        int textColor = isSelected ? 0xFFFFD700 : (isHovered ? 0xFFFFFFFF : 0xFFAAAAAA);
+        int bgColor = isSelected ? 0xFFF5DEB3 : (isHovered ? 0xFFA1887F : 0xFF8D6E63);
+        int borderColor = 0xFF3E2723;
+        int textColor = isSelected ? 0xFF000000 : (isHovered ? 0xFFFFFFFF : 0xFFEFEBE9);
 
         graphics.fill(x, y, x + width, y + height, bgColor);
-        graphics.fill(x, y, x + width, y + 1, borderColor);
-        graphics.fill(x, y, x + 1, y + height, borderColor);
-        graphics.fill(x + width - 1, y, x + width, y + height, borderColor);
+
+        graphics.fill(x - 2, y - 2, x + width + 2, y, borderColor);
+        graphics.fill(x - 2, y, x, y + height, borderColor);
+        graphics.fill(x + width, y, x + width + 2, y + height, borderColor);
 
         if (!isSelected) {
-            graphics.fill(x, y + height - 1, x + width, y + height, borderColor);
+            graphics.fill(x, y + height, x + width, y + height + 2, borderColor);
         } else {
-            graphics.fill(x + 1, y + height - 2, x + width - 1, y + height + 1, 0xFF3C3C3C);
+            graphics.fill(x, y + height, x + width, y + height + 2, 0xFFF5DEB3);
         }
+
         int textWidth = this.font.width(text);
         int textX = x + (width - textWidth) / 2;
         int textY = y + (height - 8) / 2;
@@ -128,8 +155,9 @@ public class BaseCoreScreen extends Screen {
         if (super.mouseClicked(event, doubleClick)) return true;
 
         if (event.button() == 0) {
-            double mouseX = event.x();
-            double mouseY = event.y();
+            float scale = calculateEffectiveScale();
+            int mouseX = (int)((event.x() - this.width / 2f) / scale + this.width / 2f);
+            int mouseY = (int)((event.y() - this.height / 2f) / scale + this.height / 2f);
 
             if (openedSlotDropdown != -1) {
                 handleDropdownClick(mouseX, mouseY);
@@ -143,7 +171,10 @@ public class BaseCoreScreen extends Screen {
             for (int i = 0; i < Tab.values().length; i++) {
                 int currentTabX = startX + (i * (tabWidth + tabSpacing));
                 if (mouseX >= currentTabX && mouseX < currentTabX + tabWidth && mouseY >= tabY && mouseY < tabY + tabHeight) {
-                    this.currentTab = Tab.values()[i];
+                    if (this.currentTab != Tab.values()[i]) {
+                        this.currentTab = Tab.values()[i];
+                        this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                    }
                     return true;
                 }
             }
@@ -161,6 +192,7 @@ public class BaseCoreScreen extends Screen {
                     if (mouseX >= slotX && mouseX < slotX + slotSize && mouseY >= slotsStartY && mouseY < slotsStartY + slotSize) {
                         if (i < maxSlots) {
                             this.openedSlotDropdown = i;
+                            this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                         }
                         return true;
                     }
@@ -179,7 +211,7 @@ public class BaseCoreScreen extends Screen {
                 if (nextTierConfig != null) {
                     int panelY = this.topPos + 40;
                     int costY = panelY + 90 + 15;
-                    int btnWidth = 120;
+                    int btnWidth = 140;
                     int btnHeight = 20;
                     int btnX = this.leftPos + (this.imageWidth / 2) - (btnWidth / 2);
                     int btnY = costY + 40;
@@ -193,6 +225,7 @@ public class BaseCoreScreen extends Screen {
 
                         if (canAfford) {
                             Services.PLATFORM.sendToServer(new UpgradeBaseCorePayload(data.pos()));
+                            this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.SMITHING_TABLE_USE, 1.0F));
                         }
                         return true;
                     }
@@ -206,45 +239,83 @@ public class BaseCoreScreen extends Screen {
         int infoX = this.leftPos + 20;
         int infoY = this.topPos + 45;
         int currentRange = calculateRangeUpToTier(data.tier());
-        int diameter = currentRange * 2 + 1;
+        String diameterStr = currentRange == 0 ? "0x0x0" : (currentRange * 2 + 1) + "x" + (currentRange * 2 + 1) + "x" + (currentRange * 2 + 1);
+        int diameterNum = currentRange == 0 ? 0 : (currentRange * 2 + 1);
+        int maxSlots = BaseCoreServerConfig.calculateTotalSlots(data.tier());
+        String displayTier = data.tier() == 0 ? "0" : String.valueOf(data.tier());
 
-        graphics.text(this.font, "STATYSTYKI BAZY", infoX, infoY, 0xFFD700, true);
-        graphics.text(this.font, "Poziom Bazy: " + data.tier() + " (" + toRoman(data.tier()) + ")", infoX, infoY + 20, 0xFFDDDDDD, false);
-        graphics.text(this.font, "Obszar: " + currentRange + "  (" + diameter + "x" + diameter + "x" + diameter + ")", infoX, infoY + 35, 0xFFDDDDDD, false);
-        graphics.text(this.font, "Dostępne moduły: " + BaseCoreServerConfig.calculateTotalSlots(data.tier()), infoX, infoY + 50, 0xFFDDDDDD, false);
-        graphics.text(this.font, "Zakupione protokoły: " + data.unlockedEffects().size(), infoX, infoY + 65, 0xFFDDDDDD, false);
+        graphics.text(this.font, "§lSTATYSTYKI BAZY", infoX, infoY, 0xFF000000, false);
 
-        int boxSize = 64;
-        int boxX = this.leftPos + this.imageWidth - boxSize - 35;
+        Component tierComp = Component.literal("Poziom Bazy: ").withStyle(net.minecraft.ChatFormatting.BLACK)
+                .append(Component.literal(displayTier).withStyle(net.minecraft.ChatFormatting.AQUA));
+        graphics.text(this.font, tierComp, infoX, infoY + 20, 0xFF000000, false);
+
+        Component areaComp = Component.literal("Obszar: ").withStyle(net.minecraft.ChatFormatting.BLACK)
+                .append(Component.literal(currentRange + "  (" + diameterStr + ")").withStyle(net.minecraft.ChatFormatting.AQUA));
+        graphics.text(this.font, areaComp, infoX, infoY + 35, 0xFF000000, false);
+
+        Component slotsComp = Component.literal("Dostępne sloty: ").withStyle(net.minecraft.ChatFormatting.BLACK)
+                .append(Component.literal(String.valueOf(maxSlots)).withStyle(net.minecraft.ChatFormatting.DARK_GREEN));
+        graphics.text(this.font, slotsComp, infoX, infoY + 50, 0xFF000000, false);
+
+        Component effectsComp = Component.literal("Odblokowane efekty: ").withStyle(net.minecraft.ChatFormatting.BLACK)
+                .append(Component.literal(String.valueOf(data.unlockedEffects().size())).withStyle(net.minecraft.ChatFormatting.DARK_GREEN));
+        graphics.text(this.font, effectsComp, infoX, infoY + 65, 0xFF000000, false);
+
+        int boxX = this.leftPos + 240;
         int boxY = this.topPos + 45;
+        int size = 50;
+        int lineColor = 0xFF1E90FF;
 
-        graphics.outline(boxX, boxY, boxSize, boxSize, 0xFF777777);
-        graphics.fill(boxX + (boxSize / 2) - 2, boxY + (boxSize / 2) - 2, boxX + (boxSize / 2) + 2, boxY + (boxSize / 2) + 2, 0xFF00FF00);
+        int frontX = boxX;
+        int frontY = boxY + 25;
+        int backX = boxX + 25;
+        int backY = boxY;
 
-        graphics.text(this.font, String.valueOf(diameter), boxX + boxSize + 6, boxY + (boxSize / 2) - 4, 0xFFAAAAAA, false);
-        graphics.centeredText(this.font, String.valueOf(diameter), boxX + (boxSize / 2), boxY + boxSize + 6, 0xFFAAAAAA);
+        drawLine(graphics, backX, backY, backX + size, backY, lineColor);
+        drawLine(graphics, backX + size, backY, backX + size, backY + size, lineColor);
+        drawLine(graphics, frontX, frontY, backX, backY, lineColor);
+        drawLine(graphics, frontX + size, frontY, backX + size, backY, lineColor);
+        drawLine(graphics, frontX + size, frontY + size, backX + size, backY + size, lineColor);
 
-        graphics.fill(boxX + (boxSize / 2) + 2, boxY + (boxSize / 2), boxX + boxSize, boxY + (boxSize / 2) + 1, 0xFF999999);
-        graphics.centeredText(this.font, String.valueOf(currentRange), boxX + (boxSize / 2) + (boxSize / 4), boxY + (boxSize / 2) + 3, 0xFFFFFFFF);
+        drawLine(graphics, frontX, frontY, frontX + size, frontY, lineColor);
+        drawLine(graphics, frontX, frontY, frontX, frontY + size, lineColor);
+        drawLine(graphics, frontX + size, frontY, frontX + size, frontY + size, lineColor);
+        drawLine(graphics, frontX, frontY + size, frontX + size, frontY + size, lineColor);
+
+        drawDashedLine(graphics, backX, backY, backX, backY + size, lineColor);
+        drawDashedLine(graphics, backX, backY + size, backX + size, backY + size, lineColor);
+        drawDashedLine(graphics, frontX, frontY + size, backX, backY + size, lineColor);
+
+        int cx = frontX + (backX - frontX) / 2 + size / 2;
+        int cy = frontY + (backY - frontY) / 2 + size / 2;
+
+        graphics.fill(cx - 2, cy - 2, cx + 3, cy + 3, 0xFF8D6E63);
+
+        drawLine(graphics, cx, cy, cx - size / 2, cy, 0xFF00AA00);
+
+        centeredTextNoShadow(graphics, String.valueOf(currentRange), cx - 20, cy + 4, 0xFF00AA00);
+        centeredTextNoShadow(graphics, String.valueOf(diameterNum), frontX + size / 2, frontY + size + 5, 0xFF444444);
+        centeredTextNoShadow(graphics, String.valueOf(diameterNum), frontX - 12, frontY + size / 2 - 4, 0xFF444444);
+
 
         int slotSize = 36;
         int slotSpacing = 16;
         int totalSlotsWidth = (4 * slotSize) + (3 * slotSpacing);
         int slotsStartX = this.leftPos + (this.imageWidth - totalSlotsWidth) / 2;
         int slotsStartY = this.topPos + this.imageHeight - slotSize - 20;
-        int maxSlots = BaseCoreServerConfig.calculateTotalSlots(data.tier());
 
-        graphics.centeredText(this.font, "Aktywne Moduły", this.leftPos + (this.imageWidth / 2), slotsStartY - 15, 0xFFDDDDDD);
+        centeredTextNoShadow(graphics, "Aktywne Sloty", this.leftPos + (this.imageWidth / 2), slotsStartY - 15, 0xFF000000);
 
         for (int i = 0; i < 4; i++) {
             int slotX = slotsStartX + (i * (slotSize + slotSpacing));
             boolean isLocked = i >= maxSlots;
 
-            graphics.fill(slotX, slotsStartY, slotX + slotSize, slotsStartY + slotSize, isLocked ? 0xFF151515 : 0xFF222222);
-            graphics.outline(slotX, slotsStartY, slotSize, slotSize, 0xFF5A5A5A);
+            graphics.fill(slotX, slotsStartY, slotX + slotSize, slotsStartY + slotSize, isLocked ? 0xFFD7CCC8 : 0xFFF5DEB3);
+            drawThickOutline(graphics, slotX, slotsStartY, slotSize, slotSize, 2, 0xFF8D6E63);
 
             if (isLocked) {
-                graphics.centeredText(this.font, "x", slotX + (slotSize / 2), slotsStartY + (slotSize / 2) - 4, 0xFF660000);
+                centeredTextNoShadow(graphics, "X", slotX + (slotSize / 2), slotsStartY + (slotSize / 2) - 4, 0xFFFF5555);
             } else {
                 String effectId = "empty";
                 if (i < data.activeSlots().size()) {
@@ -254,7 +325,7 @@ public class BaseCoreScreen extends Screen {
                 if (effectId.equals("empty")) {
                     String emptyText = "+";
                     int textW = this.font.width(emptyText);
-                    graphics.text(this.font, emptyText, slotX + (slotSize - textW) / 2, slotsStartY + (slotSize - 8) / 2, 0xFF555555, false);
+                    graphics.text(this.font, emptyText, slotX + (slotSize - textW) / 2, slotsStartY + (slotSize - 8) / 2, 0xFF8D6E63, false);
                 } else {
                     BaseCoreServerConfig.EffectConfig ec = BaseCoreServerConfig.getEffect(effectId);
                     if (ec != null) {
@@ -265,12 +336,12 @@ public class BaseCoreScreen extends Screen {
             }
 
             if (!isLocked && mouseX >= slotX && mouseX < slotX + slotSize && mouseY >= slotsStartY && mouseY < slotsStartY + slotSize) {
-                graphics.fill(slotX + 1, slotsStartY + 1, slotX + slotSize - 1, slotsStartY + slotSize - 1, 0x33FFFFFF);
+                graphics.fill(slotX + 1, slotsStartY + 1, slotX + slotSize - 1, slotsStartY + slotSize - 1, 0x20000000);
             }
         }
     }
 
-    private void renderEffectsTab(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+    private void renderEffectsTab(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean blink) {
         int innerMargin = 8;
         int contentX = this.leftPos + innerMargin;
         int contentY = this.topPos + 25;
@@ -283,15 +354,21 @@ public class BaseCoreScreen extends Screen {
         List<BaseCoreServerConfig.EffectConfig> allEffects = BaseCoreServerConfig.getInstance().effects;
         int maxPool = BaseCoreServerConfig.getMaxUnlockedPool(data.tier());
 
+        long time = System.currentTimeMillis();
+        float pulse = (float) (Math.sin(time / 150.0) + 1.0) / 2.0f;
+        int pulseG = (int) (170 + (85 * pulse));
+        int blinkColor = 0xFF000000 | (255 << 16) | (pulseG << 8);
+        int blinkOutlineColor = 0xFF000000 | (204 << 16) | ((int)(122 + (82 * pulse)) << 8);
+
         for (int p = 1; p <= 5; p++) {
             boolean poolUnlocked = p <= maxPool;
             int poolX = contentX + (p - 1) * colWidth;
 
             if (p < 5) {
-                graphics.fill(poolX + colWidth, startY + 5, poolX + colWidth + 1, startY + 160, 0xFF444444);
+                graphics.fill(poolX + colWidth, startY + 5, poolX + colWidth + 1, startY + 160, 0xFF8D6E63);
             }
 
-            graphics.centeredText(this.font, "Pula " + p, poolX + colWidth / 2, startY + 5, poolUnlocked ? 0xFFD700 : 0xFF666666);
+            centeredTextNoShadow(graphics, "Pula " + p, poolX + colWidth / 2, startY + 5, poolUnlocked ? 0xFF3E2723 : 0xFF8D6E63);
 
             int eIndex = 0;
             for (BaseCoreServerConfig.EffectConfig effect : allEffects) {
@@ -303,42 +380,62 @@ public class BaseCoreScreen extends Screen {
                 boolean isUnlocked = data.unlockedEffects().contains(effect.id);
                 boolean isHovered = mouseX >= ex && mouseX < ex + iconSize && mouseY >= ey && mouseY < ey + iconSize;
 
-                int bgColor = isUnlocked ? 0xFF353525 : (poolUnlocked ? 0xFF252525 : 0xFF1A1A1A);
-                int borderColor = isUnlocked ? 0xFFD700 : (poolUnlocked ? 0xFF5A5A5A : 0xFF333333);
-
-                if (isHovered && !isUnlocked && poolUnlocked) bgColor = 0xFF3A3A3A;
-
-                graphics.fill(ex, ey, ex + iconSize, ey + iconSize, bgColor);
-                graphics.outline(ex, ey, iconSize, iconSize, borderColor);
-
                 Item costItem = BuiltInRegistries.ITEM.get(Identifier.parse(effect.itemCost)).map(Holder::value).orElse(Items.AIR);
-
-                if (poolUnlocked) {
-                    graphics.fakeItem(new ItemStack(costItem), ex + 4, ey + 4);
-                } else {
-                    graphics.centeredText(this.font, "?", ex + (iconSize / 2), ey + (iconSize / 2) - 4, 0xFF555555);
+                boolean canAfford = false;
+                if (!isUnlocked) {
+                    canAfford = getTotalExperienceClient() >= effect.xpCost && countItemInClientInventory(costItem) >= effect.itemAmount;
                 }
 
+                int bgColor = isUnlocked ? 0xFFC8E6C9 : (poolUnlocked ? 0xFFF5DEB3 : 0xFFD7CCC8);
+                int borderColor = isUnlocked ? 0xFF2E7D32 : (poolUnlocked ? 0xFF8D6E63 : 0xFFBCAAA4);
+
+                if (!isUnlocked && poolUnlocked) {
+                    if (canAfford) {
+                        bgColor = blinkColor;
+                        borderColor = blinkOutlineColor;
+                    } else if (isHovered) {
+                        bgColor = 0xFFE7CDB3;
+                    }
+                }
+
+                graphics.fill(ex, ey, ex + iconSize, ey + iconSize, bgColor);
+                drawThickOutline(graphics, ex, ey, iconSize, iconSize, 1, borderColor);
+
+                graphics.fakeItem(new ItemStack(costItem), ex + 4, ey + 4);
+
                 if (!poolUnlocked) {
-                    graphics.fill(ex, ey, ex + iconSize, ey + iconSize, 0x88000000);
+                    graphics.fill(ex + 1, ey + 1, ex + iconSize - 1, ey + iconSize - 1, 0x66FFFFFF);
                 } else if (!isUnlocked) {
-                    graphics.fill(ex + iconSize - 6, ey + iconSize - 6, ex + iconSize, ey + iconSize, 0xAA000000);
-                    graphics.text(this.font, "X", ex + iconSize - 5, ey + iconSize - 6, 0xFFFF5555, false);
+                    graphics.fill(ex + iconSize - 6, ey + iconSize - 6, ex + iconSize, ey + iconSize, 0x44000000);
+                    centeredTextNoShadow(graphics, "X", ex + iconSize - 2, ey + iconSize - 6, 0xFFFF5555);
                 }
 
                 if (isHovered) {
-                    renderEffectTooltip(graphics, effect, isUnlocked, poolUnlocked, mouseX, mouseY, costItem);
+                    renderEffectTooltip(graphics, effect, isUnlocked, poolUnlocked, canAfford, mouseX, mouseY, costItem);
                 }
                 eIndex++;
             }
         }
     }
 
-    private void renderEffectTooltip(GuiGraphicsExtractor graphics, BaseCoreServerConfig.EffectConfig effect, boolean isUnlocked, boolean isPoolUnlocked, int mouseX, int mouseY, Item costItem) {
+    private void renderEffectTooltip(GuiGraphicsExtractor graphics, BaseCoreServerConfig.EffectConfig effect, boolean isUnlocked, boolean isPoolUnlocked, boolean canAfford, int mouseX, int mouseY, Item costItem) {
         java.util.List<Component> tooltipLines = new java.util.ArrayList<>();
 
-        tooltipLines.add(Component.literal(effect.name).withStyle(isUnlocked ? net.minecraft.ChatFormatting.GOLD : net.minecraft.ChatFormatting.YELLOW));
-        tooltipLines.add(Component.literal(effect.description).withStyle(net.minecraft.ChatFormatting.GRAY));
+        tooltipLines.add(Component.literal(effect.name).withStyle(isUnlocked ? net.minecraft.ChatFormatting.DARK_GREEN : net.minecraft.ChatFormatting.GOLD));
+
+        String[] words = effect.description.split(" ");
+        StringBuilder currentLine = new StringBuilder();
+        for (String word : words) {
+            if (this.font.width(currentLine.toString() + word) > 170) {
+                tooltipLines.add(Component.literal(currentLine.toString().trim()).withStyle(net.minecraft.ChatFormatting.GRAY));
+                currentLine = new StringBuilder(word + " ");
+            } else {
+                currentLine.append(word).append(" ");
+            }
+        }
+        if (currentLine.length() > 0) {
+            tooltipLines.add(Component.literal(currentLine.toString().trim()).withStyle(net.minecraft.ChatFormatting.GRAY));
+        }
 
         if (!isPoolUnlocked) {
             tooltipLines.add(Component.literal(""));
@@ -348,17 +445,28 @@ public class BaseCoreScreen extends Screen {
             int playerXp = getTotalExperienceClient();
             int playerItemCount = countItemInClientInventory(costItem);
 
-            tooltipLines.add(Component.literal(""));
-            tooltipLines.add(Component.literal("Wymagania odblokowania:").withStyle(net.minecraft.ChatFormatting.WHITE));
-            tooltipLines.add(Component.literal("- Koszt XP: " + effect.xpCost + " (Masz: " + playerXp + ")")
-                    .withStyle(playerXp >= effect.xpCost ? net.minecraft.ChatFormatting.GREEN : net.minecraft.ChatFormatting.RED));
-
+            int cappedXp = Math.min(playerXp, effect.xpCost);
+            int cappedItem = Math.min(playerItemCount, effect.itemAmount);
             String itemName = costItem.getName(costItem.getDefaultInstance()).getString();
-            tooltipLines.add(Component.literal("- Przedmiot: " + effect.itemAmount + "x " + itemName + " (Masz: " + playerItemCount + ")")
-                    .withStyle(playerItemCount >= effect.itemAmount ? net.minecraft.ChatFormatting.GREEN : net.minecraft.ChatFormatting.RED));
 
             tooltipLines.add(Component.literal(""));
-            tooltipLines.add(Component.literal("Kliknij, aby odblokować na zawsze").withStyle(net.minecraft.ChatFormatting.GOLD));
+            tooltipLines.add(Component.literal("Wymagane zasoby:").withStyle(net.minecraft.ChatFormatting.WHITE));
+
+            tooltipLines.add(Component.literal("- " + cappedXp + "/" + effect.xpCost + " XP")
+                    .withStyle(cappedXp >= effect.xpCost ? net.minecraft.ChatFormatting.GREEN : net.minecraft.ChatFormatting.RED));
+
+            tooltipLines.add(Component.literal("- " + cappedItem + "/" + effect.itemAmount + " " + itemName)
+                    .withStyle(cappedItem >= effect.itemAmount ? net.minecraft.ChatFormatting.GREEN : net.minecraft.ChatFormatting.RED));
+
+            if (canAfford) {
+                long time = System.currentTimeMillis();
+                float pulse = (float) (Math.sin(time / 150.0) + 1.0) / 2.0f;
+                int pulseG = (int) (170 + (85 * pulse));
+                int blinkColorText = 0xFF000000 | (255 << 16) | (pulseG << 8);
+
+                tooltipLines.add(Component.literal(""));
+                tooltipLines.add(Component.literal("Kliknij, aby odblokować").withStyle(style -> style.withColor(blinkColorText)));
+            }
         } else {
             tooltipLines.add(Component.literal(""));
             tooltipLines.add(Component.literal("Zakupiono! Zarządzaj w zakładce 'Przegląd'").withStyle(net.minecraft.ChatFormatting.GREEN));
@@ -367,7 +475,7 @@ public class BaseCoreScreen extends Screen {
         graphics.setComponentTooltipForNextFrame(this.font, tooltipLines, mouseX, mouseY);
     }
 
-    private void renderUpgradesTab(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+    private void renderUpgradesTab(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean blink) {
         int currentTier = data.tier();
         BaseCoreServerConfig.TierUpgrade currentTierConfig = BaseCoreServerConfig.getTier(currentTier);
         BaseCoreServerConfig.TierUpgrade nextTierConfig = BaseCoreServerConfig.getTier(currentTier + 1);
@@ -378,43 +486,59 @@ public class BaseCoreScreen extends Screen {
         int panelX = this.leftPos + (this.imageWidth - panelWidth) / 2;
         int panelY = this.topPos + 40;
 
-        graphics.fill(panelX, panelY, panelX + panelWidth, panelY + panelHeight, 0xFF222222);
-        graphics.outline(panelX, panelY, panelWidth, panelHeight, 0xFF555555);
+        graphics.fill(panelX, panelY, panelX + panelWidth, panelY + panelHeight, 0xFFF5DEB3);
+        drawThickOutline(graphics, panelX, panelY, panelWidth, panelHeight, 2, 0xFF8D6E63);
 
         if (isMaxTier) {
-            graphics.centeredText(this.font, "Rdzeń Osiągnął Limit Architektury", panelX + (panelWidth / 2), panelY + 40, 0xFFFF55);
-            graphics.centeredText(this.font, "Maksymalny Poziom: " + toRoman(currentTier), panelX + (panelWidth / 2), panelY + 55, 0xFFD700);
+            centeredTextNoShadow(graphics, "Rdzeń Osiągnął Limit Architektury", panelX + (panelWidth / 2), panelY + 40, 0xFF000000);
+            centeredTextNoShadow(graphics, "Maksymalny Poziom: " + toRoman(currentTier), panelX + (panelWidth / 2), panelY + 55, 0xFF3E2723);
+
+            if (mouseX >= panelX && mouseX < panelX + panelWidth && mouseY >= panelY && mouseY < panelY + panelHeight) {
+                renderTierTooltip(graphics, currentTierConfig, false, mouseX, mouseY);
+            }
             return;
         }
 
         int centerX = panelX + (panelWidth / 2);
 
-        graphics.fill(centerX - 80, panelY + 15, centerX - 40, panelY + 55, 0xFF333333);
-        graphics.outline(centerX - 80, panelY + 15, 40, 40, 0xFF666666);
+        int leftBoxX = centerX - 80;
+        int boxY = panelY + 15;
+        graphics.fill(leftBoxX, boxY, leftBoxX + 40, boxY + 40, 0xFFFFF8DC);
+        drawThickOutline(graphics, leftBoxX, boxY, 40, 40, 2, 0xFF8D6E63);
 
-        if (currentTierConfig != null) {
-            Item currentMain = BuiltInRegistries.ITEM.get(Identifier.parse(currentTierConfig.mainItem)).map(Holder::value).orElse(Items.AIR);
-            graphics.fakeItem(new ItemStack(currentMain), centerX - 80 + 12, panelY + 15 + 12);
-            String currentName = currentTierConfig.title + " (Poziom " + currentTier + ")";
-            graphics.centeredText(this.font, currentName, centerX - 60, panelY + 65, 0xFFAAAAAA);
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(leftBoxX + 20, boxY + 20);
+        graphics.pose().scale(2.0f, 2.0f);
+        if (currentTier == 0) {
+            graphics.fakeItem(new ItemStack(Items.STICK), -8, -8);
+            graphics.pose().popMatrix();
+            centeredTextNoShadow(graphics, "Baza (Poziom 0)", leftBoxX + 20, boxY + 50, 0xFF000000);
         } else {
-            graphics.centeredText(this.font, toRoman(currentTier), centerX - 60, panelY + 31, 0xFFD700);
-            graphics.centeredText(this.font, "Obecny", centerX - 60, panelY + 65, 0xFFAAAAAA);
+            Item currentMain = BuiltInRegistries.ITEM.get(Identifier.parse(currentTierConfig.mainItem)).map(Holder::value).orElse(Items.AIR);
+            graphics.fakeItem(new ItemStack(currentMain), -8, -8);
+            graphics.pose().popMatrix();
+            String currentName = currentTierConfig.title + " (Poziom " + currentTier + ")";
+            centeredTextNoShadow(graphics, currentName, leftBoxX + 20, boxY + 50, 0xFF000000);
         }
 
-        graphics.fill(centerX - 15, panelY + 33, centerX + 10, panelY + 37, 0xFF888888);
-        graphics.fill(centerX + 5, panelY + 28, centerX + 10, panelY + 42, 0xFF888888);
-        graphics.fill(centerX + 10, panelY + 30, centerX + 13, panelY + 40, 0xFF888888);
-        graphics.fill(centerX + 13, panelY + 32, centerX + 16, panelY + 38, 0xFF888888);
+        graphics.fill(centerX - 15, panelY + 33, centerX + 10, panelY + 37, 0xFF8D6E63);
+        graphics.fill(centerX + 5, panelY + 28, centerX + 10, panelY + 42, 0xFF8D6E63);
+        graphics.fill(centerX + 10, panelY + 30, centerX + 13, panelY + 40, 0xFF8D6E63);
+        graphics.fill(centerX + 13, panelY + 32, centerX + 16, panelY + 38, 0xFF8D6E63);
 
-        graphics.fill(centerX + 40, panelY + 15, centerX + 80, panelY + 55, 0xFF3C3C22);
-        graphics.outline(centerX + 40, panelY + 15, 40, 40, 0xFFD700);
+        int rightBoxX = centerX + 40;
+        graphics.fill(rightBoxX, boxY, rightBoxX + 40, boxY + 40, 0xFFFFF8DC);
+        drawThickOutline(graphics, rightBoxX, boxY, 40, 40, 2, 0xFF8D6E63);
 
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(rightBoxX + 20, boxY + 20);
+        graphics.pose().scale(2.0f, 2.0f);
         Item nextMainItem = BuiltInRegistries.ITEM.get(Identifier.parse(nextTierConfig.mainItem)).map(Holder::value).orElse(Items.AIR);
-        graphics.fakeItem(new ItemStack(nextMainItem), centerX + 40 + 12, panelY + 15 + 12);
+        graphics.fakeItem(new ItemStack(nextMainItem), -8, -8);
+        graphics.pose().popMatrix();
 
         String nextName = nextTierConfig.title + " (Poziom " + (currentTier + 1) + ")";
-        graphics.centeredText(this.font, nextName, centerX + 60, panelY + 65, 0xFFD700);
+        centeredTextNoShadow(graphics, nextName, rightBoxX + 20, boxY + 50, 0xFF3E2723);
 
         Item bulkItem = BuiltInRegistries.ITEM.get(Identifier.parse(nextTierConfig.bulkItem)).map(Holder::value).orElse(Items.AIR);
         int playerMainCount = countItemInClientInventory(nextMainItem);
@@ -422,15 +546,15 @@ public class BaseCoreScreen extends Screen {
         boolean canAfford = playerMainCount >= nextTierConfig.mainAmount && playerBulkCount >= nextTierConfig.bulkAmount;
 
         int costY = panelY + panelHeight + 15;
-        graphics.centeredText(this.font, "Wymagane zasoby:", centerX, costY, 0xFFDDDDDD);
+        centeredTextNoShadow(graphics, "Wymagane zasoby:", centerX, costY, 0xFF000000);
 
         String mainNameStr = nextMainItem.getName(nextMainItem.getDefaultInstance()).getString();
-        String mainText = "Główny: " + nextTierConfig.mainAmount + "x " + mainNameStr + " (Masz: " + playerMainCount + ")";
-        graphics.centeredText(this.font, mainText, centerX, costY + 12, playerMainCount >= nextTierConfig.mainAmount ? 0xFF55FF55 : 0xFFFF5555);
+        int cappedMain = Math.min(playerMainCount, nextTierConfig.mainAmount);
+        centeredTextNoShadow(graphics, "- " + cappedMain + "/" + nextTierConfig.mainAmount + " " + mainNameStr, centerX, costY + 12, cappedMain >= nextTierConfig.mainAmount ? 0xFF55FF55 : 0xFFFF5555);
 
         String bulkNameStr = bulkItem.getName(bulkItem.getDefaultInstance()).getString();
-        String bulkText = "Pospolity: " + nextTierConfig.bulkAmount + "x " + bulkNameStr + " (Masz: " + playerBulkCount + ")";
-        graphics.centeredText(this.font, bulkText, centerX, costY + 24, playerBulkCount >= nextTierConfig.bulkAmount ? 0xFF55FF55 : 0xFFFF5555);
+        int cappedBulk = Math.min(playerBulkCount, nextTierConfig.bulkAmount);
+        centeredTextNoShadow(graphics, "- " + cappedBulk + "/" + nextTierConfig.bulkAmount + " " + bulkNameStr, centerX, costY + 24, cappedBulk >= nextTierConfig.bulkAmount ? 0xFF55FF55 : 0xFFFF5555);
 
         int btnWidth = 140;
         int btnHeight = 20;
@@ -438,19 +562,97 @@ public class BaseCoreScreen extends Screen {
         int btnY = costY + 40;
 
         boolean isBtnHovered = mouseX >= btnX && mouseX < btnX + btnWidth && mouseY >= btnY && mouseY < btnY + btnHeight;
-        int btnColor = isBtnHovered ? 0xFF2A8B2A : 0xFF1B5E1B;
-        int btnOutline = isBtnHovered ? 0xFF3CDA3C : 0xFF288B28;
-        int textColor = 0xFFFFFFFF;
 
-        if (!canAfford) {
-            btnColor = 0xFF333333;
-            btnOutline = 0xFF555555;
-            textColor = 0xFFAAAAAA;
+        int btnColor;
+        int btnOutline;
+        int textColor;
+
+        long time = System.currentTimeMillis();
+        float pulse = (float) (Math.sin(time / 150.0) + 1.0) / 2.0f;
+        int pulseG = (int) (170 + (85 * pulse));
+        int blinkColorBg = 0xFF000000 | (255 << 16) | (pulseG << 8);
+        int blinkOutlineColor = 0xFF000000 | (204 << 16) | ((int)(122 + (82 * pulse)) << 8);
+
+        if (canAfford) {
+            btnColor = blinkColorBg;
+            btnOutline = blinkOutlineColor;
+            textColor = 0xFF000000;
+        } else {
+            btnColor = 0xFF8D6E63;
+            btnOutline = 0xFF5D4037;
+            textColor = 0xFFEFEBE9;
+        }
+
+        if (isBtnHovered && canAfford) {
+            btnColor = 0xFF000000 | (255 << 16) | (Math.min(255, pulseG + 30) << 8);
+        } else if (isBtnHovered && !canAfford) {
+            btnColor = 0xFFA1887F;
         }
 
         graphics.fill(btnX, btnY, btnX + btnWidth, btnY + btnHeight, btnColor);
-        graphics.outline(btnX, btnY, btnWidth, btnHeight, btnOutline);
-        graphics.centeredText(this.font, "ROZPOCZNIJ ULEPSZENIE", centerX, btnY + 6, textColor);
+        drawThickOutline(graphics, btnX, btnY, btnWidth, btnHeight, 1, btnOutline);
+        centeredTextNoShadow(graphics, "ROZPOCZNIJ ULEPSZENIE", centerX, btnY + 6, textColor);
+
+        if (mouseX >= leftBoxX && mouseX < leftBoxX + 40 && mouseY >= boxY && mouseY < boxY + 40) {
+            if (currentTier == 0) {
+                java.util.List<Component> t0 = new java.util.ArrayList<>();
+                t0.add(Component.literal("Baza (Poziom 0)").withStyle(net.minecraft.ChatFormatting.GOLD));
+                t0.add(Component.literal("Zbuduj ulepszenie poziomu 1, aby aktywować Rdzeń.").withStyle(net.minecraft.ChatFormatting.GRAY));
+                graphics.setComponentTooltipForNextFrame(this.font, t0, mouseX, mouseY);
+            } else {
+                renderTierTooltip(graphics, currentTierConfig, false, mouseX, mouseY);
+            }
+        }
+
+        if (mouseX >= rightBoxX && mouseX < rightBoxX + 40 && mouseY >= boxY && mouseY < boxY + 40) {
+            renderTierTooltip(graphics, nextTierConfig, true, mouseX, mouseY);
+        }
+    }
+
+    private void renderTierTooltip(GuiGraphicsExtractor graphics, BaseCoreServerConfig.TierUpgrade tierConfig, boolean isNextTier, int mouseX, int mouseY) {
+        java.util.List<Component> tooltipLines = new java.util.ArrayList<>();
+
+        tooltipLines.add(Component.literal(tierConfig.title + " (Poziom " + tierConfig.tierLevel + ")").withStyle(net.minecraft.ChatFormatting.GOLD));
+        tooltipLines.add(Component.literal("Odblokowuje:").withStyle(net.minecraft.ChatFormatting.GRAY));
+
+        boolean hasUnlocks = false;
+        if (tierConfig.bonusRadius > 0) {
+            tooltipLines.add(Component.literal("- +" + tierConfig.bonusRadius + " do Zasięgu Bazy").withStyle(net.minecraft.ChatFormatting.AQUA));
+            hasUnlocks = true;
+        }
+        if (tierConfig.bonusSlots > 0) {
+            tooltipLines.add(Component.literal("- +" + tierConfig.bonusSlots + " Slot na Efekt").withStyle(net.minecraft.ChatFormatting.GREEN));
+            hasUnlocks = true;
+        }
+        if (tierConfig.unlocksPool > 0) {
+            tooltipLines.add(Component.literal("- Pula Efektów " + tierConfig.unlocksPool).withStyle(net.minecraft.ChatFormatting.LIGHT_PURPLE));
+            hasUnlocks = true;
+        }
+
+        if (!hasUnlocks) {
+            tooltipLines.add(Component.literal("- Brak nowych odblokowań").withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
+        }
+
+        if (isNextTier) {
+            tooltipLines.add(Component.literal(""));
+            tooltipLines.add(Component.literal("Wymagane zasoby do ulepszenia:").withStyle(net.minecraft.ChatFormatting.WHITE));
+
+            Item mainItem = BuiltInRegistries.ITEM.get(Identifier.parse(tierConfig.mainItem)).map(Holder::value).orElse(Items.AIR);
+            Item bulkItem = BuiltInRegistries.ITEM.get(Identifier.parse(tierConfig.bulkItem)).map(Holder::value).orElse(Items.AIR);
+
+            int playerMainCount = countItemInClientInventory(mainItem);
+            int playerBulkCount = countItemInClientInventory(bulkItem);
+
+            int cappedMain = Math.min(playerMainCount, tierConfig.mainAmount);
+            tooltipLines.add(Component.literal("- " + cappedMain + "/" + tierConfig.mainAmount + " " + mainItem.getName(mainItem.getDefaultInstance()).getString())
+                    .withStyle(cappedMain >= tierConfig.mainAmount ? net.minecraft.ChatFormatting.GREEN : net.minecraft.ChatFormatting.RED));
+
+            int cappedBulk = Math.min(playerBulkCount, tierConfig.bulkAmount);
+            tooltipLines.add(Component.literal("- " + cappedBulk + "/" + tierConfig.bulkAmount + " " + bulkItem.getName(bulkItem.getDefaultInstance()).getString())
+                    .withStyle(cappedBulk >= tierConfig.bulkAmount ? net.minecraft.ChatFormatting.GREEN : net.minecraft.ChatFormatting.RED));
+        }
+
+        graphics.setComponentTooltipForNextFrame(this.font, tooltipLines, mouseX, mouseY);
     }
 
     private void renderSlotDropdown(GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
@@ -471,11 +673,11 @@ public class BaseCoreScreen extends Screen {
         int ddX = this.leftPos + (this.imageWidth - ddW) / 2;
         int ddY = this.topPos + (this.imageHeight - ddH) / 2;
 
-        graphics.fill(ddX, ddY, ddX + ddW, ddY + ddH, 0xFF2A2A2A);
-        graphics.outline(ddX, ddY, ddW, ddH, 0xFF666666);
+        graphics.fill(ddX, ddY, ddX + ddW, ddY + ddH, 0xFFFFF8DC);
+        drawThickOutline(graphics, ddX, ddY, ddW, ddH, 2, 0xFF3E2723);
 
         boolean hoverEmpty = mouseX >= ddX && mouseX < ddX + ddW && mouseY >= ddY + 5 && mouseY < ddY + 5 + rowHeight;
-        if (hoverEmpty) graphics.fill(ddX + 1, ddY + 5, ddX + ddW - 1, ddY + 5 + rowHeight, 0x44FFFFFF);
+        if (hoverEmpty) graphics.fill(ddX + 1, ddY + 5, ddX + ddW - 1, ddY + 5 + rowHeight, 0x20000000);
         graphics.text(this.font, "[ X ] Wyczyść ten Slot", ddX + 5, ddY + 5 + 4, 0xFFFF5555, false);
 
         for (int i = 0; i < unlockedOnly.size(); i++) {
@@ -484,11 +686,11 @@ public class BaseCoreScreen extends Screen {
             boolean hover = mouseX >= ddX && mouseX < ddX + ddW && mouseY >= itemY && mouseY < itemY + rowHeight;
 
             if (hover) {
-                graphics.fill(ddX + 1, itemY, ddX + ddW - 1, itemY + rowHeight, 0x44FFFFFF);
+                graphics.fill(ddX + 1, itemY, ddX + ddW - 1, itemY + rowHeight, 0x20000000);
             }
 
             boolean isActive = data.activeSlots().contains(ec.id);
-            int color = isActive ? 0xFF777777 : 0xFFDDDDDD;
+            int color = isActive ? 0xFF888888 : 0xFF000000;
 
             Item costItem = BuiltInRegistries.ITEM.get(Identifier.parse(ec.itemCost)).map(Holder::value).orElse(Items.AIR);
 
@@ -496,7 +698,7 @@ public class BaseCoreScreen extends Screen {
             graphics.text(this.font, ec.name, ddX + 25, itemY + 4, color, false);
 
             if (isActive) {
-                graphics.text(this.font, "(Zajęty)", ddX + ddW - 45, itemY + 4, 0xFFAAAAAA, false);
+                graphics.text(this.font, "(Zajęty)", ddX + ddW - 45, itemY + 4, 0xFF888888, false);
             }
         }
     }
@@ -519,10 +721,12 @@ public class BaseCoreScreen extends Screen {
 
             if (clickedRow == 0) {
                 Services.PLATFORM.sendToServer(new UnlockEffectPayload(data.pos(), "empty", this.openedSlotDropdown));
+                this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             } else if (clickedRow > 0 && clickedRow <= unlockedOnly.size()) {
                 BaseCoreServerConfig.EffectConfig ec = unlockedOnly.get(clickedRow - 1);
                 if (!data.activeSlots().contains(ec.id)) {
                     Services.PLATFORM.sendToServer(new UnlockEffectPayload(data.pos(), ec.id, this.openedSlotDropdown));
+                    this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                 }
             }
         }
@@ -558,6 +762,7 @@ public class BaseCoreScreen extends Screen {
                         Item costItem = BuiltInRegistries.ITEM.get(Identifier.parse(effect.itemCost)).map(Holder::value).orElse(Items.AIR);
                         if (getTotalExperienceClient() >= effect.xpCost && countItemInClientInventory(costItem) >= effect.itemAmount) {
                             Services.PLATFORM.sendToServer(new UnlockEffectPayload(data.pos(), effect.id, -1));
+                            this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F));
                         }
                     }
                     return;
@@ -569,6 +774,63 @@ public class BaseCoreScreen extends Screen {
 
     @Override
     public boolean isPauseScreen() { return false; }
+
+    private void drawLine(GuiGraphicsExtractor graphics, int x1, int y1, int x2, int y2, int color) {
+        int dx = Math.abs(x2 - x1);
+        int dy = Math.abs(y2 - y1);
+        int sx = x1 < x2 ? 1 : -1;
+        int sy = y1 < y2 ? 1 : -1;
+        int err = dx - dy;
+
+        while (true) {
+            graphics.fill(x1, y1, x1 + 1, y1 + 1, color);
+            if (x1 == x2 && y1 == y2) break;
+            int e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                x1 += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                y1 += sy;
+            }
+        }
+    }
+
+    private void drawDashedLine(GuiGraphicsExtractor graphics, int x1, int y1, int x2, int y2, int color) {
+        int dashLen = 4;
+        int gapLen = 4;
+        double dist = Math.hypot(x2 - x1, y2 - y1);
+        int segments = (int) (dist / (dashLen + gapLen));
+        if (segments == 0) return;
+
+        double dx = (x2 - x1) / dist;
+        double dy = (y2 - y1) / dist;
+
+        for (int i = 0; i <= segments; i++) {
+            int startX = x1 + (int) (dx * i * (dashLen + gapLen));
+            int startY = y1 + (int) (dy * i * (dashLen + gapLen));
+            int endX = startX + (int) (dx * dashLen);
+            int endY = startY + (int) (dy * dashLen);
+
+            if (i == segments && Math.hypot(endX - x1, endY - y1) > dist) {
+                endX = x2;
+                endY = y2;
+            }
+            drawLine(graphics, startX, startY, endX, endY, color);
+        }
+    }
+
+    private void drawThickOutline(GuiGraphicsExtractor graphics, int x, int y, int w, int h, int thickness, int color) {
+        graphics.fill(x - thickness, y - thickness, x + w + thickness, y, color);
+        graphics.fill(x - thickness, y + h, x + w + thickness, y + h + thickness, color);
+        graphics.fill(x - thickness, y, x, y + h, color);
+        graphics.fill(x + w, y, x + w + thickness, y + h, color);
+    }
+
+    private void centeredTextNoShadow(GuiGraphicsExtractor graphics, String text, int x, int y, int color) {
+        graphics.text(this.font, text, x - this.font.width(text) / 2, y, color, false);
+    }
 
     private String toRoman(int num) {
         if (num <= 0) return "0";
@@ -585,12 +847,13 @@ public class BaseCoreScreen extends Screen {
     }
 
     private int calculateRangeUpToTier(int currentTier) {
+        if (currentTier == 0) return 0;
         int totalRange = 0;
         for (int i = 1; i <= currentTier; i++) {
             BaseCoreServerConfig.TierUpgrade tier = BaseCoreServerConfig.getTier(i);
             if (tier != null) totalRange += tier.bonusRadius;
         }
-        return totalRange == 0 ? 16 : totalRange;
+        return totalRange;
     }
 
     private int getTotalExperienceClient() {

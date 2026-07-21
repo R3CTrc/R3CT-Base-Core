@@ -26,8 +26,6 @@ public class BaseCoreClientConfig {
     public int version = CONFIG_VERSION;
 
     public float guiScale = 1.0f;
-    public boolean showAreaParticles = true;
-    public int particleDensity = 100;
 
     private static BaseCoreClientConfig instance = new BaseCoreClientConfig();
 

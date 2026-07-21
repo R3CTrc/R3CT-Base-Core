@@ -3,9 +3,5 @@
   "version": 1,
 
   "_comment_gui": "GUI Scale for the Base Core Block menu.",
-  "guiScale": 1.0,
-
-  "_comment_particles": "Should the base boundaries be highlighted with particles?",
-  "showAreaParticles": true,
-  "particleDensity": 100
+  "guiScale": 1.0
 }
