@@ -1,9 +1,8 @@
 package com.r3ct.base_core.logic;
 
 import com.r3ct.base_core.block.BaseCoreBlock;
+import com.r3ct.base_core.block.BaseCoreBlockEntity;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
-import com.r3ct.base_core.data.ModState;
-import com.r3ct.base_core.data.PlayerData;
 import com.r3ct.base_core.network.OpenBaseCoreGuiPayload;
 import com.r3ct.base_core.network.UnlockEffectPayload;
 import com.r3ct.base_core.network.UpgradeBaseCorePayload;
@@ -22,6 +21,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
@@ -30,14 +30,18 @@ public class BaseCoreServerLogic {
 
     public static void handleUpgradeRequest(ServerPlayer player, UpgradeBaseCorePayload payload) {
         Level level = player.level();
-        PlayerData data = ModState.getPlayerData(level.getServer(), player.getUUID());
 
-        if (data.baseCoreTier >= 11) {
+        BlockEntity be = level.getBlockEntity(payload.pos());
+        if (!(be instanceof BaseCoreBlockEntity coreBE)) return;
+
+        if (!coreBE.getOwnerUUID().equals(player.getUUID().toString())) return;
+
+        if (coreBE.getTier() >= 11) {
             player.sendSystemMessage(Component.literal("Osiągnięto limit architektury.").withStyle(ChatFormatting.RED), true);
             return;
         }
 
-        int nextTier = data.baseCoreTier + 1;
+        int nextTier = coreBE.getTier() + 1;
 
         BaseCoreServerConfig.TierUpgrade tierConfig = BaseCoreServerConfig.getTier(nextTier);
         if (tierConfig == null) return;
@@ -55,7 +59,7 @@ public class BaseCoreServerLogic {
             return;
         }
 
-        data.baseCoreTier = nextTier;
+        coreBE.setTier(nextTier);
 
         BlockState currentState = level.getBlockState(payload.pos());
         if (currentState.hasProperty(BaseCoreBlock.TIER)) {
@@ -65,25 +69,31 @@ public class BaseCoreServerLogic {
         level.playSound(null, payload.pos(), SoundEvents.PLAYER_LEVELUP, SoundSource.BLOCKS, 1.0f, 1.0f);
         player.sendSystemMessage(Component.literal("Serce Bazy ulepszone do etapu: " + tierConfig.title).withStyle(ChatFormatting.GREEN), true);
 
-        ModState.get(level.getServer()).setDirty();
-        refreshGuiForPlayer(player, payload.pos(), data);
+        refreshGuiForPlayer(player, payload.pos(), coreBE);
     }
 
     public static void handleUnlockRequest(ServerPlayer player, UnlockEffectPayload payload) {
         Level level = player.level();
-        PlayerData data = ModState.getPlayerData(level.getServer(), player.getUUID());
+
+        BlockEntity be = level.getBlockEntity(payload.pos());
+        if (!(be instanceof BaseCoreBlockEntity coreBE)) return;
+
+        if (!coreBE.getOwnerUUID().equals(player.getUUID().toString())) return;
+
+        List<String> activeEffects = coreBE.getActiveEffects();
+        List<String> activeSlots = coreBE.getActiveSlots();
 
         if (payload.slotIndex() == -1) {
             BaseCoreServerConfig.EffectConfig effectConfig = BaseCoreServerConfig.getEffect(payload.effectId());
             if (effectConfig == null) return;
 
-            int maxPool = BaseCoreServerConfig.getMaxUnlockedPool(data.baseCoreTier);
+            int maxPool = BaseCoreServerConfig.getMaxUnlockedPool(coreBE.getTier());
             if (effectConfig.pool > maxPool) {
                 player.sendSystemMessage(Component.literal("Ta pula efektów jest jeszcze zablokowana!").withStyle(net.minecraft.ChatFormatting.RED), true);
                 return;
             }
 
-            if (data.activeEffects.contains(payload.effectId())) {
+            if (activeEffects.contains(payload.effectId())) {
                 player.sendSystemMessage(Component.literal("Ten protokół został już odblokowany!").withStyle(net.minecraft.ChatFormatting.RED), true);
                 return;
             }
@@ -101,62 +111,64 @@ public class BaseCoreServerLogic {
             }
 
             removeExperience(player, effectConfig.xpCost);
-            data.activeEffects.add(payload.effectId());
 
-            ModState.get(level.getServer()).setDirty();
+            activeEffects.add(payload.effectId());
+            coreBE.forceSync();
+
             level.playSound(null, payload.pos(), net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
             player.sendSystemMessage(Component.literal("Odblokowano protokół: " + effectConfig.name).withStyle(net.minecraft.ChatFormatting.GOLD), true);
 
-            refreshGuiForPlayer(player, payload.pos(), data);
+            refreshGuiForPlayer(player, payload.pos(), coreBE);
             return;
         }
 
-        int maxSlots = BaseCoreServerConfig.calculateTotalSlots(data.baseCoreTier);
+        int maxSlots = BaseCoreServerConfig.calculateTotalSlots(coreBE.getTier());
         if (payload.slotIndex() >= maxSlots || payload.slotIndex() < 0) return;
 
         if (payload.effectId().equals("empty")) {
-            if (data.activeSlots.get(payload.slotIndex()).equals("empty")) {
+            if (activeSlots.get(payload.slotIndex()).equals("empty")) {
                 return;
             }
-            data.activeSlots.set(payload.slotIndex(), "empty");
+            activeSlots.set(payload.slotIndex(), "empty");
             player.sendSystemMessage(Component.literal("Wyczyszczono slot " + (payload.slotIndex() + 1)).withStyle(net.minecraft.ChatFormatting.YELLOW), true);
         }
         else {
             BaseCoreServerConfig.EffectConfig effectConfig = BaseCoreServerConfig.getEffect(payload.effectId());
             if (effectConfig == null) return;
 
-            if (!data.activeEffects.contains(payload.effectId())) {
+            if (!activeEffects.contains(payload.effectId())) {
                 player.sendSystemMessage(Component.literal("Nie odblokowałeś jeszcze tego efektu!").withStyle(net.minecraft.ChatFormatting.RED), true);
                 return;
             }
 
-            if (data.activeSlots.get(payload.slotIndex()).equals(payload.effectId())) {
+            if (activeSlots.get(payload.slotIndex()).equals(payload.effectId())) {
                 return;
             }
 
-            for (int i = 0; i < data.activeSlots.size(); i++) {
-                if (i != payload.slotIndex() && data.activeSlots.get(i).equals(payload.effectId())) {
+            for (int i = 0; i < activeSlots.size(); i++) {
+                if (i != payload.slotIndex() && activeSlots.get(i).equals(payload.effectId())) {
                     player.sendSystemMessage(Component.literal("Ten efekt jest już używany w innym slocie!").withStyle(net.minecraft.ChatFormatting.RED), true);
                     return;
                 }
             }
 
-            data.activeSlots.set(payload.slotIndex(), payload.effectId());
+            activeSlots.set(payload.slotIndex(), payload.effectId());
             player.sendSystemMessage(Component.literal("Przypisano efekt do slotu " + (payload.slotIndex() + 1)).withStyle(net.minecraft.ChatFormatting.AQUA), true);
         }
 
-        ModState.get(level.getServer()).setDirty();
+        coreBE.forceSync();
+
         level.playSound(null, payload.pos(), net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK.value(), net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
 
-        refreshGuiForPlayer(player, payload.pos(), data);
+        refreshGuiForPlayer(player, payload.pos(), coreBE);
     }
 
-    private static void refreshGuiForPlayer(ServerPlayer player, BlockPos pos, PlayerData data) {
+    private static void refreshGuiForPlayer(ServerPlayer player, BlockPos pos, BaseCoreBlockEntity coreBE) {
         OpenBaseCoreGuiPayload refreshPayload = new OpenBaseCoreGuiPayload(
                 pos,
-                data.baseCoreTier,
-                data.activeEffects,
-                data.activeSlots
+                coreBE.getTier(),
+                coreBE.getActiveEffects(),
+                coreBE.getActiveSlots()
         );
 
         Services.PLATFORM.sendToPlayer(player, refreshPayload);

@@ -1,5 +1,6 @@
 package com.r3ct.base_core.logic;
 
+import com.r3ct.base_core.block.BaseCoreBlockEntity;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.data.ModState;
 import com.r3ct.base_core.data.PlayerData;
@@ -8,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class BaseCoreEventLogic {
 
@@ -48,14 +50,22 @@ public class BaseCoreEventLogic {
             if (!data.hasPlacedCore) continue;
             if (!data.coreDimension.equals(currentDimension)) continue;
 
-            int radius = BaseCoreServerConfig.calculateRangeUpToTier(data.baseCoreTier);
+            BlockPos corePos = new BlockPos(data.coreX, data.coreY, data.coreZ);
 
-            if (Math.abs(eventPos.getX() - data.coreX) <= radius &&
-                    Math.abs(eventPos.getY() - data.coreY) <= radius &&
-                    Math.abs(eventPos.getZ() - data.coreZ) <= radius) {
+            if (!level.isLoaded(corePos)) continue;
 
-                if (data.activeSlots.contains(effectId)) {
-                    return true;
+            BlockEntity be = level.getBlockEntity(corePos);
+            if (be instanceof BaseCoreBlockEntity coreBE) {
+
+                int radius = BaseCoreServerConfig.calculateRangeUpToTier(coreBE.getTier());
+
+                if (Math.abs(eventPos.getX() - data.coreX) <= radius &&
+                        Math.abs(eventPos.getY() - data.coreY) <= radius &&
+                        Math.abs(eventPos.getZ() - data.coreZ) <= radius) {
+
+                    if (coreBE.getActiveSlots().contains(effectId)) {
+                        return true;
+                    }
                 }
             }
         }

@@ -2,20 +2,8 @@ package com.r3ct.base_core.data;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class PlayerData {
-    public int baseCoreTier = 0;
-
-    public List<String> activeEffects = new ArrayList<>();
-
-    public List<String> activeSlots = new ArrayList<>(Arrays.asList("empty", "empty", "empty", "empty"));
-
     public boolean hasPlacedCore = false;
     public String coreDimension = "";
     public int coreX = 0;
@@ -30,25 +18,11 @@ public class PlayerData {
     public CompoundTag toNbt() {
         CompoundTag nbt = new CompoundTag();
 
-        nbt.putInt("baseCoreTier", baseCoreTier);
-
         nbt.putBoolean("hasPlacedCore", hasPlacedCore);
         nbt.putString("coreDimension", coreDimension != null ? coreDimension : "");
         nbt.putInt("coreX", coreX);
         nbt.putInt("coreY", coreY);
         nbt.putInt("coreZ", coreZ);
-
-        ListTag effectsList = new ListTag();
-        for (String effect : activeEffects) {
-            effectsList.add(StringTag.valueOf(effect != null ? effect : ""));
-        }
-        nbt.put("activeEffects", effectsList);
-
-        ListTag slotsList = new ListTag();
-        for (String slot : activeSlots) {
-            slotsList.add(StringTag.valueOf(slot != null ? slot : "empty"));
-        }
-        nbt.put("activeSlots", slotsList);
 
         return nbt;
     }
@@ -56,32 +30,11 @@ public class PlayerData {
     public static PlayerData fromNbt(CompoundTag nbt) {
         PlayerData data = new PlayerData();
 
-        data.baseCoreTier = nbt.getInt("baseCoreTier").orElse(0);
-
         data.hasPlacedCore = nbt.getBoolean("hasPlacedCore").orElse(false);
         data.coreDimension = nbt.getString("coreDimension").orElse("");
         data.coreX = nbt.getInt("coreX").orElse(0);
         data.coreY = nbt.getInt("coreY").orElse(0);
         data.coreZ = nbt.getInt("coreZ").orElse(0);
-
-        if (nbt.contains("activeEffects")) {
-            data.activeEffects.clear();
-            if (nbt.get("activeEffects") instanceof ListTag list) {
-                for (int i = 0; i < list.size(); i++) {
-                    data.activeEffects.add(list.getString(i).orElse(""));
-                }
-            }
-        }
-
-        data.activeSlots = new ArrayList<>(Arrays.asList("empty", "empty", "empty", "empty"));
-        if (nbt.contains("activeSlots") && nbt.get("activeSlots") instanceof ListTag list) {
-            int limit = Math.min(4, list.size());
-            for (int i = 0; i < limit; i++) {
-                String val = list.getString(i).orElse("empty");
-                if (val.isEmpty()) val = "empty";
-                data.activeSlots.set(i, val);
-            }
-        }
 
         return data;
     }

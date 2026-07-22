@@ -550,11 +550,11 @@ public class BaseCoreScreen extends Screen {
 
         String mainNameStr = nextMainItem.getName(nextMainItem.getDefaultInstance()).getString();
         int cappedMain = Math.min(playerMainCount, nextTierConfig.mainAmount);
-        centeredTextNoShadow(graphics, "- " + cappedMain + "/" + nextTierConfig.mainAmount + " " + mainNameStr, centerX, costY + 12, cappedMain >= nextTierConfig.mainAmount ? 0xFF55FF55 : 0xFFFF5555);
+        centeredTextNoShadow(graphics, cappedMain + "/" + nextTierConfig.mainAmount + " " + mainNameStr, centerX, costY + 12, cappedMain >= nextTierConfig.mainAmount ? 0xFF55FF55 : 0xFFFF5555);
 
         String bulkNameStr = bulkItem.getName(bulkItem.getDefaultInstance()).getString();
         int cappedBulk = Math.min(playerBulkCount, nextTierConfig.bulkAmount);
-        centeredTextNoShadow(graphics, "- " + cappedBulk + "/" + nextTierConfig.bulkAmount + " " + bulkNameStr, centerX, costY + 24, cappedBulk >= nextTierConfig.bulkAmount ? 0xFF55FF55 : 0xFFFF5555);
+        centeredTextNoShadow(graphics, cappedBulk + "/" + nextTierConfig.bulkAmount + " " + bulkNameStr, centerX, costY + 24, cappedBulk >= nextTierConfig.bulkAmount ? 0xFF55FF55 : 0xFFFF5555);
 
         int btnWidth = 140;
         int btnHeight = 20;

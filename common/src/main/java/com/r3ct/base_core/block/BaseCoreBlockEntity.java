@@ -17,7 +17,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -26,6 +25,8 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,6 +34,10 @@ public class BaseCoreBlockEntity extends BlockEntity {
 
     private String ownerUUID = "";
     private int tickCounter = 0;
+
+    private int tier = 0;
+    private List<String> activeEffects = new ArrayList<>();
+    private List<String> activeSlots = new ArrayList<>(Arrays.asList("empty", "empty", "empty", "empty"));
 
     public BaseCoreBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -46,6 +51,23 @@ public class BaseCoreBlockEntity extends BlockEntity {
 
     public String getOwnerUUID() {
         return this.ownerUUID;
+    }
+
+    public int getTier() { return this.tier; }
+
+    public void setTier(int tier) {
+        this.tier = tier;
+        this.setChanged();
+        syncToClient();
+    }
+
+    public List<String> getActiveEffects() { return this.activeEffects; }
+
+    public List<String> getActiveSlots() { return this.activeSlots; }
+
+    public void forceSync() {
+        this.setChanged();
+        syncToClient();
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, BaseCoreBlockEntity entity) {
@@ -63,18 +85,17 @@ public class BaseCoreBlockEntity extends BlockEntity {
         } catch (Exception e) { return; }
 
         PlayerData data = ModState.getPlayerData(level.getServer(), ownerId);
-
         if (!data.hasPlacedCore || data.coreX != pos.getX() || data.coreY != pos.getY() || data.coreZ != pos.getZ()) {
             return;
         }
 
-        int radius = BaseCoreServerConfig.calculateRangeUpToTier(data.baseCoreTier);
+        int radius = BaseCoreServerConfig.calculateRangeUpToTier(entity.tier);
         AABB boundingBox = new AABB(pos).inflate(radius);
 
         List<ServerPlayer> playersInRange = level.getEntitiesOfClass(ServerPlayer.class, boundingBox);
         if (playersInRange.isEmpty()) return;
 
-        for (String effectId : data.activeSlots) {
+        for (String effectId : entity.activeSlots) {
             if (effectId.equals("empty")) continue;
 
             switch (effectId) {
@@ -98,7 +119,6 @@ public class BaseCoreBlockEntity extends BlockEntity {
                 case "growth_aura":
                     if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
                         double volume = Math.pow((radius * 2) + 1, 3);
-
                         int attempts = (int) (volume / 273);
 
                         for (int i = 0; i < attempts; i++) {
@@ -106,12 +126,10 @@ public class BaseCoreBlockEntity extends BlockEntity {
                             int ry = pos.getY() + level.getRandom().nextInt(radius * 2 + 1) - radius;
                             int rz = pos.getZ() + level.getRandom().nextInt(radius * 2 + 1) - radius;
                             BlockPos targetPos = new BlockPos(rx, ry, rz);
-
                             BlockState targetState = level.getBlockState(targetPos);
 
                             if (targetState.isRandomlyTicking()) {
                                 targetState.randomTick(serverLevel, targetPos, level.getRandom());
-
                                 serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER,
                                         rx + 0.5, ry + 0.5, rz + 0.5, 1, 0.2, 0.2, 0.2, 0.0);
                             }
@@ -142,9 +160,7 @@ public class BaseCoreBlockEntity extends BlockEntity {
 
             for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
                 ItemStack stack = player.getInventory().getItem(i);
-
                 if (!stack.isEmpty() && stack.isDamageableItem() && stack.isDamaged()) {
-
                     if (net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(mendingEnch, stack) > 0) {
                         repairableItems.add(stack);
                     }
@@ -153,7 +169,6 @@ public class BaseCoreBlockEntity extends BlockEntity {
 
             if (!repairableItems.isEmpty()) {
                 ItemStack itemToRepair = repairableItems.get(level.getRandom().nextInt(repairableItems.size()));
-
                 int currentDamage = itemToRepair.getDamageValue();
                 int newDamage = Math.max(0, currentDamage - 5);
                 itemToRepair.setDamageValue(newDamage);
@@ -173,12 +188,36 @@ public class BaseCoreBlockEntity extends BlockEntity {
         if (this.ownerUUID != null && !this.ownerUUID.isEmpty()) {
             output.putString("OwnerUUID", this.ownerUUID);
         }
+        output.putInt("baseCoreTier", this.tier);
+        output.putString("activeEffectsStr", String.join(",", this.activeEffects));
+        output.putString("activeSlotsStr", String.join(",", this.activeSlots));
     }
 
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+
         input.getString("OwnerUUID").ifPresent(uuid -> this.ownerUUID = uuid);
+        input.getInt("baseCoreTier").ifPresent(t -> this.tier = t);
+
+        input.getString("activeEffectsStr").ifPresent(str -> {
+            this.activeEffects.clear();
+            if (!str.isEmpty()) {
+                this.activeEffects.addAll(Arrays.asList(str.split(",")));
+            }
+        });
+
+        input.getString("activeSlotsStr").ifPresent(str -> {
+            this.activeSlots = new ArrayList<>(Arrays.asList("empty", "empty", "empty", "empty"));
+            if (!str.isEmpty()) {
+                String[] parts = str.split(",");
+                int limit = Math.min(4, parts.length);
+                for (int i = 0; i < limit; i++) {
+                    String val = parts[i].trim();
+                    if (!val.isEmpty()) this.activeSlots.set(i, val);
+                }
+            }
+        });
     }
 
     @Override
@@ -188,10 +227,31 @@ public class BaseCoreBlockEntity extends BlockEntity {
         CustomData customData = input.get(DataComponents.CUSTOM_DATA);
         if (customData != null) {
             CompoundTag tag = customData.copyTag();
-            String owner = tag.getString("OwnerUUID").orElse("");
-            if (!owner.isEmpty()) {
-                this.ownerUUID = owner;
-            }
+
+            tag.getString("OwnerUUID").ifPresent(owner -> {
+                if (!owner.isEmpty()) this.ownerUUID = owner;
+            });
+
+            tag.getInt("baseCoreTier").ifPresent(t -> this.tier = t);
+
+            tag.getString("activeEffectsStr").ifPresent(str -> {
+                this.activeEffects.clear();
+                if (!str.isEmpty()) {
+                    this.activeEffects.addAll(Arrays.asList(str.split(",")));
+                }
+            });
+
+            tag.getString("activeSlotsStr").ifPresent(str -> {
+                this.activeSlots = new ArrayList<>(Arrays.asList("empty", "empty", "empty", "empty"));
+                if (!str.isEmpty()) {
+                    String[] parts = str.split(",");
+                    int limit = Math.min(4, parts.length);
+                    for (int i = 0; i < limit; i++) {
+                        String val = parts[i].trim();
+                        if (!val.isEmpty()) this.activeSlots.set(i, val);
+                    }
+                }
+            });
         }
     }
 
@@ -199,9 +259,16 @@ public class BaseCoreBlockEntity extends BlockEntity {
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
 
+        CompoundTag tag = new CompoundTag();
+
         if (this.ownerUUID != null && !this.ownerUUID.isEmpty()) {
-            CompoundTag tag = new CompoundTag();
             tag.putString("OwnerUUID", this.ownerUUID);
+        }
+        tag.putInt("baseCoreTier", this.tier);
+        tag.putString("activeEffectsStr", String.join(",", this.activeEffects));
+        tag.putString("activeSlotsStr", String.join(",", this.activeSlots));
+
+        if (!tag.isEmpty()) {
             components.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
         }
     }

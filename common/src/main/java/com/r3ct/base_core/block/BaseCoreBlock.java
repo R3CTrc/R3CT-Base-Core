@@ -67,6 +67,43 @@ public class BaseCoreBlock extends Block implements EntityBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
+        Player player = context.getPlayer();
+        Level level = context.getLevel();
+
+        if (player instanceof ServerPlayer serverPlayer && !level.isClientSide()) {
+            PlayerData data = ModState.getPlayerData(level.getServer(), serverPlayer.getUUID());
+
+            if (data.hasPlacedCore) {
+                ResourceKey<Level> dimKey = ResourceKey.create(Registries.DIMENSION, Identifier.parse(data.coreDimension));
+                ServerLevel targetLevel = level.getServer().getLevel(dimKey);
+                BlockPos targetPos = new BlockPos(data.coreX, data.coreY, data.coreZ);
+
+                boolean coreExists = false;
+
+                if (targetLevel != null) {
+                    if (targetLevel.isLoaded(targetPos)) {
+                        BlockEntity targetBE = targetLevel.getBlockEntity(targetPos);
+                        if (targetBE instanceof BaseCoreBlockEntity coreBE && serverPlayer.getUUID().toString().equals(coreBE.getOwnerUUID())) {
+                            coreExists = true;
+                        }
+                    } else {
+                        coreExists = true;
+                    }
+                }
+
+                if (coreExists) {
+                    serverPlayer.sendSystemMessage(Component.literal("§cMasz już Serce Bazy! Znajduje się na kordach: X:" + data.coreX + " Y:" + data.coreY + " Z:" + data.coreZ + " (" + data.coreDimension + ")").withStyle(ChatFormatting.RED), true);
+                    if (targetLevel != null && !targetLevel.isLoaded(targetPos)) {
+                        serverPlayer.sendSystemMessage(Component.literal("§7Jeśli blok uległ zniszczeniu przez błąd, udaj się na tamte kordy aby załadować teren. Gra zobaczy, że go nie ma i automatycznie zresetuje Twój limit."));
+                    }
+                    return null;
+                } else {
+                    data.hasPlacedCore = false;
+                    ModState.get(level.getServer()).setDirty();
+                }
+            }
+        }
+
         return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection());
     }
 
@@ -96,43 +133,9 @@ public class BaseCoreBlock extends Block implements EntityBlock {
 
         if (!level.isClientSide() && placer instanceof ServerPlayer player) {
             PlayerData data = ModState.getPlayerData(level.getServer(), player.getUUID());
-
-            if (data.hasPlacedCore) {
-                ResourceKey<Level> dimKey = ResourceKey.create(Registries.DIMENSION, Identifier.parse(data.coreDimension));
-                ServerLevel targetLevel = level.getServer().getLevel(dimKey);
-                BlockPos targetPos = new BlockPos(data.coreX, data.coreY, data.coreZ);
-
-                boolean coreExists = false;
-
-                if (targetLevel != null) {
-                    if (targetLevel.isLoaded(targetPos)) {
-                        BlockEntity targetBE = targetLevel.getBlockEntity(targetPos);
-                        if (targetBE instanceof BaseCoreBlockEntity coreBE && player.getUUID().toString().equals(coreBE.getOwnerUUID())) {
-                            coreExists = true;
-                        }
-                    } else {
-                        coreExists = true;
-                    }
-                }
-
-                if (coreExists) {
-                    player.sendSystemMessage(Component.literal("§cMasz już Serce Bazy! Znajduje się na kordach: X:" + data.coreX + " Y:" + data.coreY + " Z:" + data.coreZ + " (" + data.coreDimension + ")").withStyle(ChatFormatting.RED), true);
-
-                    if (targetLevel != null && !targetLevel.isLoaded(targetPos)) {
-                        player.sendSystemMessage(Component.literal("§7Jeśli blok uległ zniszczeniu przez błąd, udaj się na tamte kordy aby załadować teren. Gra zobaczy, że go nie ma i automatycznie zresetuje Twój limit."));
-                    }
-
-                    level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
-                    if (!player.isCreative()) {
-                        player.getInventory().add(new ItemStack(this.asItem()));
-                    }
-                    return;
-                }
-            }
-
             BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof BaseCoreBlockEntity coreBE) {
 
+            if (blockEntity instanceof BaseCoreBlockEntity coreBE) {
                 CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
                 if (customData != null && !customData.isEmpty()) {
                     net.minecraft.nbt.CompoundTag tag = customData.copyTag();
@@ -149,9 +152,10 @@ public class BaseCoreBlock extends Block implements EntityBlock {
                     data.coreX = pos.getX();
                     data.coreY = pos.getY();
                     data.coreZ = pos.getZ();
+                    ModState.get(level.getServer()).setDirty();
                 }
 
-                level.setBlock(pos, state.setValue(TIER, data.baseCoreTier), 3);
+                level.setBlock(pos, state.setValue(TIER, coreBE.getTier()), 3);
             }
         }
     }
@@ -194,6 +198,7 @@ public class BaseCoreBlock extends Block implements EntityBlock {
 
                         if (data.hasPlacedCore && data.coreX == pos.getX() && data.coreY == pos.getY() && data.coreZ == pos.getZ()) {
                             data.hasPlacedCore = false;
+                            ModState.get(level.getServer()).setDirty();
                         }
                     } catch (IllegalArgumentException ignored) {}
                 }
@@ -208,12 +213,11 @@ public class BaseCoreBlock extends Block implements EntityBlock {
             if (blockEntity instanceof BaseCoreBlockEntity coreBE) {
                 if (coreBE.getOwnerUUID().equals(player.getUUID().toString())) {
 
-                    PlayerData data = ModState.getPlayerData(level.getServer(), player.getUUID());
                     OpenBaseCoreGuiPayload payload = new OpenBaseCoreGuiPayload(
                             pos,
-                            data.baseCoreTier,
-                            data.activeEffects,
-                            data.activeSlots
+                            coreBE.getTier(),
+                            coreBE.getActiveEffects(),
+                            coreBE.getActiveSlots()
                     );
 
                     Services.PLATFORM.sendToPlayer(serverPlayer, payload);
@@ -236,6 +240,7 @@ public class BaseCoreBlock extends Block implements EntityBlock {
                 if (coreBE.getOwnerUUID() != null && !coreBE.getOwnerUUID().isEmpty()) {
                     tag.putString("OwnerUUID", coreBE.getOwnerUUID());
                 }
+                tag.putInt("baseCoreTier", coreBE.getTier());
             });
         }
         return stack;
