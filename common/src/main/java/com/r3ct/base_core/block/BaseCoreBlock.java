@@ -2,6 +2,7 @@ package com.r3ct.base_core.block;
 
 import com.r3ct.base_core.data.ModState;
 import com.r3ct.base_core.data.PlayerData;
+import com.r3ct.base_core.logic.BaseCoreServerLogic;
 import com.r3ct.base_core.network.OpenBaseCoreGuiPayload;
 import com.r3ct.base_core.platform.Services;
 import net.minecraft.ChatFormatting;
@@ -25,7 +26,6 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -153,6 +153,8 @@ public class BaseCoreBlock extends Block implements EntityBlock {
                     data.coreY = pos.getY();
                     data.coreZ = pos.getZ();
                     ModState.get(level.getServer()).setDirty();
+
+                    BaseCoreServerLogic.grantAdvancement(player, "root");
                 }
 
                 level.setBlock(pos, state.setValue(TIER, coreBE.getTier()), 3);
@@ -162,6 +164,15 @@ public class BaseCoreBlock extends Block implements EntityBlock {
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof BaseCoreBlockEntity coreBE) {
+                if (coreBE.getTier() >= 11) {
+                    BaseCoreServerLogic.grantAdvancement(serverPlayer, "moving_day");
+                }
+            }
+        }
+
         clearCoreLimit(level, pos);
         return super.playerWillDestroy(level, pos, state, player);
     }
@@ -242,6 +253,10 @@ public class BaseCoreBlock extends Block implements EntityBlock {
                 }
                 tag.putInt("baseCoreTier", coreBE.getTier());
             });
+
+            net.minecraft.world.item.component.CustomModelData customModelData =
+                    new net.minecraft.world.item.component.CustomModelData(java.util.List.of((float) coreBE.getTier()), java.util.List.of(), java.util.List.of(), java.util.List.of());
+            stack.set(DataComponents.CUSTOM_MODEL_DATA, customModelData);
         }
         return stack;
     }

@@ -1,6 +1,23 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "r3ct_base_core:block/base_core"
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "r3ct_base_core:block/base_core_tier_0"
+    },
+    "entries": [
+      { "threshold": 1.0, "model": { "type": "minecraft:model", "model": "r3ct_base_core:block/base_core_tier_1" } },
+      { "threshold": 2.0, "model": { "type": "minecraft:model", "model": "r3ct_base_core:block/base_core_tier_2" } },
+      { "threshold": 3.0, "model": { "type": "minecraft:model", "model": "r3ct_base_core:block/base_core_tier_3" } },
+      { "threshold": 4.0, "model": { "type": "minecraft:model", "model": "r3ct_base_core:block/base_core_tier_4" } },
+      { "threshold": 5.0, "model": { "type": "minecraft:model", "model": "r3ct_base_core:block/base_core_tier_5" } },
+      { "threshold": 6.0, "model": { "type": "minecraft:model", "model": "r3ct_base_core:block/base_core_tier_6" } },
+      { "threshold": 7.0, "model": { "type": "minecraft:model", "model": "r3ct_base_core:block/base_core_tier_7" } },
+      { "threshold": 8.0, "model": { "type": "minecraft:model", "model": "r3ct_base_core:block/base_core_tier_8" } },
+      { "threshold": 9.0, "model": { "type": "minecraft:model", "model": "r3ct_base_core:block/base_core_tier_9" } },
+      { "threshold": 10.0, "model": { "type": "minecraft:model", "model": "r3ct_base_core:block/base_core_tier_10" } },
+      { "threshold": 11.0, "model": { "type": "minecraft:model", "model": "r3ct_base_core:block/base_core_tier_11" } }
+    ]
   }
 }

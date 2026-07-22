@@ -49,6 +49,10 @@ public class BaseCoreScreen extends Screen {
     public BaseCoreScreen(OpenBaseCoreGuiPayload data) {
         super(Component.literal("Serce Bazy"));
         this.data = data;
+
+        if (net.minecraft.client.Minecraft.getInstance().screen instanceof BaseCoreScreen oldScreen) {
+            this.currentTab = oldScreen.currentTab;
+        }
     }
 
     public float calculateEffectiveScale() {

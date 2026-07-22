@@ -26,7 +26,6 @@ public class ConfigServerScreen extends Screen {
         int centerX = this.width / 2 - buttonWidth / 2;
         int startY = this.height / 2 - 20;
 
-        // Przycisk otwierający nasz jedyny, główny plik serwerowy
         this.addRenderableWidget(Button.builder(Component.translatable("r3ct_base_core.config.server.button.main"), button -> openFile("r3ct_base_core_server.json"))
                 .bounds(centerX, startY, buttonWidth, buttonHeight).build());
 
@@ -35,7 +34,6 @@ public class ConfigServerScreen extends Screen {
     }
 
     private void openFile(String fileName) {
-        // Zaktualizowana ścieżka do nowego folderu
         File configFile = Paths.get("config", "r3ct_base_core", fileName).toFile();
         if (configFile.exists()) {
             Util.getPlatform().openUri(configFile.toURI());

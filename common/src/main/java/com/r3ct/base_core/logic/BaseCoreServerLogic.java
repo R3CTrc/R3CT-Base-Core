@@ -8,6 +8,7 @@ import com.r3ct.base_core.network.UnlockEffectPayload;
 import com.r3ct.base_core.network.UpgradeBaseCorePayload;
 import com.r3ct.base_core.platform.Services;
 import net.minecraft.ChatFormatting;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -69,6 +70,14 @@ public class BaseCoreServerLogic {
         level.playSound(null, payload.pos(), SoundEvents.PLAYER_LEVELUP, SoundSource.BLOCKS, 1.0f, 1.0f);
         player.sendSystemMessage(Component.literal("Serce Bazy ulepszone do etapu: " + tierConfig.title).withStyle(ChatFormatting.GREEN), true);
 
+        if (nextTier == 1) {
+            grantAdvancement(player, "first_upgrade");
+        } else if (nextTier == 5) {
+            grantAdvancement(player, "tier_5");
+        } else if (nextTier == 11) {
+            grantAdvancement(player, "max_tier");
+        }
+
         refreshGuiForPlayer(player, payload.pos(), coreBE);
     }
 
@@ -118,6 +127,13 @@ public class BaseCoreServerLogic {
             level.playSound(null, payload.pos(), net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
             player.sendSystemMessage(Component.literal("Odblokowano protokół: " + effectConfig.name).withStyle(net.minecraft.ChatFormatting.GOLD), true);
 
+            if (activeEffects.size() == 1) {
+                grantAdvancement(player, "first_effect");
+            }
+            if (activeEffects.size() >= BaseCoreServerConfig.getInstance().effects.size()) {
+                grantAdvancement(player, "all_effects");
+            }
+
             refreshGuiForPlayer(player, payload.pos(), coreBE);
             return;
         }
@@ -157,6 +173,23 @@ public class BaseCoreServerLogic {
         }
 
         coreBE.forceSync();
+
+        boolean allFull = true;
+        for (int i = 0; i < 4; i++) {
+            if (activeSlots.get(i).equals("empty")) {
+                allFull = false;
+                break;
+            }
+        }
+        if (allFull) grantAdvancement(player, "all_slots");
+
+        if (activeSlots.contains("anti_spawn") && activeSlots.contains("grief_ward")) {
+            grantAdvancement(player, "safe_zone");
+        }
+
+        if (activeSlots.contains("growth_aura") && activeSlots.contains("anti_trample")) {
+            grantAdvancement(player, "farming_combo");
+        }
 
         level.playSound(null, payload.pos(), net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK.value(), net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
 
@@ -228,5 +261,18 @@ public class BaseCoreServerLogic {
         }
 
         return true;
+    }
+
+    public static void grantAdvancement(ServerPlayer player, String advancementName) {
+        Identifier id = Identifier.parse("r3ct_base_core:" + advancementName);
+        AdvancementHolder advancement = player.level().getServer().getAdvancements().get(id);
+        if (advancement != null) {
+            net.minecraft.advancements.AdvancementProgress progress = player.getAdvancements().getOrStartProgress(advancement);
+            if (!progress.isDone()) {
+                for (String criterion : progress.getRemainingCriteria()) {
+                    player.getAdvancements().award(advancement, criterion);
+                }
+            }
+        }
     }
 }

@@ -1,0 +1,13 @@
+{
+  "parent": "r3ct_base_core:tier_5",
+  "display": {
+    "icon": { "id": "minecraft:beacon" },
+    "title": { "translate": "r3ct_base_core.advancement.max_tier.title" },
+    "description": { "translate": "r3ct_base_core.advancement.max_tier.desc" },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": { "unlocked": { "trigger": "minecraft:impossible" } }
+}

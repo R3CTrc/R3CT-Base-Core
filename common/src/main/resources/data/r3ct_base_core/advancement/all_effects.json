@@ -1,0 +1,13 @@
+{
+  "parent": "r3ct_base_core:all_slots",
+  "display": {
+    "icon": { "id": "minecraft:enchanted_book" },
+    "title": { "translate": "r3ct_base_core.advancement.all_effects.title" },
+    "description": { "translate": "r3ct_base_core.advancement.all_effects.desc" },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": { "unlocked": { "trigger": "minecraft:impossible" } }
+}

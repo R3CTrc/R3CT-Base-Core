@@ -1,0 +1,13 @@
+{
+  "parent": "r3ct_base_core:root",
+  "display": {
+    "icon": { "id": "minecraft:redstone_torch" },
+    "title": { "translate": "r3ct_base_core.advancement.first_upgrade.title" },
+    "description": { "translate": "r3ct_base_core.advancement.first_upgrade.desc" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": { "unlocked": { "trigger": "minecraft:impossible" } }
+}

@@ -1,0 +1,19 @@
+{
+  "sources": [
+    {
+      "type": "single",
+      "resource": "minecraft:item/feather",
+      "sprite": "r3ct_base_core:block/feather"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:item/nether_star",
+      "sprite": "r3ct_base_core:block/nether_star"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:item/echo_shard",
+      "sprite": "r3ct_base_core:block/echo_shard"
+    }
+  ]
+}

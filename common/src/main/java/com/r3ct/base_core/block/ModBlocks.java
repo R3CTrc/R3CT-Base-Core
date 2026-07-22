@@ -18,7 +18,7 @@ public class ModBlocks {
 
     public static final Block BASE_CORE = new BaseCoreBlock(BlockBehaviour.Properties.of()
             .setId(BASE_CORE_KEY)
-            .strength(20.0f, 1200.0f)
+            .strength(5.0f, 1200.0f)
             .noOcclusion()
             .isViewBlocking((state, getter, pos) -> false)
     );

@@ -1,0 +1,12 @@
+{
+  "display": {
+    "icon": { "id": "r3ct_base_core:base_core" },
+    "title": { "translate": "r3ct_base_core.advancement.root.title" },
+    "description": { "translate": "r3ct_base_core.advancement.root.desc" },
+    "background": "minecraft:block/stone_bricks",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": { "unlocked": { "trigger": "minecraft:impossible" } }
+}
