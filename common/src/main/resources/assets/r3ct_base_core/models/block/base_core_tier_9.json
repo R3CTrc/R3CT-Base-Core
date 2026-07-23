@@ -26,7 +26,7 @@
 		"1136": "r3ct_base_core:block/r3ct_base_core_book_paper",
 		"1137": "r3ct_base_core:block/nether_star",
 		"1144": "r3ct_base_core:block/feather",
-		"particle": "block/crafting_table"
+		"particle": "block/stripped_oak_log"
 	},
 	"elements": [
 		{

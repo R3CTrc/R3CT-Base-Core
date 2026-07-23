@@ -4,6 +4,7 @@ import com.r3ct.base_core.block.ModBlocks;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.network.ConfigSyncPayload;
 import com.r3ct.base_core.network.OpenBaseCoreGuiPayload;
+import com.r3ct.base_core.network.ToggleBorderPayload;
 import com.r3ct.base_core.network.UnlockEffectPayload;
 import com.r3ct.base_core.network.UpgradeBaseCorePayload;
 import com.r3ct.base_core.logic.BaseCoreServerLogic;
@@ -51,6 +52,7 @@ public class BaseCoreFabric implements ModInitializer {
 		PayloadTypeRegistry.serverboundPlay().register(UpgradeBaseCorePayload.TYPE, UpgradeBaseCorePayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(UnlockEffectPayload.TYPE, UnlockEffectPayload.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(OpenBaseCoreGuiPayload.TYPE, OpenBaseCoreGuiPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(ToggleBorderPayload.TYPE, ToggleBorderPayload.CODEC);
 
 		ServerPlayNetworking.registerGlobalReceiver(UpgradeBaseCorePayload.TYPE, (payload, context) -> {
 			context.server().execute(() -> {
@@ -61,6 +63,12 @@ public class BaseCoreFabric implements ModInitializer {
 		ServerPlayNetworking.registerGlobalReceiver(UnlockEffectPayload.TYPE, (payload, context) -> {
 			context.server().execute(() -> {
 				BaseCoreServerLogic.handleUnlockRequest(context.player(), payload);
+			});
+		});
+
+		ServerPlayNetworking.registerGlobalReceiver(ToggleBorderPayload.TYPE, (payload, context) -> {
+			context.server().execute(() -> {
+				BaseCoreServerLogic.handleToggleBorderRequest(context.player(), payload);
 			});
 		});
 

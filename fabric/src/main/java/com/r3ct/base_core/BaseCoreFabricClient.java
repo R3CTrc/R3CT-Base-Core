@@ -2,11 +2,13 @@ package com.r3ct.base_core;
 
 import com.r3ct.base_core.config.BaseCoreClientConfig;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
+import com.r3ct.base_core.logic.BaseCoreClientLogic;
 import com.r3ct.base_core.network.ConfigSyncPayload;
 import com.r3ct.base_core.network.OpenBaseCoreGuiPayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 
 public class BaseCoreFabricClient implements ClientModInitializer {
 
@@ -28,6 +30,10 @@ public class BaseCoreFabricClient implements ClientModInitializer {
 
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			BaseCoreServerConfig.load();
+		});
+
+		LevelRenderEvents.END_MAIN.register(context -> {
+			BaseCoreClientLogic.renderBorders(context.poseStack(), context.levelState().cameraRenderState);
 		});
 	}
 }

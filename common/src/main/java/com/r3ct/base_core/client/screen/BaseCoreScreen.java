@@ -37,6 +37,11 @@ public class BaseCoreScreen extends Screen {
     private final int tabHeight = 22;
     private final int tabSpacing = 5;
 
+    private boolean isBorderVisible = false;
+    private final int toggleButtonSize = 20;
+    private int toggleButtonX = 0;
+    private int toggleButtonY = 0;
+
     public enum Tab {
         OVERVIEW("r3ct_base_core.gui.tab.overview"),
         EFFECTS("r3ct_base_core.gui.tab.effects"),
@@ -53,6 +58,11 @@ public class BaseCoreScreen extends Screen {
 
         if (net.minecraft.client.Minecraft.getInstance().screen instanceof BaseCoreScreen oldScreen) {
             this.currentTab = oldScreen.currentTab;
+        }
+
+        net.minecraft.world.level.Level level = net.minecraft.client.Minecraft.getInstance().level;
+        if (level != null && level.getBlockEntity(data.pos()) instanceof com.r3ct.base_core.block.BaseCoreBlockEntity coreBE) {
+            this.isBorderVisible = coreBE.getShowBorder();
         }
     }
 
@@ -187,6 +197,15 @@ public class BaseCoreScreen extends Screen {
             }
 
             if (this.currentTab == Tab.OVERVIEW) {
+                if (mouseX >= this.toggleButtonX && mouseX < this.toggleButtonX + this.toggleButtonSize &&
+                        mouseY >= this.toggleButtonY && mouseY < this.toggleButtonY + this.toggleButtonSize) {
+
+                    this.isBorderVisible = !this.isBorderVisible;
+
+                    Services.PLATFORM.sendToServer(new com.r3ct.base_core.network.ToggleBorderPayload(data.pos()));
+                    this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                    return true;
+                }
                 int slotSize = 36;
                 int slotSpacing = 16;
                 int totalSlotsWidth = (4 * slotSize) + (3 * slotSpacing);
@@ -312,6 +331,55 @@ public class BaseCoreScreen extends Screen {
         int slotsStartY = this.topPos + this.imageHeight - slotSize - 20;
 
         centeredTextNoShadow(graphics, Component.translatable("r3ct_base_core.gui.active_slots"), this.leftPos + (this.imageWidth / 2), slotsStartY - 15, 0xFF000000);
+
+        this.toggleButtonX = frontX + size + 35;
+        this.toggleButtonY = frontY + (size / 2) - (toggleButtonSize / 2);
+
+        boolean isHoveringToggle = mouseX >= toggleButtonX && mouseX < toggleButtonX + toggleButtonSize &&
+                mouseY >= toggleButtonY && mouseY < toggleButtonY + toggleButtonSize;
+
+        graphics.fill(toggleButtonX, toggleButtonY, toggleButtonX + toggleButtonSize, toggleButtonY + toggleButtonSize, isHoveringToggle ? 0xFFE7CDB3 : 0xFFF5DEB3);
+        drawThickOutline(graphics, toggleButtonX, toggleButtonY, toggleButtonSize, toggleButtonSize, 1, 0xFF8D6E63);
+
+        graphics.fakeItem(new ItemStack(Items.LIGHT_BLUE_STAINED_GLASS), toggleButtonX + 2, toggleButtonY + 2);
+
+        if (this.isBorderVisible) {
+            centeredTextNoShadow(graphics, "V", toggleButtonX + toggleButtonSize - 3, toggleButtonY + toggleButtonSize - 7, 0xFF00AA00);
+            centeredTextNoShadow(graphics, "V", toggleButtonX + toggleButtonSize - 4, toggleButtonY + toggleButtonSize - 7, 0xFF00AA00);
+        } else {
+            centeredTextNoShadow(graphics, "X", toggleButtonX + toggleButtonSize - 3, toggleButtonY + toggleButtonSize - 7, 0xFFFF5555);
+            centeredTextNoShadow(graphics, "X", toggleButtonX + toggleButtonSize - 4, toggleButtonY + toggleButtonSize - 7, 0xFFFF5555);
+        }
+
+        if (isHoveringToggle) {
+            java.util.List<Component> toggleTooltip = new java.util.ArrayList<>();
+            toggleTooltip.add(Component.translatable("r3ct_base_core.gui.tooltip.border_toggle.title").withStyle(net.minecraft.ChatFormatting.GOLD));
+
+            String translatedDesc = Component.translatable("r3ct_base_core.gui.tooltip.border_toggle.desc").getString();
+            String[] words = translatedDesc.split(" ");
+            StringBuilder currentLine = new StringBuilder();
+            for (String word : words) {
+                if (this.font.width(currentLine.toString() + word) > 170) {
+                    toggleTooltip.add(Component.literal(currentLine.toString().trim()).withStyle(net.minecraft.ChatFormatting.GRAY));
+                    currentLine = new StringBuilder(word + " ");
+                } else {
+                    currentLine.append(word).append(" ");
+                }
+            }
+            if (currentLine.length() > 0) {
+                toggleTooltip.add(Component.literal(currentLine.toString().trim()).withStyle(net.minecraft.ChatFormatting.GRAY));
+            }
+
+            toggleTooltip.add(Component.literal(""));
+
+            if (this.isBorderVisible) {
+                toggleTooltip.add(Component.translatable("r3ct_base_core.gui.tooltip.border_toggle.on").withStyle(net.minecraft.ChatFormatting.GREEN));
+            } else {
+                toggleTooltip.add(Component.translatable("r3ct_base_core.gui.tooltip.border_toggle.off").withStyle(net.minecraft.ChatFormatting.RED));
+            }
+
+            graphics.setComponentTooltipForNextFrame(this.font, toggleTooltip, mouseX, mouseY);
+        }
 
         for (int i = 0; i < 4; i++) {
             int slotX = slotsStartX + (i * (slotSize + slotSpacing));

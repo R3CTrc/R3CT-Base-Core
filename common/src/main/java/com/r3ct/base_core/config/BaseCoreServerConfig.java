@@ -139,6 +139,7 @@ public class BaseCoreServerConfig {
     }
 
     public static int calculateTotalSlots(int currentTier) {
+        if (currentTier <= 0) return 0;
         int totalSlots = 0;
         for (int i = 1; i <= currentTier; i++) {
             TierUpgrade tier = getTier(i);
@@ -150,6 +151,7 @@ public class BaseCoreServerConfig {
     }
 
     public static int calculateRangeUpToTier(int currentTier) {
+        if (currentTier <= 0) return 0;
         int totalRange = 0;
         for (int i = 1; i <= currentTier; i++) {
             TierUpgrade tier = getTier(i);
@@ -161,6 +163,8 @@ public class BaseCoreServerConfig {
     }
 
     public static int getMaxUnlockedPool(int currentTier) {
+        if (currentTier <= 0) return 0;
+
         int maxPool = 0;
         for (int i = 1; i <= currentTier; i++) {
             TierUpgrade tier = getTier(i);

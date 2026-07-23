@@ -3,6 +3,7 @@ package com.r3ct.base_core.block;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.data.ModState;
 import com.r3ct.base_core.data.PlayerData;
+import com.r3ct.base_core.logic.BaseCoreClientLogic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentGetter;
@@ -42,6 +43,8 @@ public class BaseCoreBlockEntity extends BlockEntity {
     private List<String> activeEffects = new ArrayList<>();
     private List<String> activeSlots = new ArrayList<>(Arrays.asList("empty", "empty", "empty", "empty"));
 
+    private boolean showBorder = false;
+
     public BaseCoreBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
@@ -68,13 +71,26 @@ public class BaseCoreBlockEntity extends BlockEntity {
 
     public List<String> getActiveSlots() { return this.activeSlots; }
 
+    public boolean getShowBorder() {
+        return this.showBorder;
+    }
+
+    public void toggleShowBorder() {
+        this.showBorder = !this.showBorder;
+        this.setChanged();
+        syncToClient();
+    }
+
     public void forceSync() {
         this.setChanged();
         syncToClient();
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, BaseCoreBlockEntity entity) {
-        if (level.isClientSide()) return;
+        if (level.isClientSide()) {
+            BaseCoreClientLogic.trackCore(entity);
+            return;
+        }
 
         entity.tickCounter++;
 
@@ -201,6 +217,7 @@ public class BaseCoreBlockEntity extends BlockEntity {
         output.putInt("baseCoreTier", this.tier);
         output.putString("activeEffectsStr", String.join(",", this.activeEffects));
         output.putString("activeSlotsStr", String.join(",", this.activeSlots));
+        output.putBoolean("showBorder", this.showBorder);
     }
 
     @Override
@@ -228,6 +245,8 @@ public class BaseCoreBlockEntity extends BlockEntity {
                 }
             }
         });
+
+        this.showBorder = input.getBooleanOr("showBorder", false);
     }
 
     @Override
@@ -262,6 +281,8 @@ public class BaseCoreBlockEntity extends BlockEntity {
                     }
                 }
             });
+
+            tag.getBoolean("showBorder").ifPresent(b -> this.showBorder = b);
         }
     }
 
@@ -277,6 +298,7 @@ public class BaseCoreBlockEntity extends BlockEntity {
         tag.putInt("baseCoreTier", this.tier);
         tag.putString("activeEffectsStr", String.join(",", this.activeEffects));
         tag.putString("activeSlotsStr", String.join(",", this.activeSlots));
+        tag.putBoolean("showBorder", this.showBorder);
 
         if (!tag.isEmpty()) {
             components.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));

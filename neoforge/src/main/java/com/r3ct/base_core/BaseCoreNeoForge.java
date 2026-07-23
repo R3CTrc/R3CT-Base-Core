@@ -4,6 +4,7 @@ import com.r3ct.base_core.block.ModBlocks;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.network.ConfigSyncPayload;
 import com.r3ct.base_core.network.OpenBaseCoreGuiPayload;
+import com.r3ct.base_core.network.ToggleBorderPayload;
 import com.r3ct.base_core.network.UnlockEffectPayload;
 import com.r3ct.base_core.network.UpgradeBaseCorePayload;
 import com.r3ct.base_core.logic.BaseCoreServerLogic;
@@ -12,7 +13,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -66,6 +66,14 @@ public class BaseCoreNeoForge {
             context.enqueueWork(() -> {
                 if (context.player() instanceof ServerPlayer player) {
                     BaseCoreServerLogic.handleUnlockRequest(player, payload);
+                }
+            });
+        });
+
+        registrar.playToServer(ToggleBorderPayload.TYPE, ToggleBorderPayload.CODEC, (payload, context) -> {
+            context.enqueueWork(() -> {
+                if (context.player() instanceof ServerPlayer player) {
+                    BaseCoreServerLogic.handleToggleBorderRequest(player, payload);
                 }
             });
         });

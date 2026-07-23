@@ -6,6 +6,7 @@ import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.data.ModState;
 import com.r3ct.base_core.data.PlayerData;
 import com.r3ct.base_core.network.OpenBaseCoreGuiPayload;
+import com.r3ct.base_core.network.ToggleBorderPayload;
 import com.r3ct.base_core.network.UnlockEffectPayload;
 import com.r3ct.base_core.network.UpgradeBaseCorePayload;
 import com.r3ct.base_core.platform.Services;
@@ -212,6 +213,17 @@ public class BaseCoreServerLogic {
         level.playSound(null, payload.pos(), net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK.value(), net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
 
         refreshGuiForPlayer(player, payload.pos(), coreBE);
+    }
+
+    public static void handleToggleBorderRequest(ServerPlayer player, ToggleBorderPayload payload) {
+        Level level = player.level();
+
+        BlockEntity be = level.getBlockEntity(payload.pos());
+        if (!(be instanceof BaseCoreBlockEntity coreBE)) return;
+
+        if (!coreBE.getOwnerUUID().equals(player.getUUID().toString())) return;
+
+        coreBE.toggleShowBorder();
     }
 
     private static void refreshGuiForPlayer(ServerPlayer player, BlockPos pos, BaseCoreBlockEntity coreBE) {

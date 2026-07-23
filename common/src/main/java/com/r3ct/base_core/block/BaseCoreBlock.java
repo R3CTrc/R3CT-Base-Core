@@ -126,9 +126,6 @@ public class BaseCoreBlock extends Block implements EntityBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide()) {
-            return null;
-        }
 
         if (type == ModBlocks.BASE_CORE_BE_TYPE) {
             return (lvl, pos, st, be) -> BaseCoreBlockEntity.tick(lvl, pos, st, (BaseCoreBlockEntity) be);
