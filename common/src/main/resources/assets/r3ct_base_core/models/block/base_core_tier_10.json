@@ -28,7 +28,7 @@
 		"1138": "r3ct_base_core:block/r3ct_base_core_bottle_up_top",
 		"1142": "r3ct_base_core:block/r3ct_base_core_dragons_breath",
 		"1144": "r3ct_base_core:block/feather",
-		"particle": "block/yellow_concrete_powder"
+		"particle": "block/crafting_table"
 	},
 	"elements": [
 		{

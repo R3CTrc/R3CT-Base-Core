@@ -29,7 +29,7 @@
 		"1142": "r3ct_base_core:block/r3ct_base_core_dragons_breath",
 		"1143": "r3ct_base_core:block/echo_shard",
 		"1144": "r3ct_base_core:block/feather",
-		"particle": "block/yellow_concrete_powder"
+		"particle": "block/crafting_table"
 	},
 	"elements": [
 		{

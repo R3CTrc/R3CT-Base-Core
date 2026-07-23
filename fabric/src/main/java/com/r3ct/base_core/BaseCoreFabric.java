@@ -26,7 +26,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class BaseCoreFabric implements ModInitializer {
 
-	public static final Item BASE_CORE_ITEM = new BlockItem(ModBlocks.BASE_CORE, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":base_core"))));
+	public static final Item BASE_CORE_ITEM = new com.r3ct.base_core.item.BaseCoreBlockItem(ModBlocks.BASE_CORE, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":base_core"))));
 
 	@Override
 	public void onInitialize() {

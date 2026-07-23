@@ -23,7 +23,7 @@
 		"1135": "r3ct_base_core:block/r3ct_base_core_book_bottom",
 		"1136": "r3ct_base_core:block/r3ct_base_core_book_paper",
 		"1144": "r3ct_base_core:block/feather",
-		"particle": "block/yellow_concrete_powder"
+		"particle": "block/crafting_table"
 	},
 	"elements": [
 		{

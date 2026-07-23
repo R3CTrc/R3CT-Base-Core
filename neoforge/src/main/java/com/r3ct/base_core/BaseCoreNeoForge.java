@@ -32,7 +32,7 @@ import net.neoforged.neoforge.registries.RegisterEvent;
 @Mod(Constants.MOD_ID)
 public class BaseCoreNeoForge {
 
-    public static final Item BASE_CORE_ITEM = new BlockItem(ModBlocks.BASE_CORE, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":base_core"))));
+    public static final Item BASE_CORE_ITEM = new com.r3ct.base_core.item.BaseCoreBlockItem(ModBlocks.BASE_CORE, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":base_core"))));
 
     public BaseCoreNeoForge(IEventBus modEventBus, ModContainer modContainer) {
         Constants.LOG.info("Starting Base Core system on NeoForge!");
