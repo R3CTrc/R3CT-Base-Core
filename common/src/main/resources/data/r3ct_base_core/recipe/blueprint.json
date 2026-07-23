@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "LPL",
+    "PAP",
+    "LPL"
+  ],
+  "key": {
+    "L": "minecraft:lapis_lazuli",
+    "P": "minecraft:paper",
+    "A": "minecraft:amethyst_shard"
+  },
+  "result": {
+    "id": "r3ct_base_core:blueprint",
+    "count": 1
+  }
+}

@@ -1,6 +1,7 @@
 {
   "itemGroup.r3ct_base_core.main_tab": "R3CT Base Core",
   "block.r3ct_base_core.base_core": "Rdzeń Bazy",
+  "item.r3ct_base_core.blueprint": "Schemat",
 
   "r3ct_base_core.message.core_exists": "Masz już Rdzeń Bazy! Znajduje się na kordach: X: %s Y: %s Z: %s (%s)",
   "r3ct_base_core.message.core_exists_hint": "Jeśli blok uległ zniszczeniu przez błąd, udaj się na tamte kordy aby załadować teren. Gra zobaczy, że go nie ma i automatycznie zresetuje Twój limit.",

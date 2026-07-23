@@ -31,9 +31,12 @@ public class BaseCoreClientLogic {
 
     public static void renderBorders(PoseStack poseStack, CameraRenderState cameraState) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null) return;
+        if (mc.level == null || mc.player == null) return;
 
         Vec3 cameraPos = cameraState.pos;
+
+        boolean holdsBlueprint = mc.player.getMainHandItem().getItem() instanceof com.r3ct.base_core.item.BlueprintItem ||
+                mc.player.getOffhandItem().getItem() instanceof com.r3ct.base_core.item.BlueprintItem;
 
         MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderTypes.lines());
@@ -41,11 +44,10 @@ public class BaseCoreClientLogic {
         for (BaseCoreBlockEntity core : TRACKED_CORES) {
             if (core.isRemoved() || core.getLevel() != mc.level) continue;
 
+            int radius = BaseCoreServerConfig.calculateRangeUpToTier(core.getTier());
+            AABB localAabb = new AABB(-radius, -radius, -radius, 1 + radius, 1 + radius, 1 + radius);
+
             if (core.getShowBorder()) {
-                int radius = BaseCoreServerConfig.calculateRangeUpToTier(core.getTier());
-
-                AABB localAabb = new AABB(-radius, -radius, -radius, 1 + radius, 1 + radius, 1 + radius);
-
                 ShapeRenderer.renderShape(
                         poseStack,
                         vertexConsumer,
@@ -54,6 +56,17 @@ public class BaseCoreClientLogic {
                         core.getBlockPos().getY() - cameraPos.y,
                         core.getBlockPos().getZ() - cameraPos.z,
                         ARGB.colorFromFloat(1.0F, 0.0F, 1.0F, 0.0F),
+                        2.0F
+                );
+            } else if (holdsBlueprint) {
+                ShapeRenderer.renderShape(
+                        poseStack,
+                        vertexConsumer,
+                        Shapes.create(localAabb),
+                        core.getBlockPos().getX() - cameraPos.x,
+                        core.getBlockPos().getY() - cameraPos.y,
+                        core.getBlockPos().getZ() - cameraPos.z,
+                        ARGB.colorFromFloat(1.0F, 0.0F, 0.5F, 1.0F),
                         2.0F
                 );
             }

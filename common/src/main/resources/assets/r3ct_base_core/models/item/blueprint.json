@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "r3ct_base_core:item/r3ct_base_core_blueprint"
+  }
+}
