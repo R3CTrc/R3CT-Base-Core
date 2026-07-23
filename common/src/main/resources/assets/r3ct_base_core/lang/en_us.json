@@ -2,6 +2,7 @@
   "itemGroup.r3ct_base_core.main_tab": "R3CT Base Core",
   "block.r3ct_base_core.base_core": "Base Core",
   "item.r3ct_base_core.blueprint": "Blueprint",
+  "item.r3ct_base_core.blueprint.desc": "When held, reveals visible lines in the world that define the area of effect of nearby bases.",
 
   "r3ct_base_core.message.core_exists": "You already have a Base Core! It is located at: X: %s Y: %s Z: %s (%s)",
   "r3ct_base_core.message.core_exists_hint": "If the block was destroyed due to an error, go to those coordinates to load the chunk. The game will notice it's missing and reset your limit.",
