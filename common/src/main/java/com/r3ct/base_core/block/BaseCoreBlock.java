@@ -24,6 +24,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -41,6 +42,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
@@ -144,7 +146,6 @@ public class BaseCoreBlock extends Block implements EntityBlock {
             BlockEntity blockEntity = level.getBlockEntity(pos);
 
             if (blockEntity instanceof BaseCoreBlockEntity coreBE) {
-
                 coreBE.setOwnerUUID(player.getUUID().toString());
 
                 data.hasPlacedCore = true;
@@ -152,8 +153,11 @@ public class BaseCoreBlock extends Block implements EntityBlock {
                 data.coreX = pos.getX();
                 data.coreY = pos.getY();
                 data.coreZ = pos.getZ();
-                ModState.get(level.getServer()).setDirty();
 
+                data.coreTier = coreBE.getTier();
+                data.activeSlots = new ArrayList<>(coreBE.getActiveSlots());
+
+                ModState.get(level.getServer()).setDirty();
                 BaseCoreServerLogic.grantAdvancement(player, "root");
 
                 level.setBlock(pos, state.setValue(TIER, coreBE.getTier()), 3);
@@ -174,6 +178,14 @@ public class BaseCoreBlock extends Block implements EntityBlock {
 
         clearCoreLimit(level, pos);
         return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
+    public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {
+        if (level instanceof Level fullLevel) {
+            clearCoreLimit(fullLevel, pos);
+        }
+        super.destroy(level, pos, state);
     }
 
     @Override
@@ -208,6 +220,10 @@ public class BaseCoreBlock extends Block implements EntityBlock {
 
                         if (data.hasPlacedCore && data.coreX == pos.getX() && data.coreY == pos.getY() && data.coreZ == pos.getZ()) {
                             data.hasPlacedCore = false;
+
+                            data.coreTier = 0;
+                            data.activeSlots.clear();
+
                             ModState.get(level.getServer()).setDirty();
                         }
                     } catch (IllegalArgumentException ignored) {}

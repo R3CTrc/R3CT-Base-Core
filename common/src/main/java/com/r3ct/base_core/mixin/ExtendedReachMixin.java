@@ -22,6 +22,9 @@ public class ExtendedReachMixin {
     @Inject(method = "tick", at = @At("TAIL"))
     private void onPlayerTick(CallbackInfo ci) {
         ServerPlayer player = (ServerPlayer) (Object) this;
+        if (player.tickCount % 10 != 0 || player.isSpectator()) {
+            return;
+        }
         ServerLevel serverLevel = (ServerLevel) player.level();
         AttributeInstance reachAttribute = player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE);
         if (reachAttribute != null) {

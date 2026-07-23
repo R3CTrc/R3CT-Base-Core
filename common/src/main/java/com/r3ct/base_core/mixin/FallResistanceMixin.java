@@ -3,6 +3,7 @@ package com.r3ct.base_core.mixin;
 import com.r3ct.base_core.logic.BaseCoreEventLogic;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -14,7 +15,7 @@ public class FallResistanceMixin {
     @Inject(method = "calculateFallDamage", at = @At("RETURN"), cancellable = true)
     private void onCalculateFallDamage(double fallDistance, float damageModifier, CallbackInfoReturnable<Integer> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
-        if (entity.level() instanceof ServerLevel serverLevel) {
+        if (entity instanceof Player && entity.level() instanceof ServerLevel serverLevel) {
             if (BaseCoreEventLogic.isEffectActiveAt(serverLevel, entity.blockPosition(), "fall_resistance")) {
                 int originalDamage = cir.getReturnValue();
                 if (originalDamage > 0) {

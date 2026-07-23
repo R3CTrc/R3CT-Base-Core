@@ -3,6 +3,8 @@ package com.r3ct.base_core.logic;
 import com.r3ct.base_core.block.BaseCoreBlock;
 import com.r3ct.base_core.block.BaseCoreBlockEntity;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
+import com.r3ct.base_core.data.ModState;
+import com.r3ct.base_core.data.PlayerData;
 import com.r3ct.base_core.network.OpenBaseCoreGuiPayload;
 import com.r3ct.base_core.network.UnlockEffectPayload;
 import com.r3ct.base_core.network.UpgradeBaseCorePayload;
@@ -25,7 +27,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class BaseCoreServerLogic {
 
@@ -66,6 +70,13 @@ public class BaseCoreServerLogic {
         if (currentState.hasProperty(BaseCoreBlock.TIER)) {
             level.setBlock(payload.pos(), currentState.setValue(BaseCoreBlock.TIER, nextTier), 3);
         }
+
+        try {
+            UUID ownerId = UUID.fromString(coreBE.getOwnerUUID());
+            PlayerData data = ModState.getPlayerData(level.getServer(), ownerId);
+            data.coreTier = nextTier;
+            ModState.get(level.getServer()).setDirty();
+        } catch (IllegalArgumentException ignored) {}
 
         level.playSound(null, payload.pos(), SoundEvents.PLAYER_LEVELUP, SoundSource.BLOCKS, 1.0f, 1.0f);
         player.sendSystemMessage(Component.translatable("r3ct_base_core.message.upgrade.success", Component.translatable(tierConfig.title)).withStyle(ChatFormatting.GREEN), true);
@@ -173,6 +184,13 @@ public class BaseCoreServerLogic {
         }
 
         coreBE.forceSync();
+
+        try {
+            UUID ownerId = UUID.fromString(coreBE.getOwnerUUID());
+            PlayerData data = ModState.getPlayerData(level.getServer(), ownerId);
+            data.activeSlots = new ArrayList<>(coreBE.getActiveSlots());
+            ModState.get(level.getServer()).setDirty();
+        } catch (IllegalArgumentException ignored) {}
 
         boolean allFull = true;
         for (int i = 0; i < 4; i++) {

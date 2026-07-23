@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -25,11 +26,16 @@ public abstract class FurnaceOverclockMixin {
     @Inject(method = "serverTick", at = @At("TAIL"))
     private static void onServerTickTail(ServerLevel level, BlockPos pos, BlockState state, AbstractFurnaceBlockEntity entity, CallbackInfo ci) {
         if (baseCore$isExtraTick.get()) return;
-        if (level.getGameTime() % 4 == 0) {
-            if (BaseCoreEventLogic.isEffectActiveAt(level, pos, "furnace_overclock")) {
-                baseCore$isExtraTick.set(true);
-                BlockState currentState = level.getBlockState(pos);
+        if (level.getGameTime() % 4 != 0) return;
+        BlockState currentState = level.getBlockState(pos);
+        if (!currentState.hasProperty(BlockStateProperties.LIT) || !currentState.getValue(BlockStateProperties.LIT)) {
+            return;
+        }
+        if (BaseCoreEventLogic.isEffectActiveAt(level, pos, "furnace_overclock")) {
+            baseCore$isExtraTick.set(true);
+            try {
                 serverTick(level, pos, currentState, entity);
+            } finally {
                 baseCore$isExtraTick.set(false);
             }
         }

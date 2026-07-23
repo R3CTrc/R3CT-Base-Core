@@ -1,6 +1,5 @@
 package com.r3ct.base_core.logic;
 
-import com.r3ct.base_core.block.BaseCoreBlockEntity;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.data.ModState;
 import com.r3ct.base_core.data.PlayerData;
@@ -9,7 +8,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class BaseCoreEventLogic {
 
@@ -30,7 +28,6 @@ public class BaseCoreEventLogic {
         }
 
         if (type.getCategory() == net.minecraft.world.entity.MobCategory.MONSTER) {
-
             if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
                 return isEffectActiveAt(serverLevel, pos, "anti_spawn");
             }
@@ -44,28 +41,24 @@ public class BaseCoreEventLogic {
         String currentDimension = level.dimension().identifier().toString();
 
         for (PlayerData data : state.players.values()) {
+
             if (!data.hasPlacedCore) continue;
             if (!data.coreDimension.equals(currentDimension)) continue;
 
-            BlockPos corePos = new BlockPos(data.coreX, data.coreY, data.coreZ);
+            if (data.coreTier == 0) continue;
 
-            if (!level.isLoaded(corePos)) continue;
+            if (data.activeSlots == null || !data.activeSlots.contains(effectId)) continue;
 
-            BlockEntity be = level.getBlockEntity(corePos);
-            if (be instanceof BaseCoreBlockEntity coreBE) {
+            int radius = BaseCoreServerConfig.calculateRangeUpToTier(data.coreTier);
 
-                int radius = BaseCoreServerConfig.calculateRangeUpToTier(coreBE.getTier());
+            if (Math.abs(eventPos.getX() - data.coreX) <= radius &&
+                    Math.abs(eventPos.getY() - data.coreY) <= radius &&
+                    Math.abs(eventPos.getZ() - data.coreZ) <= radius) {
 
-                if (Math.abs(eventPos.getX() - data.coreX) <= radius &&
-                        Math.abs(eventPos.getY() - data.coreY) <= radius &&
-                        Math.abs(eventPos.getZ() - data.coreZ) <= radius) {
-
-                    if (coreBE.getActiveSlots().contains(effectId)) {
-                        return true;
-                    }
-                }
+                return true;
             }
         }
+
         return false;
     }
 }

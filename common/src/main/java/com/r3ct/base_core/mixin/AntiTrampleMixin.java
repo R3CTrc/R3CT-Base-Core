@@ -19,6 +19,7 @@ public class AntiTrampleMixin {
     private void onFallOn(Level level, BlockState state, BlockPos pos, Entity entity, double fallDistance, CallbackInfo ci) {
         if (level instanceof ServerLevel serverLevel) {
             if (BaseCoreEventLogic.isEffectActiveAt(serverLevel, pos, "anti_trample")) {
+                entity.causeFallDamage(fallDistance, 1.0F, entity.damageSources().fall());
                 ci.cancel();
             }
         }

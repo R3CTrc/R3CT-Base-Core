@@ -18,6 +18,9 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.StemBlock;
+import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -90,29 +93,31 @@ public class BaseCoreBlockEntity extends BlockEntity {
         }
 
         int radius = BaseCoreServerConfig.calculateRangeUpToTier(entity.tier);
+
         AABB boundingBox = new AABB(pos).inflate(radius);
 
         List<ServerPlayer> playersInRange = level.getEntitiesOfClass(ServerPlayer.class, boundingBox);
-        if (playersInRange.isEmpty()) return;
 
         for (String effectId : entity.activeSlots) {
             if (effectId.equals("empty")) continue;
 
             switch (effectId) {
                 case "fire_immunity":
-                    applyAuraToPlayers(playersInRange, MobEffects.FIRE_RESISTANCE, 220);
+                    if (!playersInRange.isEmpty()) applyAuraToPlayers(playersInRange, MobEffects.FIRE_RESISTANCE, 220);
                     break;
                 case "night_vision":
-                    applyAuraToPlayers(playersInRange, MobEffects.NIGHT_VISION, 220);
+                    if (!playersInRange.isEmpty()) applyAuraToPlayers(playersInRange, MobEffects.NIGHT_VISION, 220);
                     break;
                 case "slow_falling":
-                    applyAuraToPlayers(playersInRange, MobEffects.SLOW_FALLING, 220);
+                    if (!playersInRange.isEmpty()) applyAuraToPlayers(playersInRange, MobEffects.SLOW_FALLING, 220);
                     break;
                 case "satiation":
-                    for (ServerPlayer player : playersInRange) {
-                        float currentSat = player.getFoodData().getSaturationLevel();
-                        if (currentSat < 1.0f) {
-                            player.getFoodData().setSaturation(Math.min(1.0f, currentSat + 0.05f));
+                    if (!playersInRange.isEmpty()) {
+                        for (ServerPlayer player : playersInRange) {
+                            float currentSat = player.getFoodData().getSaturationLevel();
+                            if (currentSat < 1.0f) {
+                                player.getFoodData().setSaturation(Math.min(1.0f, currentSat + 0.05f));
+                            }
                         }
                     }
                     break;
@@ -128,7 +133,7 @@ public class BaseCoreBlockEntity extends BlockEntity {
                             BlockPos targetPos = new BlockPos(rx, ry, rz);
                             BlockState targetState = level.getBlockState(targetPos);
 
-                            if (targetState.isRandomlyTicking()) {
+                            if (targetState.isRandomlyTicking() && isCrop(targetState)) {
                                 targetState.randomTick(serverLevel, targetPos, level.getRandom());
                                 serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER,
                                         rx + 0.5, ry + 0.5, rz + 0.5, 1, 0.2, 0.2, 0.2, 0.0);
@@ -137,12 +142,17 @@ public class BaseCoreBlockEntity extends BlockEntity {
                     }
                     break;
                 case "mending_pulse":
-                    if (entity.tickCounter % 100 == 0) {
+                    if (entity.tickCounter % 100 == 0 && !playersInRange.isEmpty()) {
                         applyMendingPulse(level, playersInRange);
                     }
                     break;
             }
         }
+    }
+
+    private static boolean isCrop(BlockState state) {
+        var block = state.getBlock();
+        return block instanceof CropBlock || block instanceof StemBlock || block instanceof SweetBerryBushBlock;
     }
 
     private static void applyAuraToPlayers(List<ServerPlayer> players, net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> effect, int duration) {
