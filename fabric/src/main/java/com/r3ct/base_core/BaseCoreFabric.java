@@ -1,6 +1,5 @@
 package com.r3ct.base_core;
 
-import com.r3ct.base_core.Constants;
 import com.r3ct.base_core.block.ModBlocks;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.network.ConfigSyncPayload;

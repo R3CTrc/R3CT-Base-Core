@@ -37,6 +37,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
@@ -48,7 +49,14 @@ public class BaseCoreBlock extends Block implements EntityBlock {
     public static final IntegerProperty TIER = IntegerProperty.create("tier", 0, 11);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    private static final VoxelShape SHAPE = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 25.0D, 14.0D);
+    private static final VoxelShape LEG_NW = Block.box(0.0D, 0.0D, 0.0D, 2.0D, 16.0D, 2.0D);
+    private static final VoxelShape LEG_NE = Block.box(14.0D, 0.0D, 0.0D, 16.0D, 16.0D, 2.0D);
+    private static final VoxelShape LEG_SW = Block.box(0.0D, 0.0D, 14.0D, 2.0D, 16.0D, 16.0D);
+    private static final VoxelShape LEG_SE = Block.box(14.0D, 0.0D, 14.0D, 16.0D, 16.0D, 16.0D);
+    private static final VoxelShape LOWER_SHELF = Block.box(0.0D, 5.0D, 0.0D, 16.0D, 7.0D, 16.0D);
+    private static final VoxelShape TABLE_TOP = Block.box(0.0D, 14.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+
+    private static final VoxelShape SHAPE = Shapes.or(LEG_NW, LEG_NE, LEG_SW, LEG_SE, LOWER_SHELF, TABLE_TOP);
 
     public BaseCoreBlock(Properties properties) {
         super(properties);
@@ -92,9 +100,9 @@ public class BaseCoreBlock extends Block implements EntityBlock {
                 }
 
                 if (coreExists) {
-                    serverPlayer.sendSystemMessage(Component.literal("§cMasz już Serce Bazy! Znajduje się na kordach: X:" + data.coreX + " Y:" + data.coreY + " Z:" + data.coreZ + " (" + data.coreDimension + ")").withStyle(ChatFormatting.RED), true);
+                    serverPlayer.sendSystemMessage(Component.translatable("r3ct_base_core.message.core_exists", data.coreX, data.coreY, data.coreZ, data.coreDimension).withStyle(ChatFormatting.RED), true);
                     if (targetLevel != null && !targetLevel.isLoaded(targetPos)) {
-                        serverPlayer.sendSystemMessage(Component.literal("§7Jeśli blok uległ zniszczeniu przez błąd, udaj się na tamte kordy aby załadować teren. Gra zobaczy, że go nie ma i automatycznie zresetuje Twój limit."));
+                        serverPlayer.sendSystemMessage(Component.translatable("r3ct_base_core.message.core_exists_hint").withStyle(ChatFormatting.GRAY));
                     }
                     return null;
                 } else {

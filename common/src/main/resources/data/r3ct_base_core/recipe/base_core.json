@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PBF",
+    "SCS",
+    "L L"
+  ],
+  "key": {
+    "P": "minecraft:flower_pot",
+    "B": "minecraft:book",
+    "F": "minecraft:feather",
+    "S": "#minecraft:planks",
+    "C": "minecraft:crafting_table",
+    "L": "#minecraft:logs"
+  },
+  "result": {
+    "id": "r3ct_base_core:base_core",
+    "count": 1
+  }
+}

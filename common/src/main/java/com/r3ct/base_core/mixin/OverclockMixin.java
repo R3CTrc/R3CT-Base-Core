@@ -3,7 +3,6 @@ package com.r3ct.base_core.mixin;
 import com.r3ct.base_core.logic.BaseCoreEventLogic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;

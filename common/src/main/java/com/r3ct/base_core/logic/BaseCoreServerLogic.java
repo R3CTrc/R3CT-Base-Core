@@ -38,7 +38,7 @@ public class BaseCoreServerLogic {
         if (!coreBE.getOwnerUUID().equals(player.getUUID().toString())) return;
 
         if (coreBE.getTier() >= 11) {
-            player.sendSystemMessage(Component.literal("Osiągnięto limit architektury.").withStyle(ChatFormatting.RED), true);
+            player.sendSystemMessage(Component.translatable("r3ct_base_core.message.upgrade.max_tier").withStyle(ChatFormatting.RED), true);
             return;
         }
 
@@ -51,12 +51,12 @@ public class BaseCoreServerLogic {
         Item bulkItem = BuiltInRegistries.ITEM.get(Identifier.parse(tierConfig.bulkItem)).map(Holder::value).orElse(Items.AIR);
 
         if (!consumeItems(player.getInventory(), mainItem, tierConfig.mainAmount)) {
-            player.sendSystemMessage(Component.literal("Brak wymaganych zasobów głównych!").withStyle(ChatFormatting.RED), true);
+            player.sendSystemMessage(Component.translatable("r3ct_base_core.message.upgrade.missing_main").withStyle(ChatFormatting.RED), true);
             return;
         }
 
         if (!consumeItems(player.getInventory(), bulkItem, tierConfig.bulkAmount)) {
-            player.sendSystemMessage(Component.literal("Brak wymaganych zasobów pospolitych!").withStyle(ChatFormatting.RED), true);
+            player.sendSystemMessage(Component.translatable("r3ct_base_core.message.upgrade.missing_bulk").withStyle(ChatFormatting.RED), true);
             return;
         }
 
@@ -68,7 +68,7 @@ public class BaseCoreServerLogic {
         }
 
         level.playSound(null, payload.pos(), SoundEvents.PLAYER_LEVELUP, SoundSource.BLOCKS, 1.0f, 1.0f);
-        player.sendSystemMessage(Component.literal("Serce Bazy ulepszone do etapu: " + tierConfig.title).withStyle(ChatFormatting.GREEN), true);
+        player.sendSystemMessage(Component.translatable("r3ct_base_core.message.upgrade.success", Component.translatable(tierConfig.title)).withStyle(ChatFormatting.GREEN), true);
 
         if (nextTier == 1) {
             grantAdvancement(player, "first_upgrade");
@@ -98,24 +98,24 @@ public class BaseCoreServerLogic {
 
             int maxPool = BaseCoreServerConfig.getMaxUnlockedPool(coreBE.getTier());
             if (effectConfig.pool > maxPool) {
-                player.sendSystemMessage(Component.literal("Ta pula efektów jest jeszcze zablokowana!").withStyle(net.minecraft.ChatFormatting.RED), true);
+                player.sendSystemMessage(Component.translatable("r3ct_base_core.message.effect.pool_locked").withStyle(net.minecraft.ChatFormatting.RED), true);
                 return;
             }
 
             if (activeEffects.contains(payload.effectId())) {
-                player.sendSystemMessage(Component.literal("Ten protokół został już odblokowany!").withStyle(net.minecraft.ChatFormatting.RED), true);
+                player.sendSystemMessage(Component.translatable("r3ct_base_core.message.effect.already_unlocked").withStyle(net.minecraft.ChatFormatting.RED), true);
                 return;
             }
 
             Item costItem = BuiltInRegistries.ITEM.get(Identifier.parse(effectConfig.itemCost)).map(Holder::value).orElse(Items.AIR);
 
             if (getTotalExperience(player) < effectConfig.xpCost) {
-                player.sendSystemMessage(Component.literal("Brak wystarczającej ilości XP do odblokowania efektu.").withStyle(net.minecraft.ChatFormatting.RED), true);
+                player.sendSystemMessage(Component.translatable("r3ct_base_core.message.effect.missing_xp").withStyle(net.minecraft.ChatFormatting.RED), true);
                 return;
             }
 
             if (!consumeItems(player.getInventory(), costItem, effectConfig.itemAmount)) {
-                player.sendSystemMessage(Component.literal("Brak wymaganych przedmiotów do odblokowania!").withStyle(net.minecraft.ChatFormatting.RED), true);
+                player.sendSystemMessage(Component.translatable("r3ct_base_core.message.effect.missing_items").withStyle(net.minecraft.ChatFormatting.RED), true);
                 return;
             }
 
@@ -125,7 +125,7 @@ public class BaseCoreServerLogic {
             coreBE.forceSync();
 
             level.playSound(null, payload.pos(), net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
-            player.sendSystemMessage(Component.literal("Odblokowano protokół: " + effectConfig.name).withStyle(net.minecraft.ChatFormatting.GOLD), true);
+            player.sendSystemMessage(Component.translatable("r3ct_base_core.message.effect.unlock_success", Component.translatable(effectConfig.name)).withStyle(net.minecraft.ChatFormatting.GOLD), true);
 
             if (activeEffects.size() == 1) {
                 grantAdvancement(player, "first_effect");
@@ -146,14 +146,14 @@ public class BaseCoreServerLogic {
                 return;
             }
             activeSlots.set(payload.slotIndex(), "empty");
-            player.sendSystemMessage(Component.literal("Wyczyszczono slot " + (payload.slotIndex() + 1)).withStyle(net.minecraft.ChatFormatting.YELLOW), true);
+            player.sendSystemMessage(Component.translatable("r3ct_base_core.message.slot.cleared", payload.slotIndex() + 1).withStyle(net.minecraft.ChatFormatting.YELLOW), true);
         }
         else {
             BaseCoreServerConfig.EffectConfig effectConfig = BaseCoreServerConfig.getEffect(payload.effectId());
             if (effectConfig == null) return;
 
             if (!activeEffects.contains(payload.effectId())) {
-                player.sendSystemMessage(Component.literal("Nie odblokowałeś jeszcze tego efektu!").withStyle(net.minecraft.ChatFormatting.RED), true);
+                player.sendSystemMessage(Component.translatable("r3ct_base_core.message.slot.not_unlocked").withStyle(net.minecraft.ChatFormatting.RED), true);
                 return;
             }
 
@@ -163,13 +163,13 @@ public class BaseCoreServerLogic {
 
             for (int i = 0; i < activeSlots.size(); i++) {
                 if (i != payload.slotIndex() && activeSlots.get(i).equals(payload.effectId())) {
-                    player.sendSystemMessage(Component.literal("Ten efekt jest już używany w innym slocie!").withStyle(net.minecraft.ChatFormatting.RED), true);
+                    player.sendSystemMessage(Component.translatable("r3ct_base_core.message.slot.already_in_use").withStyle(net.minecraft.ChatFormatting.RED), true);
                     return;
                 }
             }
 
             activeSlots.set(payload.slotIndex(), payload.effectId());
-            player.sendSystemMessage(Component.literal("Przypisano efekt do slotu " + (payload.slotIndex() + 1)).withStyle(net.minecraft.ChatFormatting.AQUA), true);
+            player.sendSystemMessage(Component.translatable("r3ct_base_core.message.slot.assigned", payload.slotIndex() + 1).withStyle(net.minecraft.ChatFormatting.AQUA), true);
         }
 
         coreBE.forceSync();

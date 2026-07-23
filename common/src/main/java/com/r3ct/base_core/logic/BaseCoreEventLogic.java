@@ -13,9 +13,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class BaseCoreEventLogic {
 
-    /**
-     * Zwraca TRUE, jeśli wybuch ma zostać ZABLOKOWANY
-     */
     public static boolean shouldCancelExplosion(ServerLevel level, BlockPos explosionPos) {
         return isEffectActiveAt(level, explosionPos, "grief_ward");
     }

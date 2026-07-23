@@ -38,16 +38,17 @@ public class BaseCoreScreen extends Screen {
     private final int tabSpacing = 5;
 
     public enum Tab {
-        OVERVIEW("Przegląd"),
-        EFFECTS("Sklep Efektów"),
-        UPGRADES("Ulepszenia");
+        OVERVIEW("r3ct_base_core.gui.tab.overview"),
+        EFFECTS("r3ct_base_core.gui.tab.effects"),
+        UPGRADES("r3ct_base_core.gui.tab.upgrades");
 
-        final String name;
-        Tab(String name) { this.name = name; }
+        final String key;
+        Tab(String key) { this.key = key; }
+        public Component getComponent() { return Component.translatable(key); }
     }
 
     public BaseCoreScreen(OpenBaseCoreGuiPayload data) {
-        super(Component.literal("Serce Bazy"));
+        super(Component.translatable("block.r3ct_base_core.base_core"));
         this.data = data;
 
         if (net.minecraft.client.Minecraft.getInstance().screen instanceof BaseCoreScreen oldScreen) {
@@ -96,7 +97,7 @@ public class BaseCoreScreen extends Screen {
             boolean isSelected = (currentTab == tab);
             boolean isHovered = mouseX >= currentTabX && mouseX < currentTabX + tabWidth &&
                     mouseY >= tabY && mouseY < tabY + tabHeight;
-            renderCustomTab(graphics, currentTabX, tabY, tabWidth, tabHeight, tab.name, isSelected, isHovered);
+            renderCustomTab(graphics, currentTabX, tabY, tabWidth, tabHeight, tab.getComponent(), isSelected, isHovered);
         }
 
         graphics.fill(this.leftPos, this.topPos, this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 0xFFF5DEB3);
@@ -109,11 +110,13 @@ public class BaseCoreScreen extends Screen {
         drawThickOutline(graphics, this.leftPos + innerMargin, this.topPos + 25,
                 this.imageWidth - (innerMargin * 2), this.imageHeight - 25 - innerMargin, 2, 0xFF8D6E63);
 
-        String tierDisplay = data.tier() == 0 ? "Baza (Poziom 0)" : "Poziom " + toRoman(data.tier());
-        int titleWidth = this.font.width("Serce Bazy");
+        Component tierDisplay = data.tier() == 0 ? Component.translatable("r3ct_base_core.gui.tier.0") : Component.translatable("r3ct_base_core.gui.tier.n", toRoman(data.tier()));
+        Component titleDisplay = Component.translatable("block.r3ct_base_core.base_core");
+
+        int titleWidth = this.font.width(titleDisplay);
         int tierWidth = this.font.width(tierDisplay);
 
-        graphics.text(this.font, "Serce Bazy", this.leftPos + 12, this.topPos + 10, 0xFF000000, false);
+        graphics.text(this.font, titleDisplay, this.leftPos + 12, this.topPos + 10, 0xFF000000, false);
         graphics.text(this.font, tierDisplay, this.leftPos + this.imageWidth - tierWidth - 12, this.topPos + 10, 0xFF3E2723, false);
         graphics.fill(this.leftPos + 12, this.topPos + 21, this.leftPos + titleWidth + 12, this.topPos + 22, 0xFF8D6E63);
 
@@ -131,7 +134,7 @@ public class BaseCoreScreen extends Screen {
         super.extractRenderState(graphics, rawMouseX, rawMouseY, partialTick);
     }
 
-    private void renderCustomTab(GuiGraphicsExtractor graphics, int x, int y, int width, int height, String text, boolean isSelected, boolean isHovered) {
+    private void renderCustomTab(GuiGraphicsExtractor graphics, int x, int y, int width, int height, Component text, boolean isSelected, boolean isHovered) {
         int bgColor = isSelected ? 0xFFF5DEB3 : (isHovered ? 0xFFA1887F : 0xFF8D6E63);
         int borderColor = 0xFF3E2723;
         int textColor = isSelected ? 0xFF000000 : (isHovered ? 0xFFFFFFFF : 0xFFEFEBE9);
@@ -248,21 +251,21 @@ public class BaseCoreScreen extends Screen {
         int maxSlots = BaseCoreServerConfig.calculateTotalSlots(data.tier());
         String displayTier = data.tier() == 0 ? "0" : String.valueOf(data.tier());
 
-        graphics.text(this.font, "§lSTATYSTYKI BAZY", infoX, infoY, 0xFF000000, false);
+        graphics.text(this.font, Component.translatable("r3ct_base_core.gui.stats.title").withStyle(net.minecraft.ChatFormatting.BOLD), infoX, infoY, 0xFF000000, false);
 
-        Component tierComp = Component.literal("Poziom Bazy: ").withStyle(net.minecraft.ChatFormatting.BLACK)
+        Component tierComp = Component.translatable("r3ct_base_core.gui.stats.tier").withStyle(net.minecraft.ChatFormatting.BLACK)
                 .append(Component.literal(displayTier).withStyle(net.minecraft.ChatFormatting.AQUA));
         graphics.text(this.font, tierComp, infoX, infoY + 20, 0xFF000000, false);
 
-        Component areaComp = Component.literal("Obszar: ").withStyle(net.minecraft.ChatFormatting.BLACK)
+        Component areaComp = Component.translatable("r3ct_base_core.gui.stats.area").withStyle(net.minecraft.ChatFormatting.BLACK)
                 .append(Component.literal(currentRange + "  (" + diameterStr + ")").withStyle(net.minecraft.ChatFormatting.AQUA));
         graphics.text(this.font, areaComp, infoX, infoY + 35, 0xFF000000, false);
 
-        Component slotsComp = Component.literal("Dostępne sloty: ").withStyle(net.minecraft.ChatFormatting.BLACK)
+        Component slotsComp = Component.translatable("r3ct_base_core.gui.stats.slots").withStyle(net.minecraft.ChatFormatting.BLACK)
                 .append(Component.literal(String.valueOf(maxSlots)).withStyle(net.minecraft.ChatFormatting.DARK_GREEN));
         graphics.text(this.font, slotsComp, infoX, infoY + 50, 0xFF000000, false);
 
-        Component effectsComp = Component.literal("Odblokowane efekty: ").withStyle(net.minecraft.ChatFormatting.BLACK)
+        Component effectsComp = Component.translatable("r3ct_base_core.gui.stats.effects").withStyle(net.minecraft.ChatFormatting.BLACK)
                 .append(Component.literal(String.valueOf(data.unlockedEffects().size())).withStyle(net.minecraft.ChatFormatting.DARK_GREEN));
         graphics.text(this.font, effectsComp, infoX, infoY + 65, 0xFF000000, false);
 
@@ -302,14 +305,13 @@ public class BaseCoreScreen extends Screen {
         centeredTextNoShadow(graphics, String.valueOf(diameterNum), frontX + size / 2, frontY + size + 5, 0xFF444444);
         centeredTextNoShadow(graphics, String.valueOf(diameterNum), frontX - 12, frontY + size / 2 - 4, 0xFF444444);
 
-
         int slotSize = 36;
         int slotSpacing = 16;
         int totalSlotsWidth = (4 * slotSize) + (3 * slotSpacing);
         int slotsStartX = this.leftPos + (this.imageWidth - totalSlotsWidth) / 2;
         int slotsStartY = this.topPos + this.imageHeight - slotSize - 20;
 
-        centeredTextNoShadow(graphics, "Aktywne Sloty", this.leftPos + (this.imageWidth / 2), slotsStartY - 15, 0xFF000000);
+        centeredTextNoShadow(graphics, Component.translatable("r3ct_base_core.gui.active_slots"), this.leftPos + (this.imageWidth / 2), slotsStartY - 15, 0xFF000000);
 
         for (int i = 0; i < 4; i++) {
             int slotX = slotsStartX + (i * (slotSize + slotSpacing));
@@ -372,7 +374,7 @@ public class BaseCoreScreen extends Screen {
                 graphics.fill(poolX + colWidth, startY + 5, poolX + colWidth + 1, startY + 160, 0xFF8D6E63);
             }
 
-            centeredTextNoShadow(graphics, "Pula " + p, poolX + colWidth / 2, startY + 5, poolUnlocked ? 0xFF3E2723 : 0xFF8D6E63);
+            centeredTextNoShadow(graphics, Component.translatable("r3ct_base_core.gui.pool", p), poolX + colWidth / 2, startY + 5, poolUnlocked ? 0xFF3E2723 : 0xFF8D6E63);
 
             int eIndex = 0;
             for (BaseCoreServerConfig.EffectConfig effect : allEffects) {
@@ -425,9 +427,10 @@ public class BaseCoreScreen extends Screen {
     private void renderEffectTooltip(GuiGraphicsExtractor graphics, BaseCoreServerConfig.EffectConfig effect, boolean isUnlocked, boolean isPoolUnlocked, boolean canAfford, int mouseX, int mouseY, Item costItem) {
         java.util.List<Component> tooltipLines = new java.util.ArrayList<>();
 
-        tooltipLines.add(Component.literal(effect.name).withStyle(isUnlocked ? net.minecraft.ChatFormatting.DARK_GREEN : net.minecraft.ChatFormatting.GOLD));
+        tooltipLines.add(Component.translatable(effect.name).withStyle(isUnlocked ? net.minecraft.ChatFormatting.DARK_GREEN : net.minecraft.ChatFormatting.GOLD));
 
-        String[] words = effect.description.split(" ");
+        String translatedDesc = Component.translatable(effect.description).getString();
+        String[] words = translatedDesc.split(" ");
         StringBuilder currentLine = new StringBuilder();
         for (String word : words) {
             if (this.font.width(currentLine.toString() + word) > 170) {
@@ -443,8 +446,8 @@ public class BaseCoreScreen extends Screen {
 
         if (!isPoolUnlocked) {
             tooltipLines.add(Component.literal(""));
-            tooltipLines.add(Component.literal("Zablokowane (Wymaga Puli " + effect.pool + ")").withStyle(net.minecraft.ChatFormatting.DARK_RED));
-            tooltipLines.add(Component.literal("Ulepsz Serce Bazy, aby uzyskać dostęp.").withStyle(net.minecraft.ChatFormatting.RED));
+            tooltipLines.add(Component.translatable("r3ct_base_core.gui.tooltip.locked.title", effect.pool).withStyle(net.minecraft.ChatFormatting.DARK_RED));
+            tooltipLines.add(Component.translatable("r3ct_base_core.gui.tooltip.locked.desc").withStyle(net.minecraft.ChatFormatting.RED));
         } else if (!isUnlocked) {
             int playerXp = getTotalExperienceClient();
             int playerItemCount = countItemInClientInventory(costItem);
@@ -454,7 +457,7 @@ public class BaseCoreScreen extends Screen {
             String itemName = costItem.getName(costItem.getDefaultInstance()).getString();
 
             tooltipLines.add(Component.literal(""));
-            tooltipLines.add(Component.literal("Wymagane zasoby:").withStyle(net.minecraft.ChatFormatting.WHITE));
+            tooltipLines.add(Component.translatable("r3ct_base_core.gui.tooltip.resources_required").withStyle(net.minecraft.ChatFormatting.WHITE));
 
             tooltipLines.add(Component.literal("- " + cappedXp + "/" + effect.xpCost + " XP")
                     .withStyle(cappedXp >= effect.xpCost ? net.minecraft.ChatFormatting.GREEN : net.minecraft.ChatFormatting.RED));
@@ -469,11 +472,11 @@ public class BaseCoreScreen extends Screen {
                 int blinkColorText = 0xFF000000 | (255 << 16) | (pulseG << 8);
 
                 tooltipLines.add(Component.literal(""));
-                tooltipLines.add(Component.literal("Kliknij, aby odblokować").withStyle(style -> style.withColor(blinkColorText)));
+                tooltipLines.add(Component.translatable("r3ct_base_core.gui.tooltip.click_to_unlock").withStyle(style -> style.withColor(blinkColorText)));
             }
         } else {
             tooltipLines.add(Component.literal(""));
-            tooltipLines.add(Component.literal("Zakupiono! Zarządzaj w zakładce 'Przegląd'").withStyle(net.minecraft.ChatFormatting.GREEN));
+            tooltipLines.add(Component.translatable("r3ct_base_core.gui.tooltip.purchased").withStyle(net.minecraft.ChatFormatting.GREEN));
         }
 
         graphics.setComponentTooltipForNextFrame(this.font, tooltipLines, mouseX, mouseY);
@@ -494,8 +497,8 @@ public class BaseCoreScreen extends Screen {
         drawThickOutline(graphics, panelX, panelY, panelWidth, panelHeight, 2, 0xFF8D6E63);
 
         if (isMaxTier) {
-            centeredTextNoShadow(graphics, "Rdzeń Osiągnął Limit Architektury", panelX + (panelWidth / 2), panelY + 40, 0xFF000000);
-            centeredTextNoShadow(graphics, "Maksymalny Poziom: " + toRoman(currentTier), panelX + (panelWidth / 2), panelY + 55, 0xFF3E2723);
+            centeredTextNoShadow(graphics, Component.translatable("r3ct_base_core.gui.upgrades.max_limit"), panelX + (panelWidth / 2), panelY + 40, 0xFF000000);
+            centeredTextNoShadow(graphics, Component.translatable("r3ct_base_core.gui.upgrades.max_tier", toRoman(currentTier)), panelX + (panelWidth / 2), panelY + 55, 0xFF3E2723);
 
             if (mouseX >= panelX && mouseX < panelX + panelWidth && mouseY >= panelY && mouseY < panelY + panelHeight) {
                 renderTierTooltip(graphics, currentTierConfig, false, mouseX, mouseY);
@@ -516,12 +519,12 @@ public class BaseCoreScreen extends Screen {
         if (currentTier == 0) {
             graphics.fakeItem(new ItemStack(Items.STICK), -8, -8);
             graphics.pose().popMatrix();
-            centeredTextNoShadow(graphics, "Baza (Poziom 0)", leftBoxX + 20, boxY + 50, 0xFF000000);
+            centeredTextNoShadow(graphics, Component.translatable("r3ct_base_core.gui.tier.0"), leftBoxX + 20, boxY + 50, 0xFF000000);
         } else {
             Item currentMain = BuiltInRegistries.ITEM.get(Identifier.parse(currentTierConfig.mainItem)).map(Holder::value).orElse(Items.AIR);
             graphics.fakeItem(new ItemStack(currentMain), -8, -8);
             graphics.pose().popMatrix();
-            String currentName = currentTierConfig.title + " (Poziom " + currentTier + ")";
+            Component currentName = Component.translatable("r3ct_base_core.gui.tier.format", Component.translatable(currentTierConfig.title), currentTier);
             centeredTextNoShadow(graphics, currentName, leftBoxX + 20, boxY + 50, 0xFF000000);
         }
 
@@ -541,7 +544,7 @@ public class BaseCoreScreen extends Screen {
         graphics.fakeItem(new ItemStack(nextMainItem), -8, -8);
         graphics.pose().popMatrix();
 
-        String nextName = nextTierConfig.title + " (Poziom " + (currentTier + 1) + ")";
+        Component nextName = Component.translatable("r3ct_base_core.gui.tier.format", Component.translatable(nextTierConfig.title), currentTier + 1);
         centeredTextNoShadow(graphics, nextName, rightBoxX + 20, boxY + 50, 0xFF3E2723);
 
         Item bulkItem = BuiltInRegistries.ITEM.get(Identifier.parse(nextTierConfig.bulkItem)).map(Holder::value).orElse(Items.AIR);
@@ -550,7 +553,7 @@ public class BaseCoreScreen extends Screen {
         boolean canAfford = playerMainCount >= nextTierConfig.mainAmount && playerBulkCount >= nextTierConfig.bulkAmount;
 
         int costY = panelY + panelHeight + 15;
-        centeredTextNoShadow(graphics, "Wymagane zasoby:", centerX, costY, 0xFF000000);
+        centeredTextNoShadow(graphics, Component.translatable("r3ct_base_core.gui.upgrades.resources_required"), centerX, costY, 0xFF000000);
 
         String mainNameStr = nextMainItem.getName(nextMainItem.getDefaultInstance()).getString();
         int cappedMain = Math.min(playerMainCount, nextTierConfig.mainAmount);
@@ -595,13 +598,13 @@ public class BaseCoreScreen extends Screen {
 
         graphics.fill(btnX, btnY, btnX + btnWidth, btnY + btnHeight, btnColor);
         drawThickOutline(graphics, btnX, btnY, btnWidth, btnHeight, 1, btnOutline);
-        centeredTextNoShadow(graphics, "ROZPOCZNIJ ULEPSZENIE", centerX, btnY + 6, textColor);
+        centeredTextNoShadow(graphics, Component.translatable("r3ct_base_core.gui.upgrades.start_upgrade"), centerX, btnY + 6, textColor);
 
         if (mouseX >= leftBoxX && mouseX < leftBoxX + 40 && mouseY >= boxY && mouseY < boxY + 40) {
             if (currentTier == 0) {
                 java.util.List<Component> t0 = new java.util.ArrayList<>();
-                t0.add(Component.literal("Baza (Poziom 0)").withStyle(net.minecraft.ChatFormatting.GOLD));
-                t0.add(Component.literal("Zbuduj ulepszenie poziomu 1, aby aktywować Rdzeń.").withStyle(net.minecraft.ChatFormatting.GRAY));
+                t0.add(Component.translatable("r3ct_base_core.gui.tier.0").withStyle(net.minecraft.ChatFormatting.GOLD));
+                t0.add(Component.translatable("r3ct_base_core.gui.tooltip.tier0_desc").withStyle(net.minecraft.ChatFormatting.GRAY));
                 graphics.setComponentTooltipForNextFrame(this.font, t0, mouseX, mouseY);
             } else {
                 renderTierTooltip(graphics, currentTierConfig, false, mouseX, mouseY);
@@ -616,30 +619,30 @@ public class BaseCoreScreen extends Screen {
     private void renderTierTooltip(GuiGraphicsExtractor graphics, BaseCoreServerConfig.TierUpgrade tierConfig, boolean isNextTier, int mouseX, int mouseY) {
         java.util.List<Component> tooltipLines = new java.util.ArrayList<>();
 
-        tooltipLines.add(Component.literal(tierConfig.title + " (Poziom " + tierConfig.tierLevel + ")").withStyle(net.minecraft.ChatFormatting.GOLD));
-        tooltipLines.add(Component.literal("Odblokowuje:").withStyle(net.minecraft.ChatFormatting.GRAY));
+        tooltipLines.add(Component.translatable("r3ct_base_core.gui.tier.format", Component.translatable(tierConfig.title), tierConfig.tierLevel).withStyle(net.minecraft.ChatFormatting.GOLD));
+        tooltipLines.add(Component.translatable("r3ct_base_core.gui.tooltip.unlocks").withStyle(net.minecraft.ChatFormatting.GRAY));
 
         boolean hasUnlocks = false;
         if (tierConfig.bonusRadius > 0) {
-            tooltipLines.add(Component.literal("- +" + tierConfig.bonusRadius + " do Zasięgu Bazy").withStyle(net.minecraft.ChatFormatting.AQUA));
+            tooltipLines.add(Component.translatable("r3ct_base_core.gui.tooltip.bonus_radius", tierConfig.bonusRadius).withStyle(net.minecraft.ChatFormatting.AQUA));
             hasUnlocks = true;
         }
         if (tierConfig.bonusSlots > 0) {
-            tooltipLines.add(Component.literal("- +" + tierConfig.bonusSlots + " Slot na Efekt").withStyle(net.minecraft.ChatFormatting.GREEN));
+            tooltipLines.add(Component.translatable("r3ct_base_core.gui.tooltip.bonus_slots", tierConfig.bonusSlots).withStyle(net.minecraft.ChatFormatting.GREEN));
             hasUnlocks = true;
         }
         if (tierConfig.unlocksPool > 0) {
-            tooltipLines.add(Component.literal("- Pula Efektów " + tierConfig.unlocksPool).withStyle(net.minecraft.ChatFormatting.LIGHT_PURPLE));
+            tooltipLines.add(Component.translatable("r3ct_base_core.gui.tooltip.unlocks_pool", tierConfig.unlocksPool).withStyle(net.minecraft.ChatFormatting.LIGHT_PURPLE));
             hasUnlocks = true;
         }
 
         if (!hasUnlocks) {
-            tooltipLines.add(Component.literal("- Brak nowych odblokowań").withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
+            tooltipLines.add(Component.translatable("r3ct_base_core.gui.tooltip.no_unlocks").withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
         }
 
         if (isNextTier) {
             tooltipLines.add(Component.literal(""));
-            tooltipLines.add(Component.literal("Wymagane zasoby do ulepszenia:").withStyle(net.minecraft.ChatFormatting.WHITE));
+            tooltipLines.add(Component.translatable("r3ct_base_core.gui.upgrades.resources_required").withStyle(net.minecraft.ChatFormatting.WHITE));
 
             Item mainItem = BuiltInRegistries.ITEM.get(Identifier.parse(tierConfig.mainItem)).map(Holder::value).orElse(Items.AIR);
             Item bulkItem = BuiltInRegistries.ITEM.get(Identifier.parse(tierConfig.bulkItem)).map(Holder::value).orElse(Items.AIR);
@@ -682,7 +685,7 @@ public class BaseCoreScreen extends Screen {
 
         boolean hoverEmpty = mouseX >= ddX && mouseX < ddX + ddW && mouseY >= ddY + 5 && mouseY < ddY + 5 + rowHeight;
         if (hoverEmpty) graphics.fill(ddX + 1, ddY + 5, ddX + ddW - 1, ddY + 5 + rowHeight, 0x20000000);
-        graphics.text(this.font, "[ X ] Wyczyść ten Slot", ddX + 5, ddY + 5 + 4, 0xFFFF5555, false);
+        graphics.text(this.font, Component.translatable("r3ct_base_core.gui.dropdown.clear_slot"), ddX + 5, ddY + 5 + 4, 0xFFFF5555, false);
 
         for (int i = 0; i < unlockedOnly.size(); i++) {
             BaseCoreServerConfig.EffectConfig ec = unlockedOnly.get(i);
@@ -699,10 +702,10 @@ public class BaseCoreScreen extends Screen {
             Item costItem = BuiltInRegistries.ITEM.get(Identifier.parse(ec.itemCost)).map(Holder::value).orElse(Items.AIR);
 
             graphics.fakeItem(new ItemStack(costItem), ddX + 5, itemY);
-            graphics.text(this.font, ec.name, ddX + 25, itemY + 4, color, false);
+            graphics.text(this.font, Component.translatable(ec.name), ddX + 25, itemY + 4, color, false);
 
             if (isActive) {
-                graphics.text(this.font, "(Zajęty)", ddX + ddW - 45, itemY + 4, 0xFF888888, false);
+                graphics.text(this.font, Component.translatable("r3ct_base_core.gui.dropdown.occupied"), ddX + ddW - 45, itemY + 4, 0xFF888888, false);
             }
         }
     }
@@ -830,6 +833,10 @@ public class BaseCoreScreen extends Screen {
         graphics.fill(x - thickness, y + h, x + w + thickness, y + h + thickness, color);
         graphics.fill(x - thickness, y, x, y + h, color);
         graphics.fill(x + w, y, x + w + thickness, y + h, color);
+    }
+
+    private void centeredTextNoShadow(GuiGraphicsExtractor graphics, Component text, int x, int y, int color) {
+        graphics.text(this.font, text, x - this.font.width(text) / 2, y, color, false);
     }
 
     private void centeredTextNoShadow(GuiGraphicsExtractor graphics, String text, int x, int y, int color) {
