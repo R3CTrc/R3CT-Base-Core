@@ -4,14 +4,14 @@
   "package": "com.r3ct.base_core.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "AnimalGrowthMixin",
+    "AntiExplosionMixin",
+    "AntiSpawnMixin",
     "AntiTrampleMixin",
-    "BuildersReachMixin",
-    "ExplosionMixin",
-    "FeatherFallMixin",
-    "OverclockMixin",
-    "PassiveBreedingMixin",
-    "PetWardMixin",
-    "SpawnPlacementsMixin"
+    "ExtendedReachMixin",
+    "FallResistanceMixin",
+    "FurnaceOverclockMixin",
+    "PetProtectionMixin"
   ],
   "client": [],
   "server": [],

@@ -14,10 +14,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
-public class BuildersReachMixin {
+public class ExtendedReachMixin {
 
     @Unique
-    private static final Identifier BASE_CORE_REACH_ID = Identifier.parse("r3ct_base_core:builders_reach");
+    private static final Identifier BASE_CORE_REACH_ID = Identifier.parse("r3ct_base_core:extended_reach");
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void onPlayerTick(CallbackInfo ci) {
@@ -25,7 +25,7 @@ public class BuildersReachMixin {
         ServerLevel serverLevel = (ServerLevel) player.level();
         AttributeInstance reachAttribute = player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE);
         if (reachAttribute != null) {
-            boolean inBase = BaseCoreEventLogic.isEffectActiveAt(serverLevel, player.blockPosition(), "builders_reach");
+            boolean inBase = BaseCoreEventLogic.isEffectActiveAt(serverLevel, player.blockPosition(), "extended_reach");
             boolean hasModifier = reachAttribute.getModifier(BASE_CORE_REACH_ID) != null;
             if (inBase && !hasModifier) {
                 reachAttribute.addTransientModifier(new AttributeModifier(BASE_CORE_REACH_ID, 1.0, AttributeModifier.Operation.ADD_VALUE));

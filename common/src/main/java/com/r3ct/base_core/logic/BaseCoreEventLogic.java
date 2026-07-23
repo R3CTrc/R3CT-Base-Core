@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 public class BaseCoreEventLogic {
 
     public static boolean shouldCancelExplosion(ServerLevel level, BlockPos explosionPos) {
-        return isEffectActiveAt(level, explosionPos, "grief_ward");
+        return isEffectActiveAt(level, explosionPos, "anti_explosion");
     }
 
     public static boolean shouldCancelMobSpawn(ServerLevelAccessor level, EntityType<?> type, EntitySpawnReason reason, BlockPos pos) {

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Mixin(ServerExplosion.class)
-public class ExplosionMixin {
+public class AntiExplosionMixin {
 
     @Inject(method = "calculateExplodedPositions", at = @At("RETURN"), cancellable = true)
     private void onCalculateExplodedPositions(CallbackInfoReturnable<List<BlockPos>> cir) {

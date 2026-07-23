@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AgeableMob.class)
-public abstract class PassiveBreedingMixin {
+public abstract class AnimalGrowthMixin {
 
     @Shadow public abstract int getAge();
     @Shadow public abstract void setAge(int age);
@@ -22,7 +22,7 @@ public abstract class PassiveBreedingMixin {
         if (entity.level() instanceof ServerLevel serverLevel) {
             if (this.canAgeUp()) {
                 if (serverLevel.getGameTime() % 4 == 0) {
-                    if (BaseCoreEventLogic.isEffectActiveAt(serverLevel, entity.blockPosition(), "passive_breeding")) {
+                    if (BaseCoreEventLogic.isEffectActiveAt(serverLevel, entity.blockPosition(), "animal_growth")) {
                         int currentAge = this.getAge();
                         this.setAge(currentAge + 1);
                     }

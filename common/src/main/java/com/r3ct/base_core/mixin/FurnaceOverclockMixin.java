@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractFurnaceBlockEntity.class)
-public abstract class OverclockMixin {
+public abstract class FurnaceOverclockMixin {
 
     @Shadow
     public static void serverTick(ServerLevel level, BlockPos pos, BlockState state, AbstractFurnaceBlockEntity entity) {
@@ -26,7 +26,7 @@ public abstract class OverclockMixin {
     private static void onServerTickTail(ServerLevel level, BlockPos pos, BlockState state, AbstractFurnaceBlockEntity entity, CallbackInfo ci) {
         if (baseCore$isExtraTick.get()) return;
         if (level.getGameTime() % 4 == 0) {
-            if (BaseCoreEventLogic.isEffectActiveAt(level, pos, "overclock")) {
+            if (BaseCoreEventLogic.isEffectActiveAt(level, pos, "furnace_overclock")) {
                 baseCore$isExtraTick.set(true);
                 BlockState currentState = level.getBlockState(pos);
                 serverTick(level, pos, currentState, entity);

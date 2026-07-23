@@ -183,11 +183,11 @@ public class BaseCoreServerLogic {
         }
         if (allFull) grantAdvancement(player, "all_slots");
 
-        if (activeSlots.contains("anti_spawn") && activeSlots.contains("grief_ward")) {
+        if (activeSlots.contains("anti_spawn") && activeSlots.contains("anti_explosion")) {
             grantAdvancement(player, "safe_zone");
         }
 
-        if (activeSlots.contains("growth_aura") && activeSlots.contains("anti_trample")) {
+        if (activeSlots.contains("crop_growth") && activeSlots.contains("anti_trample")) {
             grantAdvancement(player, "farming_combo");
         }
 

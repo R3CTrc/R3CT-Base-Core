@@ -144,26 +144,17 @@ public class BaseCoreBlock extends Block implements EntityBlock {
             BlockEntity blockEntity = level.getBlockEntity(pos);
 
             if (blockEntity instanceof BaseCoreBlockEntity coreBE) {
-                CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
-                if (customData != null && !customData.isEmpty()) {
-                    net.minecraft.nbt.CompoundTag tag = customData.copyTag();
-                    tag.getString("OwnerUUID").ifPresent(coreBE::setOwnerUUID);
-                }
 
-                if (coreBE.getOwnerUUID() == null || coreBE.getOwnerUUID().isEmpty()) {
-                    coreBE.setOwnerUUID(player.getUUID().toString());
-                }
+                coreBE.setOwnerUUID(player.getUUID().toString());
 
-                if (coreBE.getOwnerUUID().equals(player.getUUID().toString())) {
-                    data.hasPlacedCore = true;
-                    data.coreDimension = level.dimension().identifier().toString();
-                    data.coreX = pos.getX();
-                    data.coreY = pos.getY();
-                    data.coreZ = pos.getZ();
-                    ModState.get(level.getServer()).setDirty();
+                data.hasPlacedCore = true;
+                data.coreDimension = level.dimension().identifier().toString();
+                data.coreX = pos.getX();
+                data.coreY = pos.getY();
+                data.coreZ = pos.getZ();
+                ModState.get(level.getServer()).setDirty();
 
-                    BaseCoreServerLogic.grantAdvancement(player, "root");
-                }
+                BaseCoreServerLogic.grantAdvancement(player, "root");
 
                 level.setBlock(pos, state.setValue(TIER, coreBE.getTier()), 3);
             }

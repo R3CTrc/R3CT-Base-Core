@@ -5,7 +5,7 @@
   "tiers": [
     {
       "tierLevel": 1,
-      "title": "Przebudzenie",
+      "title": "r3ct_base_core.tier.1.title",
       "mainItem": "minecraft:oak_log",
       "mainAmount": 64,
       "bulkItem": "minecraft:smooth_stone",
@@ -16,7 +16,7 @@
     },
     {
       "tierLevel": 2,
-      "title": "Ekspansja",
+      "title": "r3ct_base_core.tier.2.title",
       "mainItem": "minecraft:copper_block",
       "mainAmount": 32,
       "bulkItem": "minecraft:brick",
@@ -27,7 +27,7 @@
     },
     {
       "tierLevel": 3,
-      "title": "Twierdza",
+      "title": "r3ct_base_core.tier.3.title",
       "mainItem": "minecraft:iron_block",
       "mainAmount": 16,
       "bulkItem": "minecraft:cobbled_deepslate",
@@ -38,7 +38,7 @@
     },
     {
       "tierLevel": 4,
-      "title": "Bogactwo",
+      "title": "r3ct_base_core.tier.4.title",
       "mainItem": "minecraft:gold_block",
       "mainAmount": 16,
       "bulkItem": "minecraft:netherrack",
@@ -49,7 +49,7 @@
     },
     {
       "tierLevel": 5,
-      "title": "Magia",
+      "title": "r3ct_base_core.tier.5.title",
       "mainItem": "minecraft:amethyst_block",
       "mainAmount": 32,
       "bulkItem": "minecraft:quartz_block",
@@ -60,7 +60,7 @@
     },
     {
       "tierLevel": 6,
-      "title": "Natura",
+      "title": "r3ct_base_core.tier.6.title",
       "mainItem": "minecraft:emerald_block",
       "mainAmount": 16,
       "bulkItem": "minecraft:moss_block",
@@ -71,7 +71,7 @@
     },
     {
       "tierLevel": 7,
-      "title": "Potęga",
+      "title": "r3ct_base_core.tier.7.title",
       "mainItem": "minecraft:diamond_block",
       "mainAmount": 8,
       "bulkItem": "minecraft:obsidian",
@@ -82,7 +82,7 @@
     },
     {
       "tierLevel": 8,
-      "title": "Dominacja",
+      "title": "r3ct_base_core.tier.8.title",
       "mainItem": "minecraft:netherite_block",
       "mainAmount": 1,
       "bulkItem": "minecraft:crying_obsidian",
@@ -93,7 +93,7 @@
     },
     {
       "tierLevel": 9,
-      "title": "Triumf",
+      "title": "r3ct_base_core.tier.9.title",
       "mainItem": "minecraft:nether_star",
       "mainAmount": 1,
       "bulkItem": "minecraft:glowstone",
@@ -104,7 +104,7 @@
     },
     {
       "tierLevel": 10,
-      "title": "Ostateczność",
+      "title": "r3ct_base_core.tier.10.title",
       "mainItem": "minecraft:dragon_breath",
       "mainAmount": 16,
       "bulkItem": "minecraft:purpur_block",
@@ -115,7 +115,7 @@
     },
     {
       "tierLevel": 11,
-      "title": "Głębia",
+      "title": "r3ct_base_core.tier.11.title",
       "mainItem": "minecraft:echo_shard",
       "mainAmount": 8,
       "bulkItem": "minecraft:sculk",
@@ -128,9 +128,9 @@
 
   "effects": [
     {
-      "id": "overclock",
-      "name": "Przyspieszenie Maszyn",
-      "description": "Wszystkie piece w obrębie bazy przepalają surowce o 25% szybciej.",
+      "id": "furnace_overclock",
+      "name": "r3ct_base_core.effect.furnace_overclock.name",
+      "description": "r3ct_base_core.effect.furnace_overclock.desc",
       "xpCost": 150,
       "itemCost": "minecraft:blast_furnace",
       "itemAmount": 3,
@@ -138,35 +138,35 @@
     },
     {
       "id": "anti_trample",
-      "name": "Nietykalne Uprawy",
-      "description": "Skakanie po zaoranej ziemi w obrębie bazy nie niszczy plonów.",
+      "name": "r3ct_base_core.effect.anti_trample.name",
+      "description": "r3ct_base_core.effect.anti_trample.desc",
       "xpCost": 100,
       "itemCost": "minecraft:slime_ball",
       "itemAmount": 16,
       "pool": 1
     },
     {
-      "id": "growth_aura",
-      "name": "Aura Wzrostu",
-      "description": "Losowo przyspiesza wzrost upraw i roślin w obrębie bazy.",
+      "id": "crop_growth",
+      "name": "r3ct_base_core.effect.crop_growth.name",
+      "description": "r3ct_base_core.effect.crop_growth.desc",
       "xpCost": 250,
       "itemCost": "minecraft:bone_meal",
       "itemAmount": 64,
       "pool": 1
     },
     {
-      "id": "feather_fall",
-      "name": "Bezpieczny Upadek",
-      "description": "Zmniejsza otrzymywane obrażenia od upadku o 25% w obrębie bazy.",
+      "id": "fall_resistance",
+      "name": "r3ct_base_core.effect.fall_resistance.name",
+      "description": "r3ct_base_core.effect.fall_resistance.desc",
       "xpCost": 350,
       "itemCost": "minecraft:hay_block",
       "itemAmount": 16,
       "pool": 2
     },
     {
-      "id": "satiated",
-      "name": "Aura Sytości",
-      "description": "Automatycznie odnawia pasek nasycenia głodu graczom w obrębie bazy.",
+      "id": "satiation",
+      "name": "r3ct_base_core.effect.satiation.name",
+      "description": "r3ct_base_core.effect.satiation.desc",
       "xpCost": 400,
       "itemCost": "minecraft:golden_carrot",
       "itemAmount": 16,
@@ -174,8 +174,8 @@
     },
     {
       "id": "anti_spawn",
-      "name": "Blokada Spawnu",
-      "description": "Całkowicie blokuje naturalne pojawianie się potworów w obrębie bazy.",
+      "name": "r3ct_base_core.effect.anti_spawn.name",
+      "description": "r3ct_base_core.effect.anti_spawn.desc",
       "xpCost": 500,
       "itemCost": "minecraft:carved_pumpkin",
       "itemAmount": 16,
@@ -183,26 +183,26 @@
     },
     {
       "id": "night_vision",
-      "name": "Kocie Oczy",
-      "description": "Zapewnia doskonałe widzenie w ciemnościach graczom w obrębie bazy.",
+      "name": "r3ct_base_core.effect.night_vision.name",
+      "description": "r3ct_base_core.effect.night_vision.desc",
       "xpCost": 600,
       "itemCost": "minecraft:glowstone",
       "itemAmount": 32,
       "pool": 3
     },
     {
-      "id": "passive_breeding",
-      "name": "Aura Hodowcy",
-      "description": "Młode zwierzęta hodowlane znajdujące się w obrębie bazy dorastają o 25% szybciej.",
+      "id": "animal_growth",
+      "name": "r3ct_base_core.effect.animal_growth.name",
+      "description": "r3ct_base_core.effect.animal_growth.desc",
       "xpCost": 650,
       "itemCost": "minecraft:golden_apple",
       "itemAmount": 4,
       "pool": 3
     },
     {
-      "id": "builders_reach",
-      "name": "Wydłużone Ramię",
-      "description": "Zwiększa o 1 zasięg stawiania i niszczenia bloków dla graczy w obrębie bazy.",
+      "id": "extended_reach",
+      "name": "r3ct_base_core.effect.extended_reach.name",
+      "description": "r3ct_base_core.effect.extended_reach.desc",
       "xpCost": 800,
       "itemCost": "minecraft:ender_pearl",
       "itemAmount": 16,
@@ -210,26 +210,26 @@
     },
     {
       "id": "fire_immunity",
-      "name": "Aura Ognioodporności",
-      "description": "Zapewnia graczom całkowitą odporność na ogień i lawę w obrębie bazy.",
+      "name": "r3ct_base_core.effect.fire_immunity.name",
+      "description": "r3ct_base_core.effect.fire_immunity.desc",
       "xpCost": 900,
       "itemCost": "minecraft:magma_cream",
       "itemAmount": 32,
       "pool": 4
     },
     {
-      "id": "grief_ward",
-      "name": "Pacyfikator Eksplozji",
-      "description": "Eksplozje w obrębie bazy nie niszczą żadnych bloków.",
+      "id": "anti_explosion",
+      "name": "r3ct_base_core.effect.anti_explosion.name",
+      "description": "r3ct_base_core.effect.anti_explosion.desc",
       "xpCost": 1000,
       "itemCost": "minecraft:crying_obsidian",
       "itemAmount": 8,
       "pool": 4
     },
     {
-      "id": "pet_ward",
-      "name": "Ochrona Pupili",
-      "description": "Pupile w obrębie bazy otrzymują 25% mniej obrażeń oraz ignorują wybuchy i ogień.",
+      "id": "pet_protection",
+      "name": "r3ct_base_core.effect.pet_protection.name",
+      "description": "r3ct_base_core.effect.pet_protection.desc",
       "xpCost": 1100,
       "itemCost": "minecraft:diamond_horse_armor",
       "itemAmount": 1,
@@ -237,8 +237,8 @@
     },
     {
       "id": "slow_falling",
-      "name": "Lekkość",
-      "description": "Spowalnia opadanie i niweluje obrażenia od upadku dla graczy w obrębie bazy.",
+      "name": "r3ct_base_core.effect.slow_falling.name",
+      "description": "r3ct_base_core.effect.slow_falling.desc",
       "xpCost": 1200,
       "itemCost": "minecraft:phantom_membrane",
       "itemAmount": 16,
@@ -246,8 +246,8 @@
     },
     {
       "id": "mending_pulse",
-      "name": "Pulsacyjna Naprawa",
-      "description": "Co 5 sekund odnawia 5 pkt. wytrzymałości losowego przedmiotu z Naprawą u graczy w obrębie bazy.",
+      "name": "r3ct_base_core.effect.mending_pulse.name",
+      "description": "r3ct_base_core.effect.mending_pulse.desc",
       "xpCost": 1500,
       "itemCost": "minecraft:nether_star",
       "itemAmount": 1,

@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
-public class PetWardMixin {
+public class PetProtectionMixin {
 
     @Unique
     private boolean baseCore$isTamedPet() {
@@ -35,7 +35,7 @@ public class PetWardMixin {
         LivingEntity entity = (LivingEntity) (Object) this;
         if (entity.level() instanceof ServerLevel serverLevel) {
             if (this.baseCore$isTamedPet() && damage > 0.0F) {
-                if (BaseCoreEventLogic.isEffectActiveAt(serverLevel, entity.blockPosition(), "pet_ward")) {
+                if (BaseCoreEventLogic.isEffectActiveAt(serverLevel, entity.blockPosition(), "pet_protection")) {
                     return damage * 0.75F;
                 }
             }
@@ -47,7 +47,7 @@ public class PetWardMixin {
     private void onHurtServerPetImmunity(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
         if (this.baseCore$isTamedPet()) {
-            if (BaseCoreEventLogic.isEffectActiveAt(level, entity.blockPosition(), "pet_ward")) {
+            if (BaseCoreEventLogic.isEffectActiveAt(level, entity.blockPosition(), "pet_protection")) {
                 if (source.is(DamageTypeTags.IS_FIRE) || source.is(DamageTypeTags.IS_EXPLOSION)) {
                     cir.setReturnValue(false);
                 }

@@ -108,7 +108,7 @@ public class BaseCoreBlockEntity extends BlockEntity {
                 case "slow_falling":
                     applyAuraToPlayers(playersInRange, MobEffects.SLOW_FALLING, 220);
                     break;
-                case "satiated":
+                case "satiation":
                     for (ServerPlayer player : playersInRange) {
                         float currentSat = player.getFoodData().getSaturationLevel();
                         if (currentSat < 1.0f) {
@@ -116,7 +116,7 @@ public class BaseCoreBlockEntity extends BlockEntity {
                         }
                     }
                     break;
-                case "growth_aura":
+                case "crop_growth":
                     if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
                         double volume = Math.pow((radius * 2) + 1, 3);
                         int attempts = (int) (volume / 273);
