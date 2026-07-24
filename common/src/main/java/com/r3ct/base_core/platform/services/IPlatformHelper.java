@@ -3,6 +3,9 @@ package com.r3ct.base_core.platform.services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -51,4 +54,10 @@ public interface IPlatformHelper {
     <T extends CustomPacketPayload> void sendToServer(T payload);
 
     <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> factory, Block... blocks);
+
+    interface MenuFactory<T extends AbstractContainerMenu> {
+        T create(int windowId, Inventory inv);
+    }
+
+    <T extends AbstractContainerMenu> MenuType<T> createMenuType(MenuFactory<T> factory);
 }

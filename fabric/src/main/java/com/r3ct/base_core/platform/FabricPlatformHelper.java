@@ -8,6 +8,9 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -51,5 +54,10 @@ public class FabricPlatformHelper implements IPlatformHelper {
     @Override
     public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> factory, Block... blocks) {
         return FabricBlockEntityTypeBuilder.create(factory::apply, blocks).build();
+    }
+
+    @Override
+    public <T extends AbstractContainerMenu> MenuType<T> createMenuType(MenuFactory<T> factory) {
+        return new MenuType<>(factory::create, FeatureFlags.DEFAULT_FLAGS);
     }
 }

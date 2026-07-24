@@ -3,6 +3,11 @@
   "block.r3ct_base_core.base_core": "Rdzeń Bazy",
   "item.r3ct_base_core.blueprint": "Schemat",
   "item.r3ct_base_core.blueprint.desc": "Gdy trzymany w dłoni, ujawnia w świecie gry widzialne linie określające obszar działania pobliskich baz.",
+  "block.r3ct_base_core.arcane_lectern": "Tajemny Pulpit",
+  "item.r3ct_base_core.magic_tome": "Księga Magii",
+  "item.r3ct_base_core.dark_magic_tome": "Księga Czarnej Magii",
+  "item.r3ct_base_core.alchemy_tome": "Księga Alchemiczna",
+  "item.r3ct_base_core.empowered_tome": "Nasycona Księga",
 
   "r3ct_base_core.message.core_exists": "Masz już Rdzeń Bazy! Znajduje się na kordach: X: %s Y: %s Z: %s (%s)",
   "r3ct_base_core.message.core_exists_hint": "Jeśli blok uległ zniszczeniu przez błąd, udaj się na tamte kordy aby załadować teren. Gra zobaczy, że go nie ma i automatycznie zresetuje Twój limit.",

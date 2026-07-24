@@ -1,6 +1,8 @@
 package com.r3ct.base_core;
 
+import com.r3ct.base_core.client.screen.ArcaneLecternScreen;
 import com.r3ct.base_core.client.screen.ConfigMainScreen;
+import com.r3ct.base_core.client.screen.ModMenuTypes;
 import com.r3ct.base_core.config.BaseCoreClientConfig;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.logic.BaseCoreClientLogic;
@@ -12,6 +14,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
@@ -26,6 +29,11 @@ public class BaseCoreNeoForgeClient {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             BaseCoreClientConfig.load();
+        }
+
+        @SubscribeEvent
+        public static void onRegisterMenuScreens(RegisterMenuScreensEvent event) {
+            event.register(ModMenuTypes.ARCANE_LECTERN_MENU, ArcaneLecternScreen::new);
         }
     }
 

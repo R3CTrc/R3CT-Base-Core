@@ -1,5 +1,7 @@
 package com.r3ct.base_core;
 
+import com.r3ct.base_core.client.screen.ArcaneLecternScreen;
+import com.r3ct.base_core.client.screen.ModMenuTypes;
 import com.r3ct.base_core.config.BaseCoreClientConfig;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.logic.BaseCoreClientLogic;
@@ -9,6 +11,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
+import net.minecraft.client.gui.screens.MenuScreens;
 
 public class BaseCoreFabricClient implements ClientModInitializer {
 
@@ -35,5 +38,7 @@ public class BaseCoreFabricClient implements ClientModInitializer {
 		LevelRenderEvents.END_MAIN.register(context -> {
 			BaseCoreClientLogic.renderBorders(context.poseStack(), context.levelState().cameraRenderState);
 		});
+
+		MenuScreens.register(ModMenuTypes.ARCANE_LECTERN_MENU, ArcaneLecternScreen::new);
 	}
 }

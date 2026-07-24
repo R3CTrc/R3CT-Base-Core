@@ -1,12 +1,10 @@
 package com.r3ct.base_core;
 
 import com.r3ct.base_core.block.ModBlocks;
+import com.r3ct.base_core.client.screen.ModMenuTypes;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
-import com.r3ct.base_core.network.ConfigSyncPayload;
-import com.r3ct.base_core.network.OpenBaseCoreGuiPayload;
-import com.r3ct.base_core.network.ToggleBorderPayload;
-import com.r3ct.base_core.network.UnlockEffectPayload;
-import com.r3ct.base_core.network.UpgradeBaseCorePayload;
+import com.r3ct.base_core.item.EmpoweredTomeItem;
+import com.r3ct.base_core.network.*;
 import com.r3ct.base_core.logic.BaseCoreServerLogic;
 import com.r3ct.base_core.item.BlueprintItem;
 import net.minecraft.ChatFormatting;
@@ -16,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -46,6 +45,12 @@ public class BaseCoreNeoForge {
                     Component.translatable("item.r3ct_base_core.blueprint.desc").withStyle(ChatFormatting.GRAY)
             )))
     );
+
+    public static final Item ARCANE_LECTERN_ITEM = new BlockItem(ModBlocks.ARCANE_LECTERN, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":arcane_lectern"))));
+    public static final Item MAGIC_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":magic_tome"))));
+    public static final Item DARK_MAGIC_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":dark_magic_tome"))));
+    public static final Item ALCHEMY_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":alchemy_tome"))));
+    public static final Item EMPOWERED_TOME = new EmpoweredTomeItem(new Item.Properties().stacksTo(1).setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":empowered_tome"))));
 
     public BaseCoreNeoForge(IEventBus modEventBus, ModContainer modContainer) {
         Constants.LOG.info("Starting Base Core system on NeoForge!");
@@ -94,15 +99,45 @@ public class BaseCoreNeoForge {
         registrar.playToClient(OpenBaseCoreGuiPayload.TYPE, OpenBaseCoreGuiPayload.CODEC, (payload, context) -> {
             context.enqueueWork(() -> BaseCoreNeoForgeClient.ClientPayloadHandlers.handleOpenGui(payload));
         });
+
+        registrar.playToServer(LecternAutoFillPayload.TYPE, LecternAutoFillPayload.CODEC, (payload, context) -> {
+            context.enqueueWork(() -> {
+                if (context.player() instanceof ServerPlayer player) {
+                    BaseCoreServerLogic.handleLecternAutoFill(player, payload);
+                }
+            });
+        });
+
+        registrar.playToServer(LecternCraftPayload.TYPE, LecternCraftPayload.CODEC, (payload, context) -> {
+            context.enqueueWork(() -> {
+                if (context.player() instanceof ServerPlayer player) {
+                    BaseCoreServerLogic.handleLecternCraft(player, payload);
+                }
+            });
+        });
     }
 
     private void onRegister(RegisterEvent event) {
-        event.register(Registries.BLOCK, helper -> helper.register(ModBlocks.BASE_CORE_KEY, ModBlocks.BASE_CORE));
+        event.register(Registries.BLOCK, helper -> {
+            helper.register(ModBlocks.BASE_CORE_KEY, ModBlocks.BASE_CORE);
+            helper.register(ModBlocks.ARCANE_LECTERN_KEY, ModBlocks.ARCANE_LECTERN);
+        });
         event.register(Registries.ITEM, helper -> {
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":base_core")), BASE_CORE_ITEM);
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":blueprint")), BLUEPRINT_ITEM);
+            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":arcane_lectern")), ARCANE_LECTERN_ITEM);
+            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":magic_tome")), MAGIC_TOME);
+            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":dark_magic_tome")), DARK_MAGIC_TOME);
+            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":alchemy_tome")), ALCHEMY_TOME);
+            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":empowered_tome")), EMPOWERED_TOME);
         });
-        event.register(Registries.BLOCK_ENTITY_TYPE, helper -> helper.register(ModBlocks.BASE_CORE_BE_KEY, ModBlocks.BASE_CORE_BE_TYPE));
+        event.register(Registries.BLOCK_ENTITY_TYPE, helper -> {
+            helper.register(ModBlocks.BASE_CORE_BE_KEY, ModBlocks.BASE_CORE_BE_TYPE);
+            helper.register(ModBlocks.ARCANE_LECTERN_BE_KEY, ModBlocks.ARCANE_LECTERN_BE_TYPE);
+        });
+        event.register(Registries.MENU, helper -> {
+            helper.register(ResourceKey.create(Registries.MENU, Identifier.parse(Constants.MOD_ID + ":arcane_lectern_menu")), ModMenuTypes.ARCANE_LECTERN_MENU);
+        });
         event.register(Registries.CREATIVE_MODE_TAB, helper -> {
             helper.register(Identifier.parse(Constants.MOD_ID + ":main_tab"),
                     CreativeModeTab.builder()
@@ -111,6 +146,11 @@ public class BaseCoreNeoForge {
                             .displayItems((context, output) -> {
                                 output.accept(BASE_CORE_ITEM);
                                 output.accept(BLUEPRINT_ITEM);
+                                output.accept(ARCANE_LECTERN_ITEM);
+                                output.accept(MAGIC_TOME);
+                                output.accept(DARK_MAGIC_TOME);
+                                output.accept(ALCHEMY_TOME);
+                                output.accept(EMPOWERED_TOME);
                             })
                             .build()
             );

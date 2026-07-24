@@ -34,4 +34,27 @@ public class ModBlocks {
             (pos, state) -> new BaseCoreBlockEntity(ModBlocks.BASE_CORE_BE_TYPE, pos, state),
             BASE_CORE
     );
+
+    public static final ResourceKey<Block> ARCANE_LECTERN_KEY = ResourceKey.create(
+            Registries.BLOCK,
+            Identifier.parse(Constants.MOD_ID + ":arcane_lectern")
+    );
+
+    public static final Block ARCANE_LECTERN = new ArcaneLecternBlock(Block.Properties.of()
+            .setId(ARCANE_LECTERN_KEY)
+            .strength(2.5F)
+            .noOcclusion()
+            .isViewBlocking((state, getter, pos) -> false)
+            .sound(SoundType.WOOD)
+    );
+
+    public static final ResourceKey<BlockEntityType<?>> ARCANE_LECTERN_BE_KEY = ResourceKey.create(
+            Registries.BLOCK_ENTITY_TYPE,
+            Identifier.parse(Constants.MOD_ID + ":arcane_lectern_be")
+    );
+
+    public static final BlockEntityType<ArcaneLecternBlockEntity> ARCANE_LECTERN_BE_TYPE = Services.PLATFORM.createBlockEntityType(
+            (pos, state) -> new ArcaneLecternBlockEntity(pos, state),
+            ARCANE_LECTERN
+    );
 }

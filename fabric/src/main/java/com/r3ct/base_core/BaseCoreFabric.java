@@ -1,12 +1,10 @@
 package com.r3ct.base_core;
 
 import com.r3ct.base_core.block.ModBlocks;
+import com.r3ct.base_core.client.screen.ModMenuTypes;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
-import com.r3ct.base_core.network.ConfigSyncPayload;
-import com.r3ct.base_core.network.OpenBaseCoreGuiPayload;
-import com.r3ct.base_core.network.ToggleBorderPayload;
-import com.r3ct.base_core.network.UnlockEffectPayload;
-import com.r3ct.base_core.network.UpgradeBaseCorePayload;
+import com.r3ct.base_core.item.EmpoweredTomeItem;
+import com.r3ct.base_core.network.*;
 import com.r3ct.base_core.logic.BaseCoreServerLogic;
 import com.r3ct.base_core.item.BlueprintItem;
 import net.fabricmc.api.ModInitializer;
@@ -23,6 +21,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -41,6 +40,12 @@ public class BaseCoreFabric implements ModInitializer {
 			)))
 	);
 
+	public static final Item ARCANE_LECTERN_ITEM = new BlockItem(ModBlocks.ARCANE_LECTERN, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":arcane_lectern"))));
+	public static final Item MAGIC_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":magic_tome"))));
+	public static final Item DARK_MAGIC_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":dark_magic_tome"))));
+	public static final Item ALCHEMY_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":alchemy_tome"))));
+	public static final Item EMPOWERED_TOME = new EmpoweredTomeItem(new Item.Properties().stacksTo(1).setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":empowered_tome"))));
+
 	@Override
 	public void onInitialize() {
 		Constants.LOG.info("Starting Base Core system on Fabric!");
@@ -52,6 +57,16 @@ public class BaseCoreFabric implements ModInitializer {
 		Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, ModBlocks.BASE_CORE_BE_KEY, ModBlocks.BASE_CORE_BE_TYPE);
 		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":blueprint"), BLUEPRINT_ITEM);
 
+		Registry.register(BuiltInRegistries.BLOCK, ModBlocks.ARCANE_LECTERN_KEY, ModBlocks.ARCANE_LECTERN);
+		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":arcane_lectern"), ARCANE_LECTERN_ITEM);
+		Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, ModBlocks.ARCANE_LECTERN_BE_KEY, ModBlocks.ARCANE_LECTERN_BE_TYPE);
+		Registry.register(BuiltInRegistries.MENU, Identifier.parse(Constants.MOD_ID + ":arcane_lectern_menu"), ModMenuTypes.ARCANE_LECTERN_MENU);
+
+		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":magic_tome"), MAGIC_TOME);
+		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":dark_magic_tome"), DARK_MAGIC_TOME);
+		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":alchemy_tome"), ALCHEMY_TOME);
+		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":empowered_tome"), EMPOWERED_TOME);
+
 		ResourceKey<CreativeModeTab> R3CT_TAB_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB, Identifier.parse(Constants.MOD_ID + ":main_tab"));
 
 		Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, R3CT_TAB_KEY, FabricCreativeModeTab.builder()
@@ -60,6 +75,11 @@ public class BaseCoreFabric implements ModInitializer {
 				.displayItems((context, output) -> {
 					output.accept(BASE_CORE_ITEM);
 					output.accept(BLUEPRINT_ITEM);
+					output.accept(ARCANE_LECTERN_ITEM);
+					output.accept(MAGIC_TOME);
+					output.accept(DARK_MAGIC_TOME);
+					output.accept(ALCHEMY_TOME);
+					output.accept(EMPOWERED_TOME);
 				})
 				.build()
 		);
@@ -69,6 +89,8 @@ public class BaseCoreFabric implements ModInitializer {
 		PayloadTypeRegistry.serverboundPlay().register(UnlockEffectPayload.TYPE, UnlockEffectPayload.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(OpenBaseCoreGuiPayload.TYPE, OpenBaseCoreGuiPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ToggleBorderPayload.TYPE, ToggleBorderPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(LecternAutoFillPayload.TYPE, LecternAutoFillPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(LecternCraftPayload.TYPE, LecternCraftPayload.CODEC);
 
 		ServerPlayNetworking.registerGlobalReceiver(UpgradeBaseCorePayload.TYPE, (payload, context) -> {
 			context.server().execute(() -> {
@@ -86,6 +108,14 @@ public class BaseCoreFabric implements ModInitializer {
 			context.server().execute(() -> {
 				BaseCoreServerLogic.handleToggleBorderRequest(context.player(), payload);
 			});
+		});
+
+		ServerPlayNetworking.registerGlobalReceiver(LecternAutoFillPayload.TYPE, (payload, context) -> {
+			context.server().execute(() -> BaseCoreServerLogic.handleLecternAutoFill(context.player(), payload));
+		});
+
+		ServerPlayNetworking.registerGlobalReceiver(LecternCraftPayload.TYPE, (payload, context) -> {
+			context.server().execute(() -> BaseCoreServerLogic.handleLecternCraft(context.player(), payload));
 		});
 
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {

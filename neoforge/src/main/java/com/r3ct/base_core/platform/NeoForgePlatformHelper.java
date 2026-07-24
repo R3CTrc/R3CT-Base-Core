@@ -4,6 +4,8 @@ import com.r3ct.base_core.platform.services.IPlatformHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -12,6 +14,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.nio.file.Path;
@@ -53,5 +56,10 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
     @Override
     public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> factory, Block... blocks) {
         return new BlockEntityType<>(factory::apply, Set.of(blocks));
+    }
+
+    @Override
+    public <T extends AbstractContainerMenu> MenuType<T> createMenuType(MenuFactory<T> factory) {
+        return IMenuTypeExtension.create((windowId, inv, data) -> factory.create(windowId, inv));
     }
 }

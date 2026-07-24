@@ -2,14 +2,13 @@ package com.r3ct.base_core.logic;
 
 import com.r3ct.base_core.block.BaseCoreBlock;
 import com.r3ct.base_core.block.BaseCoreBlockEntity;
+import com.r3ct.base_core.client.screen.ArcaneLecternMenu;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.data.ModState;
 import com.r3ct.base_core.data.PlayerData;
-import com.r3ct.base_core.network.OpenBaseCoreGuiPayload;
-import com.r3ct.base_core.network.ToggleBorderPayload;
-import com.r3ct.base_core.network.UnlockEffectPayload;
-import com.r3ct.base_core.network.UpgradeBaseCorePayload;
+import com.r3ct.base_core.network.*;
 import com.r3ct.base_core.platform.Services;
+import com.r3ct.base_core.registry.ModDataComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.BlockPos;
@@ -21,6 +20,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -224,6 +224,70 @@ public class BaseCoreServerLogic {
         if (!coreBE.getOwnerUUID().equals(player.getUUID().toString())) return;
 
         coreBE.toggleShowBorder();
+    }
+
+    public static void handleLecternAutoFill(ServerPlayer player, LecternAutoFillPayload payload) {
+        if (!(player.containerMenu instanceof ArcaneLecternMenu menu)) return;
+
+        LecternRecipes.getRecipeById(payload.effectId()).ifPresent(recipe -> {
+            Item requiredTome = recipe.getTomeItem();
+            Item requiredIngredient = recipe.getCostItem();
+            int requiredAmount = recipe.itemAmount();
+
+            if (player.getInventory().countItem(requiredTome) < 1) return;
+            if (player.getInventory().countItem(requiredIngredient) < requiredAmount) return;
+
+            Slot tomeSlot = menu.getSlot(0);
+            Slot ingredientSlot = menu.getSlot(1);
+
+            if (tomeSlot.hasItem()) {
+                player.getInventory().placeItemBackInInventory(tomeSlot.getItem());
+                tomeSlot.set(ItemStack.EMPTY);
+            }
+            if (ingredientSlot.hasItem()) {
+                player.getInventory().placeItemBackInInventory(ingredientSlot.getItem());
+                ingredientSlot.set(ItemStack.EMPTY);
+            }
+
+            if (consumeItems(player.getInventory(), requiredTome, 1)) {
+                tomeSlot.set(new ItemStack(requiredTome, 1));
+            }
+            if (consumeItems(player.getInventory(), requiredIngredient, requiredAmount)) {
+                ingredientSlot.set(new ItemStack(requiredIngredient, requiredAmount));
+            }
+        });
+    }
+
+    public static void handleLecternCraft(ServerPlayer player, LecternCraftPayload payload) {
+        if (!(player.containerMenu instanceof ArcaneLecternMenu menu)) return;
+
+        LecternRecipes.getRecipeById(payload.effectId()).ifPresent(recipe -> {
+            Slot tomeSlot = menu.getSlot(0);
+            Slot ingredientSlot = menu.getSlot(1);
+            Slot outputSlot = menu.getSlot(2);
+
+            if (outputSlot.hasItem()) return;
+
+            if (!tomeSlot.getItem().is(recipe.getTomeItem())) return;
+            if (!ingredientSlot.getItem().is(recipe.getCostItem()) || ingredientSlot.getItem().getCount() < recipe.itemAmount()) return;
+
+            if (getTotalExperience(player) < recipe.xpCost()) return;
+
+            removeExperience(player, recipe.xpCost());
+
+            tomeSlot.remove(1);
+            ingredientSlot.remove(recipe.itemAmount());
+
+            Item empoweredTomeItem = BuiltInRegistries.ITEM.get(Identifier.parse("r3ct_base_core:empowered_tome")).map(net.minecraft.core.Holder::value).orElse(net.minecraft.world.item.Items.BOOK);
+
+            ItemStack resultTome = new ItemStack(empoweredTomeItem);
+
+            resultTome.set(ModDataComponents.EFFECT_ID, recipe.id());
+
+            outputSlot.set(resultTome);
+
+            player.level().playSound(null, player.blockPosition(), net.minecraft.sounds.SoundEvents.ENCHANTMENT_TABLE_USE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
+        });
     }
 
     private static void refreshGuiForPlayer(ServerPlayer player, BlockPos pos, BaseCoreBlockEntity coreBE) {
