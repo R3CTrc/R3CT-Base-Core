@@ -332,7 +332,7 @@ public class BaseCoreScreen extends Screen {
 
         centeredTextNoShadow(graphics, Component.translatable("r3ct_base_core.gui.active_slots"), this.leftPos + (this.imageWidth / 2), slotsStartY - 15, 0xFF000000);
 
-        this.toggleButtonX = frontX + size + 35;
+        this.toggleButtonX = frontX - 45;
         this.toggleButtonY = frontY + (size / 2) - (toggleButtonSize / 2);
 
         boolean isHoveringToggle = mouseX >= toggleButtonX && mouseX < toggleButtonX + toggleButtonSize &&
