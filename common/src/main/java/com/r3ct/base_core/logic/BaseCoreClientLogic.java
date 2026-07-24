@@ -47,7 +47,9 @@ public class BaseCoreClientLogic {
             int radius = BaseCoreServerConfig.calculateRangeUpToTier(core.getTier());
             AABB localAabb = new AABB(-radius, -radius, -radius, 1 + radius, 1 + radius, 1 + radius);
 
-            if (core.getShowBorder()) {
+            boolean isOwner = core.getOwnerUUID() != null && core.getOwnerUUID().equals(mc.player.getUUID().toString());
+
+            if (core.getShowBorder() && isOwner) {
                 ShapeRenderer.renderShape(
                         poseStack,
                         vertexConsumer,
