@@ -7,6 +7,7 @@ import com.r3ct.base_core.item.EmpoweredTomeItem;
 import com.r3ct.base_core.network.*;
 import com.r3ct.base_core.logic.BaseCoreServerLogic;
 import com.r3ct.base_core.item.BlueprintItem;
+import com.r3ct.base_core.registry.ModDataComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -54,6 +55,8 @@ public class BaseCoreNeoForge {
 
     public BaseCoreNeoForge(IEventBus modEventBus, ModContainer modContainer) {
         Constants.LOG.info("Starting Base Core system on NeoForge!");
+
+        ModDataComponents.init();
         BaseCoreServerConfig.load();
 
         modEventBus.addListener(this::registerPayloads);
@@ -80,24 +83,12 @@ public class BaseCoreNeoForge {
             });
         });
 
-        registrar.playToServer(UnlockEffectPayload.TYPE, UnlockEffectPayload.CODEC, (payload, context) -> {
-            context.enqueueWork(() -> {
-                if (context.player() instanceof ServerPlayer player) {
-                    BaseCoreServerLogic.handleUnlockRequest(player, payload);
-                }
-            });
-        });
-
         registrar.playToServer(ToggleBorderPayload.TYPE, ToggleBorderPayload.CODEC, (payload, context) -> {
             context.enqueueWork(() -> {
                 if (context.player() instanceof ServerPlayer player) {
                     BaseCoreServerLogic.handleToggleBorderRequest(player, payload);
                 }
             });
-        });
-
-        registrar.playToClient(OpenBaseCoreGuiPayload.TYPE, OpenBaseCoreGuiPayload.CODEC, (payload, context) -> {
-            context.enqueueWork(() -> BaseCoreNeoForgeClient.ClientPayloadHandlers.handleOpenGui(payload));
         });
 
         registrar.playToServer(LecternAutoFillPayload.TYPE, LecternAutoFillPayload.CODEC, (payload, context) -> {
@@ -136,6 +127,7 @@ public class BaseCoreNeoForge {
             helper.register(ModBlocks.ARCANE_LECTERN_BE_KEY, ModBlocks.ARCANE_LECTERN_BE_TYPE);
         });
         event.register(Registries.MENU, helper -> {
+            helper.register(ResourceKey.create(Registries.MENU, Identifier.parse(Constants.MOD_ID + ":base_core_menu")), ModMenuTypes.BASE_CORE_MENU);
             helper.register(ResourceKey.create(Registries.MENU, Identifier.parse(Constants.MOD_ID + ":arcane_lectern_menu")), ModMenuTypes.ARCANE_LECTERN_MENU);
         });
         event.register(Registries.CREATIVE_MODE_TAB, helper -> {

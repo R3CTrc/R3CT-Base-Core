@@ -1,13 +1,13 @@
 package com.r3ct.base_core;
 
 import com.r3ct.base_core.client.screen.ArcaneLecternScreen;
+import com.r3ct.base_core.client.screen.BaseCoreScreen;
 import com.r3ct.base_core.client.screen.ConfigMainScreen;
 import com.r3ct.base_core.client.screen.ModMenuTypes;
 import com.r3ct.base_core.config.BaseCoreClientConfig;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.logic.BaseCoreClientLogic;
 import com.r3ct.base_core.network.ConfigSyncPayload;
-import com.r3ct.base_core.network.OpenBaseCoreGuiPayload;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -33,6 +33,7 @@ public class BaseCoreNeoForgeClient {
 
         @SubscribeEvent
         public static void onRegisterMenuScreens(RegisterMenuScreensEvent event) {
+            event.register(ModMenuTypes.BASE_CORE_MENU, BaseCoreScreen::new);
             event.register(ModMenuTypes.ARCANE_LECTERN_MENU, ArcaneLecternScreen::new);
         }
     }
@@ -54,10 +55,6 @@ public class BaseCoreNeoForgeClient {
     public static class ClientPayloadHandlers {
         public static void handleConfigSync(ConfigSyncPayload payload) {
             BaseCoreServerConfig.syncFromServer(payload.serverJson());
-        }
-
-        public static void handleOpenGui(OpenBaseCoreGuiPayload payload) {
-            net.minecraft.client.Minecraft.getInstance().setScreen(new com.r3ct.base_core.client.screen.BaseCoreScreen(payload));
         }
     }
 }

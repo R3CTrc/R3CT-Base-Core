@@ -3,8 +3,6 @@ package com.r3ct.base_core.block;
 import com.r3ct.base_core.data.ModState;
 import com.r3ct.base_core.data.PlayerData;
 import com.r3ct.base_core.logic.BaseCoreServerLogic;
-import com.r3ct.base_core.network.OpenBaseCoreGuiPayload;
-import com.r3ct.base_core.platform.Services;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -126,11 +124,9 @@ public class BaseCoreBlock extends Block implements EntityBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-
         if (type == ModBlocks.BASE_CORE_BE_TYPE) {
             return (lvl, pos, st, be) -> BaseCoreBlockEntity.tick(lvl, pos, st, (BaseCoreBlockEntity) be);
         }
-
         return null;
     }
 
@@ -152,7 +148,6 @@ public class BaseCoreBlock extends Block implements EntityBlock {
                 data.coreZ = pos.getZ();
 
                 data.coreTier = coreBE.getTier();
-                data.activeSlots = new ArrayList<>(coreBE.getActiveSlots());
 
                 ModState.get(level.getServer()).setDirty();
                 BaseCoreServerLogic.grantAdvancement(player, "root");
@@ -217,10 +212,7 @@ public class BaseCoreBlock extends Block implements EntityBlock {
 
                         if (data.hasPlacedCore && data.coreX == pos.getX() && data.coreY == pos.getY() && data.coreZ == pos.getZ()) {
                             data.hasPlacedCore = false;
-
                             data.coreTier = 0;
-                            data.activeSlots.clear();
-
                             ModState.get(level.getServer()).setDirty();
                         }
                     } catch (IllegalArgumentException ignored) {}
@@ -235,16 +227,7 @@ public class BaseCoreBlock extends Block implements EntityBlock {
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof BaseCoreBlockEntity coreBE) {
                 if (coreBE.getOwnerUUID().equals(player.getUUID().toString())) {
-
-                    OpenBaseCoreGuiPayload payload = new OpenBaseCoreGuiPayload(
-                            pos,
-                            coreBE.getTier(),
-                            coreBE.getActiveEffects(),
-                            coreBE.getActiveSlots()
-                    );
-
-                    Services.PLATFORM.sendToPlayer(serverPlayer, payload);
-
+                    serverPlayer.openMenu(coreBE);
                 } else {
                     serverPlayer.sendSystemMessage(Component.translatable("r3ct_base_core.message.not_your_base"), true);
                 }

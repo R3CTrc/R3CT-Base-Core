@@ -7,6 +7,7 @@ import com.r3ct.base_core.item.EmpoweredTomeItem;
 import com.r3ct.base_core.network.*;
 import com.r3ct.base_core.logic.BaseCoreServerLogic;
 import com.r3ct.base_core.item.BlueprintItem;
+import com.r3ct.base_core.registry.ModDataComponents;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -50,12 +51,14 @@ public class BaseCoreFabric implements ModInitializer {
 	public void onInitialize() {
 		Constants.LOG.info("Starting Base Core system on Fabric!");
 
+		ModDataComponents.init();
 		BaseCoreServerConfig.load();
 
 		Registry.register(BuiltInRegistries.BLOCK, ModBlocks.BASE_CORE_KEY, ModBlocks.BASE_CORE);
 		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":base_core"), BASE_CORE_ITEM);
 		Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, ModBlocks.BASE_CORE_BE_KEY, ModBlocks.BASE_CORE_BE_TYPE);
 		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":blueprint"), BLUEPRINT_ITEM);
+		Registry.register(BuiltInRegistries.MENU, Identifier.parse(Constants.MOD_ID + ":base_core_menu"), ModMenuTypes.BASE_CORE_MENU);
 
 		Registry.register(BuiltInRegistries.BLOCK, ModBlocks.ARCANE_LECTERN_KEY, ModBlocks.ARCANE_LECTERN);
 		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":arcane_lectern"), ARCANE_LECTERN_ITEM);
@@ -86,8 +89,6 @@ public class BaseCoreFabric implements ModInitializer {
 
 		PayloadTypeRegistry.clientboundPlay().register(ConfigSyncPayload.TYPE, ConfigSyncPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(UpgradeBaseCorePayload.TYPE, UpgradeBaseCorePayload.CODEC);
-		PayloadTypeRegistry.serverboundPlay().register(UnlockEffectPayload.TYPE, UnlockEffectPayload.CODEC);
-		PayloadTypeRegistry.clientboundPlay().register(OpenBaseCoreGuiPayload.TYPE, OpenBaseCoreGuiPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ToggleBorderPayload.TYPE, ToggleBorderPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(LecternAutoFillPayload.TYPE, LecternAutoFillPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(LecternCraftPayload.TYPE, LecternCraftPayload.CODEC);
@@ -95,12 +96,6 @@ public class BaseCoreFabric implements ModInitializer {
 		ServerPlayNetworking.registerGlobalReceiver(UpgradeBaseCorePayload.TYPE, (payload, context) -> {
 			context.server().execute(() -> {
 				BaseCoreServerLogic.handleUpgradeRequest(context.player(), payload);
-			});
-		});
-
-		ServerPlayNetworking.registerGlobalReceiver(UnlockEffectPayload.TYPE, (payload, context) -> {
-			context.server().execute(() -> {
-				BaseCoreServerLogic.handleUnlockRequest(context.player(), payload);
 			});
 		});
 
