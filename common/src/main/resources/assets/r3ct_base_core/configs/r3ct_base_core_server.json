@@ -4,6 +4,17 @@
 
   "tiers": [
     {
+      "tierLevel": 0,
+      "title": "r3ct_base_core.tier.0.title",
+      "mainItem": "minecraft:air",
+      "mainAmount": 0,
+      "bulkItem": "minecraft:air",
+      "bulkAmount": 0,
+      "bonusRadius": 0,
+      "bonusSlots": 0,
+      "unlocksPool": 0
+    },
+    {
       "tierLevel": 1,
       "title": "r3ct_base_core.tier.1.title",
       "mainItem": "minecraft:oak_log",

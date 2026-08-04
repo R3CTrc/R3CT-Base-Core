@@ -3,6 +3,7 @@ package com.r3ct.base_core.logic;
 import com.r3ct.base_core.block.BaseCoreBlock;
 import com.r3ct.base_core.block.BaseCoreBlockEntity;
 import com.r3ct.base_core.client.screen.ArcaneLecternMenu;
+import com.r3ct.base_core.client.screen.BaseCoreMenu;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.data.ModState;
 import com.r3ct.base_core.data.PlayerData;
@@ -26,6 +27,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.List;
 import java.util.UUID;
 
 public class BaseCoreServerLogic {
@@ -37,6 +39,8 @@ public class BaseCoreServerLogic {
         if (!(be instanceof BaseCoreBlockEntity coreBE)) return;
 
         if (!coreBE.getOwnerUUID().equals(player.getUUID().toString())) return;
+
+        if (!(player.containerMenu instanceof BaseCoreMenu menu)) return;
 
         if (coreBE.getTier() >= 11) {
             player.sendSystemMessage(Component.translatable("r3ct_base_core.message.upgrade.max_tier").withStyle(ChatFormatting.RED), true);
@@ -51,15 +55,30 @@ public class BaseCoreServerLogic {
         Item mainItem = BuiltInRegistries.ITEM.get(Identifier.parse(tierConfig.mainItem)).map(Holder::value).orElse(Items.AIR);
         Item bulkItem = BuiltInRegistries.ITEM.get(Identifier.parse(tierConfig.bulkItem)).map(Holder::value).orElse(Items.AIR);
 
-        if (!consumeItems(player.getInventory(), mainItem, tierConfig.mainAmount)) {
+        int stagedMain = 0;
+        int stagedBulk = 0;
+
+        for (int i = 4; i <= 7; i++) {
+            ItemStack stack = menu.getSlot(i).getItem();
+            if (stack.is(mainItem)) stagedMain += stack.getCount();
+        }
+
+        for (int i = 8; i <= 11; i++) {
+            ItemStack stack = menu.getSlot(i).getItem();
+            if (stack.is(bulkItem)) stagedBulk += stack.getCount();
+        }
+
+        if (stagedMain < tierConfig.mainAmount) {
             player.sendSystemMessage(Component.translatable("r3ct_base_core.message.upgrade.missing_main").withStyle(ChatFormatting.RED), true);
             return;
         }
-
-        if (!consumeItems(player.getInventory(), bulkItem, tierConfig.bulkAmount)) {
+        if (stagedBulk < tierConfig.bulkAmount) {
             player.sendSystemMessage(Component.translatable("r3ct_base_core.message.upgrade.missing_bulk").withStyle(ChatFormatting.RED), true);
             return;
         }
+
+        consumeFromStaging(menu, mainItem, tierConfig.mainAmount, 4, 7);
+        consumeFromStaging(menu, bulkItem, tierConfig.bulkAmount, 8, 11);
 
         coreBE.setTier(nextTier);
 
@@ -87,14 +106,60 @@ public class BaseCoreServerLogic {
         }
     }
 
-    public static void handleToggleBorderRequest(ServerPlayer player, ToggleBorderPayload payload) {
+    public static void handleApplyEffectsRequest(ServerPlayer player, ApplyEffectsPayload payload) {
         Level level = player.level();
-
         BlockEntity be = level.getBlockEntity(payload.pos());
         if (!(be instanceof BaseCoreBlockEntity coreBE)) return;
-
         if (!coreBE.getOwnerUUID().equals(player.getUUID().toString())) return;
 
+        if (!(player.containerMenu instanceof BaseCoreMenu menu)) return;
+
+        int maxSlots = BaseCoreServerConfig.calculateTotalSlots(coreBE.getTier());
+        boolean appliedAny = false;
+
+        for (int i = 0; i < maxSlots; i++) {
+            Slot stagingSlot = menu.getSlot(i);
+            ItemStack stagedStack = stagingSlot.getItem();
+
+            if (!stagedStack.isEmpty() && stagedStack.has(ModDataComponents.EFFECT_ID)) {
+                ItemStack oldStack = coreBE.getItem(i);
+                if (!oldStack.isEmpty()) {
+                    player.getInventory().placeItemBackInInventory(oldStack);
+                }
+
+                coreBE.setItem(i, stagedStack.copy());
+                stagingSlot.set(ItemStack.EMPTY);
+                appliedAny = true;
+            }
+        }
+
+        if (appliedAny) {
+            coreBE.forceSync();
+            level.playSound(null, payload.pos(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 1.0f, 1.0f);
+            player.sendSystemMessage(Component.translatable("r3ct_base_core.message.effects_applied").withStyle(ChatFormatting.AQUA), true);
+
+            List<String> activeEffects = coreBE.getActiveEffectsFromTomes();
+            boolean allFull = true;
+            for (int i = 0; i < 4; i++) {
+                if (i < maxSlots && coreBE.getItem(i).isEmpty()) {
+                    allFull = false;
+                    break;
+                } else if (i >= maxSlots) {
+                    allFull = false;
+                }
+            }
+
+            if (allFull && maxSlots == 4) grantAdvancement(player, "all_slots");
+            if (activeEffects.contains("anti_spawn") && activeEffects.contains("anti_explosion")) grantAdvancement(player, "safe_zone");
+            if (activeEffects.contains("crop_growth") && activeEffects.contains("anti_trample")) grantAdvancement(player, "farming_combo");
+        }
+    }
+
+    public static void handleToggleBorderRequest(ServerPlayer player, ToggleBorderPayload payload) {
+        Level level = player.level();
+        BlockEntity be = level.getBlockEntity(payload.pos());
+        if (!(be instanceof BaseCoreBlockEntity coreBE)) return;
+        if (!coreBE.getOwnerUUID().equals(player.getUUID().toString())) return;
         coreBE.toggleShowBorder();
     }
 
@@ -150,15 +215,14 @@ public class BaseCoreServerLogic {
             tomeSlot.remove(1);
             ingredientSlot.remove(recipe.itemAmount());
 
-            Item empoweredTomeItem = BuiltInRegistries.ITEM.get(Identifier.parse("r3ct_base_core:empowered_tome")).map(net.minecraft.core.Holder::value).orElse(net.minecraft.world.item.Items.BOOK);
+            Item empoweredTomeItem = BuiltInRegistries.ITEM.get(Identifier.parse("r3ct_base_core:empowered_tome")).map(Holder::value).orElse(Items.BOOK);
 
             ItemStack resultTome = new ItemStack(empoweredTomeItem);
-
             resultTome.set(ModDataComponents.EFFECT_ID, recipe.id());
 
             outputSlot.set(resultTome);
 
-            player.level().playSound(null, player.blockPosition(), net.minecraft.sounds.SoundEvents.ENCHANTMENT_TABLE_USE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0f, 1.0f);
+            player.level().playSound(null, player.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 1.0f, 1.0f);
         });
     }
 
@@ -195,9 +259,7 @@ public class BaseCoreServerLogic {
             }
         }
 
-        if (count < amountNeeded) {
-            return false;
-        }
+        if (count < amountNeeded) return false;
 
         int amountLeftToRemove = amountNeeded;
         for (int i = 0; i < inventory.getContainerSize(); i++) {
@@ -214,8 +276,24 @@ public class BaseCoreServerLogic {
                 }
             }
         }
-
         return true;
+    }
+
+    private static void consumeFromStaging(BaseCoreMenu menu, Item item, int amountNeeded, int startIdx, int endIdx) {
+        if (amountNeeded <= 0 || item == Items.AIR) return;
+        int left = amountNeeded;
+
+        for (int i = startIdx; i <= endIdx; i++) {
+            if (left <= 0) break;
+            Slot slot = menu.getSlot(i);
+            ItemStack stack = slot.getItem();
+
+            if (stack.is(item)) {
+                int take = Math.min(stack.getCount(), left);
+                slot.remove(take);
+                left -= take;
+            }
+        }
     }
 
     public static void grantAdvancement(ServerPlayer player, String advancementName) {

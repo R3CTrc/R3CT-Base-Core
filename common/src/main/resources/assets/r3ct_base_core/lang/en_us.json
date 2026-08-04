@@ -72,6 +72,7 @@
   "r3ct_base_core.gui.tooltip.no_unlocks": "- No new unlocks",
   "r3ct_base_core.gui.tooltip.tier0_desc": "Build the Tier 1 upgrade to activate the Core.",
 
+  "r3ct_base_core.tier.0.title": "Base",
   "r3ct_base_core.tier.1.title": "Awakening",
   "r3ct_base_core.tier.2.title": "Expansion",
   "r3ct_base_core.tier.3.title": "Fortress",

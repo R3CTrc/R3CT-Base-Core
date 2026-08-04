@@ -1,9 +1,11 @@
 package com.r3ct.base_core.client.screen;
 
 import com.r3ct.base_core.config.BaseCoreServerConfig;
+import com.r3ct.base_core.network.ApplyEffectsPayload;
 import com.r3ct.base_core.network.ToggleBorderPayload;
 import com.r3ct.base_core.network.UpgradeBaseCorePayload;
 import com.r3ct.base_core.platform.Services;
+import com.r3ct.base_core.registry.ModDataComponents;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -21,17 +23,16 @@ import org.jspecify.annotations.NonNull;
 
 public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
 
-    private static final int CUSTOM_IMAGE_WIDTH = 280;
-    private static final int CUSTOM_IMAGE_HEIGHT = 240;
+    private static final int CUSTOM_IMAGE_WIDTH = 176;
+    private static final int CUSTOM_IMAGE_HEIGHT = 224;
 
     private Tab currentTab = Tab.OVERVIEW;
 
-    private final int tabWidth = 100;
-    private final int tabHeight = 22;
+    private final int tabWidth = 80;
+    private final int tabHeight = 20;
     private final int tabSpacing = 5;
 
-    private boolean isBorderVisible = false;
-    private final int toggleButtonSize = 26;
+    private final int toggleButtonSize = 20;
     private int toggleButtonX = 0;
     private int toggleButtonY = 0;
 
@@ -51,12 +52,26 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
     @Override
     protected void init() {
         super.init();
-        this.isBorderVisible = this.menu.isBorderVisible();
         this.menu.isOverviewTab = (this.currentTab == Tab.OVERVIEW);
     }
 
     @Override
-    protected void extractLabels(@NonNull GuiGraphicsExtractor graphics, int xm, int ym) {
+    protected void extractLabels(@NonNull GuiGraphicsExtractor graphics, int xm, int ym) { }
+
+    private com.r3ct.base_core.block.BaseCoreBlockEntity getCoreEntity() {
+        if (this.minecraft != null && this.minecraft.level != null) {
+            net.minecraft.world.level.block.entity.BlockEntity be = this.minecraft.level.getBlockEntity(this.menu.getCorePos());
+            if (be instanceof com.r3ct.base_core.block.BaseCoreBlockEntity coreBE) {
+                return coreBE;
+            }
+        }
+        return null;
+    }
+
+    private boolean isBorderEnabled() {
+        com.r3ct.base_core.block.BaseCoreBlockEntity core = getCoreEntity();
+        if (core != null) return core.getShowBorder();
+        return this.menu.isBorderVisible();
     }
 
     @Override
@@ -73,24 +88,11 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
             renderCustomTab(graphics, currentTabX, tabY, tabWidth, tabHeight, tab.getComponent(), isSelected, isHovered);
         }
 
-        graphics.fill(this.leftPos, this.topPos, this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 0xFFF5DEB3);
-        drawThickOutline(graphics, this.leftPos, this.topPos, this.imageWidth, this.imageHeight, 2, 0xFF3E2723);
+        graphics.fill(this.leftPos, this.topPos, this.leftPos + this.imageWidth, this.topPos + 134, 0xFFF5DEB3);
+        drawThickOutline(graphics, this.leftPos, this.topPos, this.imageWidth, 134, 2, 0xFF3E2723);
 
-        int innerMargin = 8;
-        graphics.fill(this.leftPos + innerMargin, this.topPos + 18,
-                this.leftPos + this.imageWidth - innerMargin, this.topPos + 138,
-                0xFFFFF8DC);
-        drawThickOutline(graphics, this.leftPos + innerMargin, this.topPos + 18,
-                this.imageWidth - (innerMargin * 2), 120, 2, 0xFF8D6E63);
-
-        int invX = this.leftPos + 59;
-        int invY = this.topPos + 145;
-
-        graphics.fill(invX - 2, invY - 2, invX + 164, invY + 56, 0xFF3E2723);
-        graphics.fill(invX - 1, invY - 1, invX + 163, invY + 55, 0xFFC6C6C6);
-
-        graphics.fill(invX - 2, invY + 56, invX + 164, invY + 78, 0xFF3E2723);
-        graphics.fill(invX - 1, invY + 57, invX + 163, invY + 77, 0xFFC6C6C6);
+        graphics.fill(this.leftPos, this.topPos + 134, this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 0xFFC6C6C6);
+        drawThickOutline(graphics, this.leftPos, this.topPos + 134, this.imageWidth, 90, 2, 0xFF3E2723);
 
         for (net.minecraft.world.inventory.Slot slot : this.menu.slots) {
             if (slot.isActive() && slot.index >= 4) {
@@ -104,11 +106,15 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         }
 
         int tier = this.menu.getTier();
-        Component tierDisplay = tier == 0 ? Component.translatable("r3ct_base_core.gui.tier.0") : Component.translatable("r3ct_base_core.gui.tier.n", toRoman(tier));
+        BaseCoreServerConfig.TierUpgrade currentTierConfig = BaseCoreServerConfig.getTier(tier);
+        Component titleComp = currentTierConfig != null ? Component.translatable(currentTierConfig.title) : Component.translatable("r3ct_base_core.gui.tier.0");
+        String romanTier = tier == 0 ? "0" : toRoman(tier);
+
         Component titleDisplay = Component.translatable("block.r3ct_base_core.base_core");
+        Component topDisplay = Component.empty().append(titleComp).append(" (").append(romanTier).append(")");
 
         graphics.text(this.font, titleDisplay, this.leftPos + 12, this.topPos + 6, 0xFF000000, false);
-        graphics.text(this.font, tierDisplay, this.leftPos + this.imageWidth - this.font.width(tierDisplay) - 12, this.topPos + 6, 0xFF3E2723, false);
+        graphics.text(this.font, topDisplay, this.leftPos + this.imageWidth - this.font.width(topDisplay) - 12, this.topPos + 6, 0xFF3E2723, false);
 
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
     }
@@ -155,10 +161,11 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
             int tabY = this.topPos - tabHeight + 2;
 
             for (int i = 0; i < Tab.values().length; i++) {
+                Tab tab = Tab.values()[i];
                 int currentTabX = startX + (i * (tabWidth + tabSpacing));
                 if (mouseX >= currentTabX && mouseX < currentTabX + tabWidth && mouseY >= tabY && mouseY < tabY + tabHeight) {
-                    if (this.currentTab != Tab.values()[i]) {
-                        this.currentTab = Tab.values()[i];
+                    if (this.currentTab != tab) {
+                        this.currentTab = tab;
                         this.menu.isOverviewTab = (this.currentTab == Tab.OVERVIEW);
                         this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                     }
@@ -169,10 +176,27 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
             if (this.currentTab == Tab.OVERVIEW) {
                 if (mouseX >= this.toggleButtonX && mouseX < this.toggleButtonX + this.toggleButtonSize &&
                         mouseY >= this.toggleButtonY && mouseY < this.toggleButtonY + this.toggleButtonSize) {
-                    this.isBorderVisible = !this.isBorderVisible;
+
                     Services.PLATFORM.sendToServer(new ToggleBorderPayload(this.menu.getCorePos()));
+
+                    com.r3ct.base_core.block.BaseCoreBlockEntity core = getCoreEntity();
+                    if (core != null) core.toggleShowBorder();
+
                     this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                     return true;
+                }
+
+                boolean hasStagedEffects = false;
+                for(int i = 0; i < 4; i++) if (this.menu.getSlot(i).hasItem()) hasStagedEffects = true;
+
+                if (hasStagedEffects) {
+                    int btnX = this.leftPos + 104;
+                    int btnY = this.topPos + 89;
+                    if (mouseX >= btnX && mouseX < btnX + 60 && mouseY >= btnY && mouseY < btnY + 16) {
+                        Services.PLATFORM.sendToServer(new ApplyEffectsPayload(this.menu.getCorePos()));
+                        this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F));
+                        return true;
+                    }
                 }
             }
 
@@ -181,19 +205,28 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
                 BaseCoreServerConfig.TierUpgrade nextTierConfig = BaseCoreServerConfig.getTier(currentTier + 1);
 
                 if (nextTierConfig != null) {
-                    int btnWidth = 140;
+                    int btnWidth = 80;
                     int btnHeight = 20;
-                    int btnX = this.leftPos + (this.imageWidth / 2) - (btnWidth / 2);
-                    int btnY = this.topPos + 105;
+                    int btnX = this.leftPos + 48;
+                    int btnY = this.topPos + 106;
 
                     if (mouseX >= btnX && mouseX < btnX + btnWidth && mouseY >= btnY && mouseY < btnY + btnHeight) {
+
                         Item mainItem = BuiltInRegistries.ITEM.get(Identifier.parse(nextTierConfig.mainItem)).map(Holder::value).orElse(Items.AIR);
                         Item bulkItem = BuiltInRegistries.ITEM.get(Identifier.parse(nextTierConfig.bulkItem)).map(Holder::value).orElse(Items.AIR);
 
-                        boolean canAfford = countItemInClientInventory(mainItem) >= nextTierConfig.mainAmount &&
-                                countItemInClientInventory(bulkItem) >= nextTierConfig.bulkAmount;
+                        int stagedMain = 0;
+                        int stagedBulk = 0;
+                        for(int i = 4; i <= 7; i++) {
+                            ItemStack stack = this.menu.getSlot(i).getItem();
+                            if (stack.is(mainItem)) stagedMain += stack.getCount();
+                        }
+                        for(int i = 8; i <= 11; i++) {
+                            ItemStack stack = this.menu.getSlot(i).getItem();
+                            if (stack.is(bulkItem)) stagedBulk += stack.getCount();
+                        }
 
-                        if (canAfford) {
+                        if (stagedMain >= nextTierConfig.mainAmount && stagedBulk >= nextTierConfig.bulkAmount) {
                             Services.PLATFORM.sendToServer(new UpgradeBaseCorePayload(this.menu.getCorePos()));
                             this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.SMITHING_TABLE_USE, 1.0F));
                         }
@@ -202,48 +235,28 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
                 }
             }
         }
-
         return super.mouseClicked(event, doubleClick);
     }
 
     private void renderOverviewTab(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         int tier = this.menu.getTier();
-
-        int infoX = this.leftPos + 20;
-        int infoY = this.topPos + 20;
-        int currentRange = calculateRangeUpToTier(tier);
-        String diameterStr = currentRange == 0 ? "0x0x0" : (currentRange * 2 + 1) + "x" + (currentRange * 2 + 1) + "x" + (currentRange * 2 + 1);
-        int diameterNum = currentRange == 0 ? 0 : (currentRange * 2 + 1);
         int maxSlots = BaseCoreServerConfig.calculateTotalSlots(tier);
+        int currentRange = calculateRangeUpToTier(tier);
+        int diameterNum = currentRange == 0 ? 0 : (currentRange * 2 + 1);
 
-        Component tierComp = Component.translatable("r3ct_base_core.gui.stats.tier").withStyle(net.minecraft.ChatFormatting.BLACK)
-                .append(Component.literal(String.valueOf(tier)).withStyle(net.minecraft.ChatFormatting.AQUA));
-        graphics.text(this.font, tierComp, infoX, infoY, 0xFF000000, false);
+        int infoX = this.leftPos + 12;
+        int infoY = this.topPos + 22;
+        graphics.text(this.font, Component.literal("Obszar:").withStyle(net.minecraft.ChatFormatting.BLACK), infoX, infoY, 0xFF000000, false);
 
-        Component areaComp = Component.translatable("r3ct_base_core.gui.stats.area").withStyle(net.minecraft.ChatFormatting.BLACK)
-                .append(Component.literal(currentRange + " (" + diameterStr + ")").withStyle(net.minecraft.ChatFormatting.AQUA));
-        graphics.text(this.font, areaComp, infoX, infoY + 15, 0xFF000000, false);
-
-        Component slotsComp = Component.translatable("r3ct_base_core.gui.stats.slots").withStyle(net.minecraft.ChatFormatting.BLACK)
-                .append(Component.literal(String.valueOf(maxSlots)).withStyle(net.minecraft.ChatFormatting.DARK_GREEN));
-        graphics.text(this.font, slotsComp, infoX, infoY + 30, 0xFF000000, false);
-
-        int activeModulesCount = 0;
-        for (int i = 0; i < 4; i++) {
-            if (this.menu.getSlot(i).hasItem()) activeModulesCount++;
-        }
-        Component effectsComp = Component.translatable("r3ct_base_core.gui.stats.effects").withStyle(net.minecraft.ChatFormatting.BLACK)
-                .append(Component.literal(String.valueOf(activeModulesCount)).withStyle(net.minecraft.ChatFormatting.DARK_GREEN));
-        graphics.text(this.font, effectsComp, infoX, infoY + 45, 0xFF000000, false);
-
-        int size = 36;
-        int boxX = this.leftPos + 206;
-        int boxY = this.topPos + 20;
+        int size = 32;
+        int boxX = this.leftPos + 20;
+        int boxY = this.topPos + 38;
         int lineColor = 0xFF1E90FF;
+        int redColor = 0xFFFF5555;
 
         int frontX = boxX;
-        int frontY = boxY + 18;
-        int backX = boxX + 18;
+        int frontY = boxY + 16;
+        int backX = boxX + 16;
         int backY = boxY;
 
         drawLine(graphics, backX, backY, backX + size, backY, lineColor);
@@ -251,65 +264,84 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         drawLine(graphics, frontX, frontY, backX, backY, lineColor);
         drawLine(graphics, frontX + size, frontY, backX + size, backY, lineColor);
         drawLine(graphics, frontX + size, frontY + size, backX + size, backY + size, lineColor);
-
         drawLine(graphics, frontX, frontY, frontX + size, frontY, lineColor);
         drawLine(graphics, frontX, frontY, frontX, frontY + size, lineColor);
         drawLine(graphics, frontX + size, frontY, frontX + size, frontY + size, lineColor);
         drawLine(graphics, frontX, frontY + size, frontX + size, frontY + size, lineColor);
-
         drawDashedLine(graphics, backX, backY, backX, backY + size, lineColor);
         drawDashedLine(graphics, backX, backY + size, backX + size, backY + size, lineColor);
-        drawDashedLine(graphics, frontX, frontY + size, backX, backY + size, lineColor);
 
-        int cx = frontX + (backX - frontX) / 2 + size / 2;
-        int cy = frontY + (backY - frontY) / 2 + size / 2;
+        drawLine(graphics, frontX, frontY + size, frontX + size, frontY + size, redColor);
+        drawLine(graphics, frontX, frontY, frontX, frontY + size, redColor);
+        drawDashedLine(graphics, frontX, frontY + size, backX, backY + size, redColor);
 
+        int cx = frontX + (size / 2) + 8;
+        int cy = frontY + (size / 2) - 8;
         graphics.fill(cx - 2, cy - 2, cx + 3, cy + 3, 0xFF8D6E63);
-        drawLine(graphics, cx, cy, cx - size / 2, cy, 0xFF00AA00);
+        drawLine(graphics, cx, cy, cx - (size / 2), cy, 0xFF00AA00);
 
-        centeredTextNoShadow(graphics, String.valueOf(currentRange), cx - 14, cy + 4, 0xFF00AA00);
-        centeredTextNoShadow(graphics, String.valueOf(diameterNum), frontX + size / 2, frontY + size + 5, 0xFF444444);
-        centeredTextNoShadow(graphics, String.valueOf(diameterNum), frontX - 8, frontY + size / 2 - 4, 0xFF444444);
+        graphics.text(this.font, currentRange + " blocks", boxX + 58, boxY + 12, 0xFF00AA00, false);
+        graphics.text(this.font, diameterNum + " blocks", boxX + 58, boxY + 28, redColor, false);
 
-        int visualSize = 26;
-        int visualSpacing = 16;
-        int startX = this.leftPos + 43;
-        int startY = this.topPos + 96;
-
-        for (int i = 0; i < 4; i++) {
-            int sx = startX + (i * (visualSize + visualSpacing));
-            boolean isLocked = i >= maxSlots;
-
-            graphics.fill(sx, startY, sx + visualSize, startY + visualSize, isLocked ? 0xFFD7CCC8 : 0xFFF5DEB3);
-            drawThickOutline(graphics, sx, startY, visualSize, visualSize, 2, 0xFF8D6E63);
-
-            if (isLocked) {
-                centeredTextNoShadow(graphics, "X", sx + (visualSize / 2), startY + (visualSize / 2) - 4, 0xFFFF5555);
-            } else if (!this.menu.getSlot(i).hasItem()) {
-                graphics.text(this.font, "+", sx + (visualSize - this.font.width("+")) / 2, startY + (visualSize - 8) / 2, 0xFF8D6E63, false);
-            }
-        }
-
-        this.toggleButtonX = startX + (4 * (visualSize + visualSpacing));
-        this.toggleButtonY = startY;
+        this.toggleButtonX = this.leftPos + 140;
+        this.toggleButtonY = this.topPos + 52;
         boolean isHoveringToggle = mouseX >= toggleButtonX && mouseX < toggleButtonX + toggleButtonSize && mouseY >= toggleButtonY && mouseY < toggleButtonY + toggleButtonSize;
+        boolean currentBorderEnabled = isBorderEnabled();
 
         graphics.fill(toggleButtonX, toggleButtonY, toggleButtonX + toggleButtonSize, toggleButtonY + toggleButtonSize, isHoveringToggle ? 0xFFE7CDB3 : 0xFFF5DEB3);
-        drawThickOutline(graphics, toggleButtonX, toggleButtonY, toggleButtonSize, toggleButtonSize, 2, 0xFF8D6E63);
+        drawThickOutline(graphics, toggleButtonX, toggleButtonY, toggleButtonSize, toggleButtonSize, 1, 0xFF8D6E63);
+        graphics.fakeItem(new ItemStack(Items.LIGHT_BLUE_STAINED_GLASS), toggleButtonX + 2, toggleButtonY + 2);
 
-        graphics.fakeItem(new ItemStack(Items.LIGHT_BLUE_STAINED_GLASS), toggleButtonX + 5, toggleButtonY + 5);
-
-        if (this.isBorderVisible) {
+        if (currentBorderEnabled) {
             centeredTextNoShadow(graphics, "V", toggleButtonX + toggleButtonSize - 3, toggleButtonY + toggleButtonSize - 7, 0xFF00AA00);
         } else {
             centeredTextNoShadow(graphics, "X", toggleButtonX + toggleButtonSize - 3, toggleButtonY + toggleButtonSize - 7, 0xFFFF5555);
         }
 
-        if (isHoveringToggle) {
-            java.util.List<Component> toggleTooltip = new java.util.ArrayList<>();
-            toggleTooltip.add(Component.translatable("r3ct_base_core.gui.tooltip.border_toggle.title").withStyle(net.minecraft.ChatFormatting.GOLD));
-            toggleTooltip.add(Component.translatable(this.isBorderVisible ? "r3ct_base_core.gui.tooltip.border_toggle.on" : "r3ct_base_core.gui.tooltip.border_toggle.off").withStyle(this.isBorderVisible ? net.minecraft.ChatFormatting.GREEN : net.minecraft.ChatFormatting.RED));
-            graphics.setComponentTooltipForNextFrame(this.font, toggleTooltip, mouseX, mouseY);
+        int effectsY = this.topPos + 93;
+        graphics.text(this.font, Component.literal("Efekty:").withStyle(net.minecraft.ChatFormatting.BLACK), infoX, effectsY, 0xFF000000, false);
+
+        int effStartX = this.leftPos + 14;
+        int effStartY = this.topPos + 105;
+        boolean hasStagedEffects = false;
+
+        com.r3ct.base_core.block.BaseCoreBlockEntity coreBE = getCoreEntity();
+
+        for (int i = 0; i < 4; i++) {
+            int sx = effStartX + (i * 42);
+            boolean isLocked = i >= maxSlots;
+
+            String activeEffect = "empty";
+            if (coreBE != null) {
+                ItemStack coreStack = coreBE.getItem(i);
+                if (!coreStack.isEmpty() && coreStack.has(ModDataComponents.EFFECT_ID)) {
+                    activeEffect = coreStack.get(ModDataComponents.EFFECT_ID);
+                }
+            }
+
+            graphics.fill(sx, effStartY, sx + 22, effStartY + 22, isLocked ? 0xFFD7CCC8 : 0xFFF5DEB3);
+            drawThickOutline(graphics, sx, effStartY, 22, 22, 2, 0xFF8D6E63);
+
+            if (isLocked) {
+                centeredTextNoShadow(graphics, "X", sx + 11, effStartY + 7, 0xFFFF5555);
+            } else if (!activeEffect.equals("empty")) {
+                graphics.pose().pushMatrix();
+                graphics.pose().translate(sx + 3, effStartY + 3);
+                graphics.fakeItem(new ItemStack(Items.DIRT), 0, 0);
+                graphics.pose().popMatrix();
+            } else if (this.menu.getSlot(i).hasItem()) {
+                hasStagedEffects = true;
+            }
+        }
+
+        if (hasStagedEffects) {
+            int btnX = this.leftPos + 104;
+            int btnY = this.topPos + 89;
+            boolean isBtnHovered = mouseX >= btnX && mouseX < btnX + 60 && mouseY >= btnY && mouseY < btnY + 16;
+
+            graphics.fill(btnX, btnY, btnX + 60, btnY + 16, isBtnHovered ? 0xFFC8E6C9 : 0xFF81C784);
+            drawThickOutline(graphics, btnX, btnY, 60, 16, 1, 0xFF2E7D32);
+            centeredTextNoShadow(graphics, Component.translatable("r3ct_base_core.gui.apply"), btnX + 30, btnY + 4, 0xFF000000);
         }
     }
 
@@ -318,83 +350,116 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         BaseCoreServerConfig.TierUpgrade currentTierConfig = BaseCoreServerConfig.getTier(currentTier);
         BaseCoreServerConfig.TierUpgrade nextTierConfig = BaseCoreServerConfig.getTier(currentTier + 1);
 
-        int panelWidth = 240;
-        int panelX = this.leftPos + 20;
-        int panelY = this.topPos + 40;
-
         if (nextTierConfig == null) {
-            centeredTextNoShadow(graphics, Component.translatable("r3ct_base_core.gui.upgrades.max_limit"), panelX + (panelWidth / 2), panelY + 30, 0xFF000000);
+            centeredTextNoShadow(graphics, Component.translatable("r3ct_base_core.gui.upgrades.max_limit"), this.leftPos + (this.imageWidth / 2), this.topPos + 50, 0xFF000000);
             return;
         }
 
-        int centerX = panelX + (panelWidth / 2);
+        int topY = this.topPos + 18;
+        int leftBoxX = this.leftPos + 35;
+        int rightBoxX = this.leftPos + 117;
 
-        int leftBoxX = centerX - 80;
-        int boxY = panelY + 15;
-        graphics.fill(leftBoxX, boxY, leftBoxX + 40, boxY + 40, 0xFFFFF8DC);
-        drawThickOutline(graphics, leftBoxX, boxY, 40, 40, 2, 0xFF8D6E63);
+        Item currentMain = Items.STICK;
+        Component currentNameComp = Component.translatable("r3ct_base_core.gui.tier.0");
+        if (currentTierConfig != null) {
+            currentMain = BuiltInRegistries.ITEM.get(Identifier.parse(currentTierConfig.mainItem)).map(Holder::value).orElse(Items.STICK);
+            if (currentMain == Items.AIR) currentMain = Items.STICK;
+            currentNameComp = Component.translatable(currentTierConfig.title);
+        }
 
-        graphics.pose().pushMatrix();
-        graphics.pose().translate(leftBoxX + 20, boxY + 20);
-        graphics.pose().scale(2.0f, 2.0f);
-        Item currentMain = currentTier == 0 ? Items.STICK : BuiltInRegistries.ITEM.get(Identifier.parse(currentTierConfig.mainItem)).map(Holder::value).orElse(Items.AIR);
-        graphics.fakeItem(new ItemStack(currentMain), -8, -8);
-        graphics.pose().popMatrix();
+        Item nextMainItem = BuiltInRegistries.ITEM.get(Identifier.parse(nextTierConfig.mainItem)).map(Holder::value).orElse(Items.AIR);
+        Item bulkItem = BuiltInRegistries.ITEM.get(Identifier.parse(nextTierConfig.bulkItem)).map(Holder::value).orElse(Items.AIR);
 
-        int arrowX = leftBoxX + 45;
-        int arrowY = boxY + 18;
+        graphics.fill(leftBoxX, topY, leftBoxX + 24, topY + 24, 0xFFFFF8DC);
+        drawThickOutline(graphics, leftBoxX, topY, 24, 24, 2, 0xFF8D6E63);
+        graphics.fakeItem(new ItemStack(currentMain), leftBoxX + 4, topY + 4);
+
+        String romanCurrent = currentTier == 0 ? "0" : toRoman(currentTier);
+        Component currentDisplay = Component.empty().append(currentNameComp).append(" (").append(romanCurrent).append(")");
+        centeredTextNoShadow(graphics, currentDisplay, leftBoxX + 12, topY + 28, 0xFF000000);
+
+        int arrowX = this.leftPos + 78;
+        int arrowY = topY + 10;
         graphics.fill(arrowX, arrowY + 2, arrowX + 15, arrowY + 4, 0xFF8D6E63);
         graphics.fill(arrowX + 10, arrowY, arrowX + 12, arrowY + 6, 0xFF8D6E63);
         graphics.fill(arrowX + 12, arrowY + 1, arrowX + 15, arrowY + 5, 0xFF8D6E63);
 
-        int rightBoxX = centerX + 40;
-        graphics.fill(rightBoxX, boxY, rightBoxX + 40, boxY + 40, 0xFFFFF8DC);
-        drawThickOutline(graphics, rightBoxX, boxY, 40, 40, 2, 0xFF8D6E63);
+        graphics.fill(rightBoxX, topY, rightBoxX + 24, topY + 24, 0xFFFFF8DC);
+        drawThickOutline(graphics, rightBoxX, topY, 24, 24, 2, 0xFF8D6E63);
+        graphics.fakeItem(new ItemStack(nextMainItem), rightBoxX + 4, topY + 4);
 
-        graphics.pose().pushMatrix();
-        graphics.pose().translate(rightBoxX + 20, boxY + 20);
-        graphics.pose().scale(2.0f, 2.0f);
-        Item nextMainItem = BuiltInRegistries.ITEM.get(Identifier.parse(nextTierConfig.mainItem)).map(Holder::value).orElse(Items.AIR);
-        graphics.fakeItem(new ItemStack(nextMainItem), -8, -8);
-        graphics.pose().popMatrix();
+        Component nextDisplay = Component.empty().append(Component.translatable(nextTierConfig.title)).append(" (").append(toRoman(nextTierConfig.tierLevel)).append(")");
+        centeredTextNoShadow(graphics, nextDisplay, rightBoxX + 12, topY + 28, 0xFF000000);
 
-        Item bulkItem = BuiltInRegistries.ITEM.get(Identifier.parse(nextTierConfig.bulkItem)).map(Holder::value).orElse(Items.AIR);
-        int playerMainCount = countItemInClientInventory(nextMainItem);
-        int playerBulkCount = countItemInClientInventory(bulkItem);
-        boolean canAfford = playerMainCount >= nextTierConfig.mainAmount && playerBulkCount >= nextTierConfig.bulkAmount;
+        int mainSlotsNeeded = (int) Math.ceil(nextTierConfig.mainAmount / 64.0);
+        int bulkSlotsNeeded = (int) Math.ceil(nextTierConfig.bulkAmount / 64.0);
 
-        int costX = panelX + 20;
-        int costY = boxY + 50;
+        int startX = this.leftPos + 26;
 
-        int cappedMain = Math.min(playerMainCount, nextTierConfig.mainAmount);
-        graphics.text(this.font, cappedMain + "/" + nextTierConfig.mainAmount + " " + nextMainItem.getName(nextMainItem.getDefaultInstance()).getString(), costX, costY, cappedMain >= nextTierConfig.mainAmount ? 0xFF55FF55 : 0xFFFF5555, false);
+        int row1Y = this.topPos + 56;
+        graphics.fakeItem(new ItemStack(nextMainItem), startX, row1Y - 1);
+        graphics.text(this.font, "x", startX + 19, row1Y + 4, 0xFF000000, false);
+        graphics.text(this.font, String.valueOf(nextTierConfig.mainAmount), startX + 28, row1Y + 4, 0xFF000000, false);
 
-        int cappedBulk = Math.min(playerBulkCount, nextTierConfig.bulkAmount);
-        graphics.text(this.font, cappedBulk + "/" + nextTierConfig.bulkAmount + " " + bulkItem.getName(bulkItem.getDefaultInstance()).getString(), costX, costY + 12, cappedBulk >= nextTierConfig.bulkAmount ? 0xFF55FF55 : 0xFFFF5555, false);
+        for (int i = 0; i < mainSlotsNeeded; i++) {
+            net.minecraft.world.inventory.Slot slot = this.menu.getSlot(4 + i);
+            int sx = this.leftPos + slot.x;
+            int sy = this.topPos + slot.y;
+            if (slot.isActive() && !slot.hasItem()) {
+                graphics.fakeItem(new ItemStack(nextMainItem), sx, sy);
+                graphics.fill(sx, sy, sx + 16, sy + 16, 0x888B8B8B);
+            }
+        }
 
-        int btnWidth = 140;
+        int row2Y = this.topPos + 78;
+        graphics.fakeItem(new ItemStack(bulkItem), startX, row2Y - 1);
+        graphics.text(this.font, "x", startX + 19, row2Y + 4, 0xFF000000, false);
+        graphics.text(this.font, String.valueOf(nextTierConfig.bulkAmount), startX + 28, row2Y + 4, 0xFF000000, false);
+
+        for (int i = 0; i < bulkSlotsNeeded; i++) {
+            net.minecraft.world.inventory.Slot slot = this.menu.getSlot(8 + i);
+            int sx = this.leftPos + slot.x;
+            int sy = this.topPos + slot.y;
+            if (slot.isActive() && !slot.hasItem()) {
+                graphics.fakeItem(new ItemStack(bulkItem), sx, sy);
+                graphics.fill(sx, sy, sx + 16, sy + 16, 0x888B8B8B);
+            }
+        }
+
+        int btnWidth = 80;
         int btnHeight = 20;
-        int btnX = centerX - (btnWidth / 2);
-        int btnY = this.topPos + 110;
+        int btnX = this.leftPos + 48;
+        int btnY = this.topPos + 106;
 
+        int stagedMain = 0;
+        int stagedBulk = 0;
+        for(int i = 4; i <= 7; i++) {
+            ItemStack stack = this.menu.getSlot(i).getItem();
+            if (stack.is(nextMainItem)) stagedMain += stack.getCount();
+        }
+        for(int i = 8; i <= 11; i++) {
+            ItemStack stack = this.menu.getSlot(i).getItem();
+            if (stack.is(bulkItem)) stagedBulk += stack.getCount();
+        }
+
+        boolean canAfford = stagedMain >= nextTierConfig.mainAmount && stagedBulk >= nextTierConfig.bulkAmount;
         boolean isBtnHovered = mouseX >= btnX && mouseX < btnX + btnWidth && mouseY >= btnY && mouseY < btnY + btnHeight;
 
-        long time = System.currentTimeMillis();
-        float pulse = (float) (Math.sin(time / 150.0) + 1.0) / 2.0f;
-        int pulseG = (int) (170 + (85 * pulse));
-        int blinkColorBg = 0xFF000000 | (255 << 16) | (pulseG << 8);
-
-        int btnColor = canAfford ? blinkColorBg : 0xFF8D6E63;
-        if (isBtnHovered && !canAfford) btnColor = 0xFFA1887F;
-
-        graphics.fill(btnX, btnY, btnX + btnWidth, btnY + btnHeight, btnColor);
-        drawThickOutline(graphics, btnX, btnY, btnWidth, btnHeight, 1, 0xFF5D4037);
-        centeredTextNoShadow(graphics, Component.translatable("r3ct_base_core.gui.upgrades.start_upgrade"), centerX, btnY + 6, canAfford ? 0xFF000000 : 0xFFEFEBE9);
-
-        if (mouseX >= leftBoxX && mouseX < leftBoxX + 40 && mouseY >= boxY && mouseY < boxY + 40) {
-            if (currentTier != 0) renderTierTooltip(graphics, currentTierConfig, false, mouseX, mouseY);
+        int boxColor = 0xFF8D6E63;
+        if (canAfford) {
+            long time = System.currentTimeMillis();
+            float pulse = (float) (Math.sin(time / 150.0) + 1.0) / 2.0f;
+            boxColor = 0xFF000000 | (255 << 16) | ((int)(170 + (85 * pulse)) << 8);
+        } else if (isBtnHovered) {
+            boxColor = 0xFFA1887F;
         }
-        if (mouseX >= rightBoxX && mouseX < rightBoxX + 40 && mouseY >= boxY && mouseY < boxY + 40) {
+
+        graphics.fill(btnX, btnY, btnX + btnWidth, btnY + btnHeight, boxColor);
+        drawThickOutline(graphics, btnX, btnY, btnWidth, btnHeight, 1, 0xFF3E2723);
+        centeredTextNoShadow(graphics, Component.translatable("r3ct_base_core.gui.upgrades.start_upgrade"), btnX + (btnWidth / 2), btnY + 6, canAfford ? 0xFF000000 : 0xFFEFEBE9);
+
+        boolean isRightBoxHovered = mouseX >= rightBoxX && mouseX < rightBoxX + 24 && mouseY >= topY && mouseY < topY + 24;
+        if (isBtnHovered || isRightBoxHovered) {
             renderTierTooltip(graphics, nextTierConfig, true, mouseX, mouseY);
         }
     }
@@ -402,8 +467,18 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
     private void renderTierTooltip(GuiGraphicsExtractor graphics, BaseCoreServerConfig.TierUpgrade tierConfig, boolean isNextTier, int mouseX, int mouseY) {
         java.util.List<Component> tooltipLines = new java.util.ArrayList<>();
         tooltipLines.add(Component.translatable("r3ct_base_core.gui.tier.format", Component.translatable(tierConfig.title), tierConfig.tierLevel).withStyle(net.minecraft.ChatFormatting.GOLD));
-        if (tierConfig.bonusRadius > 0) tooltipLines.add(Component.translatable("r3ct_base_core.gui.tooltip.bonus_radius", tierConfig.bonusRadius).withStyle(net.minecraft.ChatFormatting.AQUA));
-        if (tierConfig.bonusSlots > 0) tooltipLines.add(Component.translatable("r3ct_base_core.gui.tooltip.bonus_slots", tierConfig.bonusSlots).withStyle(net.minecraft.ChatFormatting.GREEN));
+
+        if (tierConfig.bonusRadius > 0) {
+            tooltipLines.add(Component.literal("+ " + tierConfig.bonusRadius + " ").append(Component.translatable("r3ct_base_core.gui.stats.area")).withStyle(net.minecraft.ChatFormatting.AQUA));
+        }
+        if (tierConfig.bonusSlots > 0) {
+            tooltipLines.add(Component.literal("+ " + tierConfig.bonusSlots + " ").append(Component.translatable("r3ct_base_core.gui.stats.slots")).withStyle(net.minecraft.ChatFormatting.GREEN));
+        }
+
+        if (isNextTier) {
+            tooltipLines.add(Component.literal(""));
+            tooltipLines.add(Component.translatable("r3ct_base_core.gui.upgrades.click_to_upgrade").withStyle(net.minecraft.ChatFormatting.GREEN));
+        }
         graphics.setComponentTooltipForNextFrame(this.font, tooltipLines, mouseX, mouseY);
     }
 
@@ -475,16 +550,5 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
             if (tier != null) totalRange += tier.bonusRadius;
         }
         return totalRange;
-    }
-
-    private int countItemInClientInventory(Item itemType) {
-        net.minecraft.client.player.LocalPlayer player = this.minecraft.player;
-        if (player == null) return 0;
-        int count = 0;
-        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-            ItemStack stack = player.getInventory().getItem(i);
-            if (!stack.isEmpty() && stack.getItem() == itemType) count += stack.getCount();
-        }
-        return count;
     }
 }

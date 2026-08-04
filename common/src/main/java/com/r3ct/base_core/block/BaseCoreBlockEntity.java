@@ -300,7 +300,7 @@ public class BaseCoreBlockEntity extends BlockEntity implements Container, MenuP
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        return new BaseCoreMenu(containerId, playerInventory, this, this.dataAccess);
+        return new BaseCoreMenu(containerId, playerInventory, this.dataAccess);
     }
 
     @Override

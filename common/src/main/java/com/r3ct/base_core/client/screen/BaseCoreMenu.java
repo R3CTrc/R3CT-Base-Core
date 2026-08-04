@@ -2,6 +2,9 @@ package com.r3ct.base_core.client.screen;
 
 import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.registry.ModDataComponents;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -10,53 +13,88 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class BaseCoreMenu extends AbstractContainerMenu {
 
-    private final Container container;
     private final ContainerData data;
     public boolean isOverviewTab = true;
 
+    public final SimpleContainer stagingContainer;
+
     public BaseCoreMenu(int containerId, Inventory playerInventory) {
-        this(containerId, playerInventory, new SimpleContainer(4), new SimpleContainerData(5));
+        this(containerId, playerInventory, new SimpleContainerData(5));
     }
 
-    public BaseCoreMenu(int containerId, Inventory playerInventory, Container container, ContainerData data) {
+    public BaseCoreMenu(int containerId, Inventory playerInventory, ContainerData data) {
         super(ModMenuTypes.BASE_CORE_MENU, containerId);
-
-        checkContainerSize(container, 4);
         checkContainerDataCount(data, 5);
 
-        this.container = container;
         this.data = data;
-        this.container.startOpen(playerInventory.player);
+        this.stagingContainer = new SimpleContainer(12);
         this.addDataSlots(data);
 
-        int slotVisualSize = 26;
-        int slotSpacing = 16;
-        int slotsStartX = 43;
-        int slotsStartY = 96;
-
+        int effStartX = 14;
+        int effStartY = 105;
         for (int i = 0; i < 4; ++i) {
             final int slotIndex = i;
-            this.addSlot(new Slot(container, i, slotsStartX + (i * (slotVisualSize + slotSpacing)) + 5, slotsStartY + 5) {
+            this.addSlot(new Slot(stagingContainer, i, effStartX + (i * 42) + 3, effStartY + 3) {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
                     return stack.has(ModDataComponents.EFFECT_ID);
                 }
                 @Override
                 public boolean isActive() {
-                    if (!BaseCoreMenu.this.isOverviewTab) return false;
-                    return slotIndex < BaseCoreServerConfig.calculateTotalSlots(BaseCoreMenu.this.getTier());
+                    return BaseCoreMenu.this.isOverviewTab && slotIndex < BaseCoreServerConfig.calculateTotalSlots(getTier());
                 }
             });
         }
 
-        int invX = 59;
-        int invY = 145;
+        for (int i = 0; i < 4; ++i) {
+            final int localI = i;
+            this.addSlot(new Slot(stagingContainer, 4 + i, 77 + (i * 18), 56) {
+                @Override
+                public boolean isActive() {
+                    if (isOverviewTab) return false;
+                    BaseCoreServerConfig.TierUpgrade nextTier = BaseCoreServerConfig.getTier(getTier() + 1);
+                    if (nextTier == null) return false;
+                    int needed = (int) Math.ceil(nextTier.mainAmount / 64.0);
+                    return localI < needed;
+                }
+                @Override
+                public boolean mayPlace(ItemStack stack) {
+                    BaseCoreServerConfig.TierUpgrade nextTier = BaseCoreServerConfig.getTier(getTier() + 1);
+                    if (nextTier == null) return false;
+                    Item reqItem = BuiltInRegistries.ITEM.get(Identifier.parse(nextTier.mainItem)).map(Holder::value).orElse(Items.AIR);
+                    return stack.is(reqItem);
+                }
+            });
+        }
 
-        this.addStandardInventorySlots(playerInventory, invX, invY);
+        for (int i = 0; i < 4; ++i) {
+            final int localI = i;
+            this.addSlot(new Slot(stagingContainer, 8 + i, 77 + (i * 18), 78) {
+                @Override
+                public boolean isActive() {
+                    if (isOverviewTab) return false;
+                    BaseCoreServerConfig.TierUpgrade nextTier = BaseCoreServerConfig.getTier(getTier() + 1);
+                    if (nextTier == null) return false;
+                    int needed = (int) Math.ceil(nextTier.bulkAmount / 64.0);
+                    return localI < needed;
+                }
+                @Override
+                public boolean mayPlace(ItemStack stack) {
+                    BaseCoreServerConfig.TierUpgrade nextTier = BaseCoreServerConfig.getTier(getTier() + 1);
+                    if (nextTier == null) return false;
+                    Item reqItem = BuiltInRegistries.ITEM.get(Identifier.parse(nextTier.bulkItem)).map(Holder::value).orElse(Items.AIR);
+                    return stack.is(reqItem);
+                }
+            });
+        }
+
+        this.addStandardInventorySlots(playerInventory, 8, 142);
     }
 
     public int getTier() { return this.data.get(0); }
@@ -67,7 +105,7 @@ public class BaseCoreMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return this.container.stillValid(player);
+        return true;
     }
 
     @Override
@@ -79,14 +117,14 @@ public class BaseCoreMenu extends AbstractContainerMenu {
             ItemStack itemstack1 = slot.getItem();
             itemstack = itemstack1.copy();
 
-            if (index < 4) {
-                if (!this.moveItemStackTo(itemstack1, 4, 40, true)) return ItemStack.EMPTY;
-            } else if (itemstack1.has(ModDataComponents.EFFECT_ID)) {
-                if (!this.moveItemStackTo(itemstack1, 0, 4, false)) return ItemStack.EMPTY;
-            } else if (index < 31) {
-                if (!this.moveItemStackTo(itemstack1, 31, 40, false)) return ItemStack.EMPTY;
-            } else if (index >= 31 && index < 40 && !this.moveItemStackTo(itemstack1, 4, 31, false)) {
-                return ItemStack.EMPTY;
+            if (index < 12) {
+                if (!this.moveItemStackTo(itemstack1, 12, 48, true)) return ItemStack.EMPTY;
+            } else {
+                if (isOverviewTab && itemstack1.has(ModDataComponents.EFFECT_ID)) {
+                    if (!this.moveItemStackTo(itemstack1, 0, 4, false)) return ItemStack.EMPTY;
+                } else if (!isOverviewTab) {
+                    if (!this.moveItemStackTo(itemstack1, 4, 12, false)) return ItemStack.EMPTY;
+                }
             }
 
             if (itemstack1.isEmpty()) slot.setByPlayer(ItemStack.EMPTY);
@@ -100,6 +138,6 @@ public class BaseCoreMenu extends AbstractContainerMenu {
     @Override
     public void removed(Player player) {
         super.removed(player);
-        this.container.stopOpen(player);
+        this.clearContainer(player, this.stagingContainer);
     }
 }

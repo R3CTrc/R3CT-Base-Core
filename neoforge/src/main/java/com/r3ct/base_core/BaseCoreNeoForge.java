@@ -91,6 +91,14 @@ public class BaseCoreNeoForge {
             });
         });
 
+        registrar.playToServer(ApplyEffectsPayload.TYPE, ApplyEffectsPayload.CODEC, (payload, context) -> {
+            context.enqueueWork(() -> {
+                if (context.player() instanceof ServerPlayer player) {
+                    BaseCoreServerLogic.handleApplyEffectsRequest(player, payload);
+                }
+            });
+        });
+
         registrar.playToServer(LecternAutoFillPayload.TYPE, LecternAutoFillPayload.CODEC, (payload, context) -> {
             context.enqueueWork(() -> {
                 if (context.player() instanceof ServerPlayer player) {
