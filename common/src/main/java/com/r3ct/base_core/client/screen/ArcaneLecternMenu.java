@@ -35,7 +35,7 @@ public class ArcaneLecternMenu extends AbstractContainerMenu {
 
         this.addDataSlot(this.xpCost);
 
-        this.addSlot(new Slot(container, 0, 36, 35) {
+        this.addSlot(new Slot(container, 0, 26, 35) {
             @Override
             public void setChanged() {
                 super.setChanged();
@@ -43,7 +43,7 @@ public class ArcaneLecternMenu extends AbstractContainerMenu {
             }
         });
 
-        this.addSlot(new Slot(container, 1, 62, 35) {
+        this.addSlot(new Slot(container, 1, 56, 35) {
             @Override
             public void setChanged() {
                 super.setChanged();
@@ -51,7 +51,7 @@ public class ArcaneLecternMenu extends AbstractContainerMenu {
             }
         });
 
-        this.addSlot(new Slot(container, 2, 118, 35) {
+        this.addSlot(new Slot(container, 2, 116, 35) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return false;

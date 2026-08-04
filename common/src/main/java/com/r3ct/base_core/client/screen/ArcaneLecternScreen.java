@@ -64,6 +64,7 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
             graphics.fill(sx + 16, sy, sx + 17, sy + 16, 0xFFFFFFFF);
         }
 
+        graphics.text(this.font, "+", this.leftPos + 47, this.topPos + 39, 0xFFEFEBE9, false);
         graphics.text(this.font, "->", this.leftPos + 89, this.topPos + 39, 0xFFEFEBE9, false);
 
         int listStartX = panelX + 4;
@@ -91,16 +92,19 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
             ItemStack outputStack = new ItemStack(recipe.getOutputItem());
 
             graphics.item(inputStack, listStartX + 4, rowY + 5);
-            graphics.text(this.font, "+", listStartX + 24, rowY + 9, 0xFFEFEBE9, false);
+            graphics.text(this.font, "+", listStartX + 23, rowY + 9, 0xFFEFEBE9, false);
 
-            graphics.item(ingStack, listStartX + 34, rowY + 5);
-            graphics.itemDecorations(this.font, ingStack, listStartX + 34, rowY + 5);
+            graphics.item(ingStack, listStartX + 32, rowY + 5);
+            graphics.itemDecorations(this.font, ingStack, listStartX + 32, rowY + 5);
 
-            graphics.text(this.font, "->", listStartX + 54, rowY + 9, 0xFFEFEBE9, false);
-            graphics.item(outputStack, listStartX + 72, rowY + 5);
+            graphics.text(this.font, "->", listStartX + 51, rowY + 9, 0xFFEFEBE9, false);
+
+            graphics.item(outputStack, listStartX + 64, rowY + 5);
 
             if (recipe.xpCost() > 0) {
-                graphics.text(this.font, recipe.xpCost() + " XP", listStartX + 94, rowY + 9, 0xFF55FF55, true);
+                boolean hasEnoughListXp = this.minecraft.player.isCreative() || ArcaneLecternMenu.getTotalExperience(this.minecraft.player) >= recipe.xpCost();
+                int xpColor = hasEnoughListXp ? 0xFF55FF55 : 0xFFFF5555;
+                graphics.text(this.font, recipe.xpCost() + " XP", listStartX + 84, rowY + 9, xpColor, true);
             }
 
             if (isHovered) {
@@ -126,11 +130,13 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
         int currentXpCost = this.menu.xpCost.get();
         if (currentXpCost > 0) {
             boolean hasEnoughXp = this.minecraft.player.isCreative() || ArcaneLecternMenu.getTotalExperience(this.minecraft.player) >= currentXpCost;
-            int color = hasEnoughXp ? 0x80FF20 : 0xFF6060;
-            Component costText = Component.literal("Koszt: " + currentXpCost + " XP");
 
-            int textW = this.font.width(costText);
-            graphics.text(this.font, costText, this.leftPos + 118 + 8 - (textW / 2), this.topPos + 58, color, true);
+            Component prefix = Component.literal("Koszt: ").withStyle(ChatFormatting.GRAY);
+            Component xpAmount = Component.literal(currentXpCost + " XP").withStyle(hasEnoughXp ? ChatFormatting.GREEN : ChatFormatting.RED);
+            Component fullText = Component.empty().append(prefix).append(xpAmount);
+
+            int textW = this.font.width(fullText);
+            graphics.text(this.font, fullText, this.leftPos + 116 + 8 - (textW / 2), this.topPos + 58, 0xFFFFFFFF, true);
         }
 
         super.extractRenderState(graphics, mouseX, mouseY, a);
@@ -143,16 +149,22 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
         if (this.selectedRecipeId != null) {
             LecternRecipes.getRecipeById(this.selectedRecipeId).ifPresent(recipe -> {
                 if (!this.menu.getSlot(0).hasItem()) {
-                    graphics.fakeItem(new ItemStack(recipe.getInputItem()), this.leftPos + 36, this.topPos + 35);
-                    graphics.fill(this.leftPos + 36, this.topPos + 35, this.leftPos + 52, this.topPos + 51, 0x66FFFFFF);
+                    int s0x = this.leftPos + this.menu.getSlot(0).x;
+                    int s0y = this.topPos + this.menu.getSlot(0).y;
+                    graphics.fakeItem(new ItemStack(recipe.getInputItem()), s0x, s0y);
+                    graphics.fill(s0x, s0y, s0x + 16, s0y + 16, 0x66FFFFFF);
                 }
                 if (!this.menu.getSlot(1).hasItem()) {
-                    graphics.fakeItem(new ItemStack(recipe.getIngredientItem(), recipe.ingredientAmount()), this.leftPos + 62, this.topPos + 35);
-                    graphics.fill(this.leftPos + 62, this.topPos + 35, this.leftPos + 78, this.topPos + 51, 0x66FFFFFF);
+                    int s1x = this.leftPos + this.menu.getSlot(1).x;
+                    int s1y = this.topPos + this.menu.getSlot(1).y;
+                    graphics.fakeItem(new ItemStack(recipe.getIngredientItem(), recipe.ingredientAmount()), s1x, s1y);
+                    graphics.fill(s1x, s1y, s1x + 16, s1y + 16, 0x66FFFFFF);
                 }
                 if (!this.menu.getSlot(2).hasItem()) {
-                    graphics.fakeItem(new ItemStack(recipe.getOutputItem()), this.leftPos + 118, this.topPos + 35);
-                    graphics.fill(this.leftPos + 118, this.topPos + 35, this.leftPos + 134, this.topPos + 51, 0x66FFFFFF);
+                    int s2x = this.leftPos + this.menu.getSlot(2).x;
+                    int s2y = this.topPos + this.menu.getSlot(2).y;
+                    graphics.fakeItem(new ItemStack(recipe.getOutputItem()), s2x, s2y);
+                    graphics.fill(s2x, s2y, s2x + 16, s2y + 16, 0x66FFFFFF);
                 }
             });
         }
