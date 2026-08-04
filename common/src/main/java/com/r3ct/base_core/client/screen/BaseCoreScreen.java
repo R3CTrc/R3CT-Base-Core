@@ -293,7 +293,7 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         graphics.fakeItem(new ItemStack(Items.LIGHT_BLUE_STAINED_GLASS), toggleButtonX + 2, toggleButtonY + 2);
 
         if (currentBorderEnabled) {
-            centeredTextNoShadow(graphics, "V", toggleButtonX + toggleButtonSize - 3, toggleButtonY + toggleButtonSize - 7, 0xFF00AA00);
+            centeredTextNoShadow(graphics, "✔", toggleButtonX + toggleButtonSize - 3, toggleButtonY + toggleButtonSize - 7, 0xFF00AA00);
         } else {
             centeredTextNoShadow(graphics, "X", toggleButtonX + toggleButtonSize - 3, toggleButtonY + toggleButtonSize - 7, 0xFFFF5555);
         }
