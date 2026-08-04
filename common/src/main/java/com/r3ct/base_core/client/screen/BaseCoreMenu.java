@@ -5,7 +5,6 @@ import com.r3ct.base_core.registry.ModDataComponents;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -21,7 +20,6 @@ public class BaseCoreMenu extends AbstractContainerMenu {
 
     private final ContainerData data;
     public boolean isOverviewTab = true;
-    public boolean isShiftClicking = false;
 
     public final SimpleContainer stagingContainer;
 
@@ -50,8 +48,7 @@ public class BaseCoreMenu extends AbstractContainerMenu {
                 }
                 @Override
                 public boolean isActive() {
-                    boolean tabActive = BaseCoreMenu.this.isShiftClicking || !isClient || BaseCoreMenu.this.isOverviewTab;
-                    return tabActive && slotIndex < BaseCoreServerConfig.calculateTotalSlots(getTier());
+                    return (!isClient || BaseCoreMenu.this.isOverviewTab) && slotIndex < BaseCoreServerConfig.calculateTotalSlots(getTier());
                 }
             });
         }
@@ -61,9 +58,7 @@ public class BaseCoreMenu extends AbstractContainerMenu {
             this.addSlot(new Slot(stagingContainer, 4 + i, 80 + (i * 18), 61) {
                 @Override
                 public boolean isActive() {
-                    boolean tabActive = BaseCoreMenu.this.isShiftClicking || !isClient || !BaseCoreMenu.this.isOverviewTab;
-                    if (!tabActive) return false;
-
+                    if (isClient && BaseCoreMenu.this.isOverviewTab) return false;
                     BaseCoreServerConfig.TierUpgrade nextTier = BaseCoreServerConfig.getTier(getTier() + 1);
                     if (nextTier == null) return false;
                     int needed = (int) Math.ceil(nextTier.mainAmount / 64.0);
@@ -84,9 +79,7 @@ public class BaseCoreMenu extends AbstractContainerMenu {
             this.addSlot(new Slot(stagingContainer, 8 + i, 80 + (i * 18), 83) {
                 @Override
                 public boolean isActive() {
-                    boolean tabActive = BaseCoreMenu.this.isShiftClicking || !isClient || !BaseCoreMenu.this.isOverviewTab;
-                    if (!tabActive) return false;
-
+                    if (isClient && BaseCoreMenu.this.isOverviewTab) return false;
                     BaseCoreServerConfig.TierUpgrade nextTier = BaseCoreServerConfig.getTier(getTier() + 1);
                     if (nextTier == null) return false;
                     int needed = (int) Math.ceil(nextTier.bulkAmount / 64.0);
@@ -125,49 +118,42 @@ public class BaseCoreMenu extends AbstractContainerMenu {
             ItemStack itemstack1 = slot.getItem();
             itemstack = itemstack1.copy();
 
-            this.isShiftClicking = true;
-            try {
-                if (index < 12) {
-                    if (!this.moveItemStackTo(itemstack1, 12, 48, true)) return ItemStack.EMPTY;
-                } else {
-                    boolean moved = false;
+            if (index < 12) {
+                if (!this.moveItemStackTo(itemstack1, 12, 48, true)) return ItemStack.EMPTY;
+            } else {
+                boolean moved = false;
 
-                    if (itemstack1.has(ModDataComponents.EFFECT_ID)) {
-                        int maxSlots = BaseCoreServerConfig.calculateTotalSlots(getTier());
-                        if (maxSlots > 0) {
-                            if (this.moveItemStackTo(itemstack1, 0, maxSlots, false)) moved = true;
-                        }
-                    }
-
-                    if (!moved && !itemstack1.isEmpty()) {
-                        BaseCoreServerConfig.TierUpgrade nextTier = BaseCoreServerConfig.getTier(getTier() + 1);
-                        if (nextTier != null) {
-                            Item reqMain = BuiltInRegistries.ITEM.get(Identifier.parse(nextTier.mainItem)).map(Holder::value).orElse(Items.AIR);
-                            Item reqBulk = BuiltInRegistries.ITEM.get(Identifier.parse(nextTier.bulkItem)).map(Holder::value).orElse(Items.AIR);
-
-                            if (itemstack1.is(reqMain)) {
-                                int needed = (int) Math.ceil(nextTier.mainAmount / 64.0);
-                                if (needed > 0 && this.moveItemStackTo(itemstack1, 4, 4 + needed, false)) moved = true;
-                            }
-
-                            if (!moved && !itemstack1.isEmpty() && itemstack1.is(reqBulk)) {
-                                int needed = (int) Math.ceil(nextTier.bulkAmount / 64.0);
-                                if (needed > 0 && this.moveItemStackTo(itemstack1, 8, 8 + needed, false)) moved = true;
-                            }
-                        }
-                    }
-
-                    if (!moved) return ItemStack.EMPTY;
+                if (itemstack1.has(ModDataComponents.EFFECT_ID)) {
+                    int maxSlots = BaseCoreServerConfig.calculateTotalSlots(getTier());
+                    if (maxSlots > 0 && this.moveItemStackTo(itemstack1, 0, maxSlots, false)) moved = true;
                 }
 
-                if (itemstack1.isEmpty()) slot.setByPlayer(ItemStack.EMPTY);
-                else slot.setChanged();
+                if (!moved && !itemstack1.isEmpty()) {
+                    BaseCoreServerConfig.TierUpgrade nextTier = BaseCoreServerConfig.getTier(getTier() + 1);
+                    if (nextTier != null) {
+                        Item reqMain = BuiltInRegistries.ITEM.get(Identifier.parse(nextTier.mainItem)).map(Holder::value).orElse(Items.AIR);
+                        Item reqBulk = BuiltInRegistries.ITEM.get(Identifier.parse(nextTier.bulkItem)).map(Holder::value).orElse(Items.AIR);
 
-                if (itemstack1.getCount() == itemstack.getCount()) return ItemStack.EMPTY;
-                slot.onTake(player, itemstack1);
-            } finally {
-                this.isShiftClicking = false;
+                        if (itemstack1.is(reqMain)) {
+                            int needed = (int) Math.ceil(nextTier.mainAmount / 64.0);
+                            if (needed > 0 && this.moveItemStackTo(itemstack1, 4, 4 + needed, false)) moved = true;
+                        }
+
+                        if (!moved && !itemstack1.isEmpty() && itemstack1.is(reqBulk)) {
+                            int needed = (int) Math.ceil(nextTier.bulkAmount / 64.0);
+                            if (needed > 0 && this.moveItemStackTo(itemstack1, 8, 8 + needed, false)) moved = true;
+                        }
+                    }
+                }
+
+                if (!moved) return ItemStack.EMPTY;
             }
+
+            if (itemstack1.isEmpty()) slot.setByPlayer(ItemStack.EMPTY);
+            else slot.setChanged();
+
+            if (itemstack1.getCount() == itemstack.getCount()) return ItemStack.EMPTY;
+            slot.onTake(player, itemstack1);
         }
         return itemstack;
     }

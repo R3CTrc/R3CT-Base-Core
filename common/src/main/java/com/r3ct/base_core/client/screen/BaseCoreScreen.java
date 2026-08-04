@@ -9,6 +9,7 @@ import com.r3ct.base_core.registry.ModDataComponents;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -16,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -72,6 +74,32 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         com.r3ct.base_core.block.BaseCoreBlockEntity core = getCoreEntity();
         if (core != null) return core.getShowBorder();
         return this.menu.isBorderVisible();
+    }
+
+    @Override
+    protected void slotClicked(net.minecraft.world.inventory.Slot slot, int slotId, int mouseButton, ContainerInput type) {
+        if (slot != null && slotId >= 12 && type == ContainerInput.QUICK_MOVE) {
+            ItemStack stack = slot.getItem();
+            if (!stack.isEmpty()) {
+                boolean isEffect = stack.has(ModDataComponents.EFFECT_ID);
+                boolean isUpgrade = false;
+
+                BaseCoreServerConfig.TierUpgrade nextTier = BaseCoreServerConfig.getTier(this.menu.getTier() + 1);
+                if (nextTier != null) {
+                    Item reqMain = BuiltInRegistries.ITEM.get(Identifier.parse(nextTier.mainItem)).map(Holder::value).orElse(Items.AIR);
+                    Item reqBulk = BuiltInRegistries.ITEM.get(Identifier.parse(nextTier.bulkItem)).map(Holder::value).orElse(Items.AIR);
+                    if (stack.is(reqMain) || stack.is(reqBulk)) isUpgrade = true;
+                }
+
+                if (this.currentTab == Tab.OVERVIEW && !isEffect) {
+                    return;
+                }
+                if (this.currentTab == Tab.UPGRADES && !isUpgrade) {
+                    return;
+                }
+            }
+        }
+        super.slotClicked(slot, slotId, mouseButton, type);
     }
 
     @Override
@@ -325,10 +353,7 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
             if (isLocked) {
                 centeredTextNoShadow(graphics, "X", sx + 11, effStartY + 7, 0xFFFF5555);
             } else if (!activeEffect.equals("empty")) {
-                graphics.pose().pushMatrix();
-                graphics.pose().translate(sx + 3, effStartY + 3);
-                graphics.fakeItem(new ItemStack(Items.DIRT), 0, 0);
-                graphics.pose().popMatrix();
+                graphics.fakeItem(new ItemStack(Items.DIRT), sx + 3, effStartY + 3);
             } else if (this.menu.getSlot(i).hasItem()) {
                 hasStagedEffects = true;
             }
@@ -378,11 +403,11 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         Component currentDisplay = Component.empty().append(currentNameComp).append(" (").append(romanCurrent).append(")");
         centeredTextNoShadow(graphics, currentDisplay, leftBoxX + 12, topY + 28, 0xFF000000);
 
-        int arrowX = this.leftPos + 78;
-        int arrowY = topY + 10;
-        graphics.fill(arrowX, arrowY + 2, arrowX + 15, arrowY + 4, 0xFF8D6E63);
-        graphics.fill(arrowX + 10, arrowY, arrowX + 12, arrowY + 6, 0xFF8D6E63);
-        graphics.fill(arrowX + 12, arrowY + 1, arrowX + 15, arrowY + 5, 0xFF8D6E63);
+        int arrowX = this.leftPos + 77;
+        int arrowY = topY + 4;
+        Identifier VANILLA_ARROW = Identifier.parse("container/villager/trade_arrow");
+
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, VANILLA_ARROW, arrowX, arrowY, 24, 16, 0xFF8D6E63);
 
         graphics.fill(rightBoxX, topY, rightBoxX + 24, topY + 24, 0xFFFFF8DC);
         drawThickOutline(graphics, rightBoxX, topY, 24, 24, 2, 0xFF8D6E63);
