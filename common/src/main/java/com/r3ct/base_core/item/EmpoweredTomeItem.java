@@ -23,7 +23,7 @@ public class EmpoweredTomeItem extends Item {
 
         if (effectId != null) {
             return LecternRecipes.getRecipeById(effectId)
-                    .map(recipe -> Component.translatable(recipe.name()).withStyle(ChatFormatting.GOLD))
+                    .map(recipe -> Component.translatable(recipe.nameKey()).withStyle(ChatFormatting.GOLD))
                     .orElse(Component.translatable("item.r3ct_base_core.empowered_tome"));
         }
 
@@ -38,7 +38,7 @@ public class EmpoweredTomeItem extends Item {
 
         if (effectId != null) {
             LecternRecipes.getRecipeById(effectId).ifPresent(recipe -> {
-                builder.accept(Component.translatable(recipe.description()).withStyle(ChatFormatting.GRAY));
+                builder.accept(Component.translatable(recipe.descKey()).withStyle(ChatFormatting.GRAY));
                 builder.accept(Component.empty());
                 builder.accept(Component.literal("Moduł Rdzenia Bazy").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC));
             });

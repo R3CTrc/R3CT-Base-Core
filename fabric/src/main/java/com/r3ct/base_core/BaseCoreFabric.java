@@ -91,7 +91,6 @@ public class BaseCoreFabric implements ModInitializer {
 		PayloadTypeRegistry.serverboundPlay().register(UpgradeBaseCorePayload.TYPE, UpgradeBaseCorePayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ToggleBorderPayload.TYPE, ToggleBorderPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(LecternAutoFillPayload.TYPE, LecternAutoFillPayload.CODEC);
-		PayloadTypeRegistry.serverboundPlay().register(LecternCraftPayload.TYPE, LecternCraftPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ApplyEffectsPayload.TYPE, ApplyEffectsPayload.CODEC);
 
 		ServerPlayNetworking.registerGlobalReceiver(UpgradeBaseCorePayload.TYPE, (payload, context) -> {
@@ -114,10 +113,6 @@ public class BaseCoreFabric implements ModInitializer {
 
 		ServerPlayNetworking.registerGlobalReceiver(LecternAutoFillPayload.TYPE, (payload, context) -> {
 			context.server().execute(() -> BaseCoreServerLogic.handleLecternAutoFill(context.player(), payload));
-		});
-
-		ServerPlayNetworking.registerGlobalReceiver(LecternCraftPayload.TYPE, (payload, context) -> {
-			context.server().execute(() -> BaseCoreServerLogic.handleLecternCraft(context.player(), payload));
 		});
 
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {

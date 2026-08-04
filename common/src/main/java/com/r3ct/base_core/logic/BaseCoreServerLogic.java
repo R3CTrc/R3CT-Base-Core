@@ -175,85 +175,32 @@ public class BaseCoreServerLogic {
         if (!(player.containerMenu instanceof ArcaneLecternMenu menu)) return;
 
         LecternRecipes.getRecipeById(payload.effectId()).ifPresent(recipe -> {
-            Item requiredTome = recipe.getTomeItem();
-            Item requiredIngredient = recipe.getCostItem();
-            int requiredAmount = recipe.itemAmount();
+            Item requiredInput = recipe.getInputItem();
+            Item requiredIngredient = recipe.getIngredientItem();
+            int requiredAmount = recipe.ingredientAmount();
 
-            if (player.getInventory().countItem(requiredTome) < 1) return;
+            if (player.getInventory().countItem(requiredInput) < 1) return;
             if (player.getInventory().countItem(requiredIngredient) < requiredAmount) return;
 
-            Slot tomeSlot = menu.getSlot(0);
+            Slot inputSlot = menu.getSlot(0);
             Slot ingredientSlot = menu.getSlot(1);
 
-            if (tomeSlot.hasItem()) {
-                player.getInventory().placeItemBackInInventory(tomeSlot.getItem());
-                tomeSlot.set(ItemStack.EMPTY);
+            if (inputSlot.hasItem()) {
+                player.getInventory().placeItemBackInInventory(inputSlot.getItem());
+                inputSlot.set(ItemStack.EMPTY);
             }
             if (ingredientSlot.hasItem()) {
                 player.getInventory().placeItemBackInInventory(ingredientSlot.getItem());
                 ingredientSlot.set(ItemStack.EMPTY);
             }
 
-            if (consumeItems(player.getInventory(), requiredTome, 1)) {
-                tomeSlot.set(new ItemStack(requiredTome, 1));
+            if (consumeItems(player.getInventory(), requiredInput, 1)) {
+                inputSlot.set(new ItemStack(requiredInput, 1));
             }
             if (consumeItems(player.getInventory(), requiredIngredient, requiredAmount)) {
                 ingredientSlot.set(new ItemStack(requiredIngredient, requiredAmount));
             }
         });
-    }
-
-    public static void handleLecternCraft(ServerPlayer player, LecternCraftPayload payload) {
-        if (!(player.containerMenu instanceof ArcaneLecternMenu menu)) return;
-
-        LecternRecipes.getRecipeById(payload.effectId()).ifPresent(recipe -> {
-            Slot tomeSlot = menu.getSlot(0);
-            Slot ingredientSlot = menu.getSlot(1);
-            Slot outputSlot = menu.getSlot(2);
-
-            if (outputSlot.hasItem()) return;
-
-            if (!tomeSlot.getItem().is(recipe.getTomeItem())) return;
-            if (!ingredientSlot.getItem().is(recipe.getCostItem()) || ingredientSlot.getItem().getCount() < recipe.itemAmount()) return;
-
-            if (getTotalExperience(player) < recipe.xpCost()) return;
-
-            removeExperience(player, recipe.xpCost());
-
-            tomeSlot.remove(1);
-            ingredientSlot.remove(recipe.itemAmount());
-
-            Item empoweredTomeItem = BuiltInRegistries.ITEM.get(Identifier.parse("r3ct_base_core:empowered_tome")).map(Holder::value).orElse(Items.BOOK);
-
-            ItemStack resultTome = new ItemStack(empoweredTomeItem);
-            resultTome.set(ModDataComponents.EFFECT_ID, recipe.id());
-
-            outputSlot.set(resultTome);
-
-            player.level().playSound(null, player.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 1.0f, 1.0f);
-        });
-    }
-
-    private static int getTotalExperience(ServerPlayer player) {
-        int level = player.experienceLevel;
-        int totalExp = 0;
-
-        if (level >= 0 && level <= 15) {
-            totalExp = level * level + 6 * level;
-        } else if (level > 15 && level <= 30) {
-            totalExp = (int) (2.5 * level * level - 40.5 * level + 360.0);
-        } else if (level > 30) {
-            totalExp = (int) (4.5 * level * level - 162.5 * level + 2220.0);
-        }
-
-        return totalExp + Math.round(player.experienceProgress * player.getXpNeededForNextLevel());
-    }
-
-    private static void removeExperience(ServerPlayer player, int amount) {
-        int newTotalExp = Math.max(0, getTotalExperience(player) - amount);
-        player.setExperienceLevels(0);
-        player.setExperiencePoints(0);
-        player.giveExperiencePoints(newTotalExp);
     }
 
     private static boolean consumeItems(Inventory inventory, Item itemToConsume, int amountNeeded) {

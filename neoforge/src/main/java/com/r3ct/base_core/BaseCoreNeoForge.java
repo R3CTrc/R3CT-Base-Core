@@ -106,14 +106,6 @@ public class BaseCoreNeoForge {
                 }
             });
         });
-
-        registrar.playToServer(LecternCraftPayload.TYPE, LecternCraftPayload.CODEC, (payload, context) -> {
-            context.enqueueWork(() -> {
-                if (context.player() instanceof ServerPlayer player) {
-                    BaseCoreServerLogic.handleLecternCraft(player, payload);
-                }
-            });
-        });
     }
 
     private void onRegister(RegisterEvent event) {
