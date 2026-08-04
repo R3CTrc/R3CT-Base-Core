@@ -117,7 +117,6 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         }
 
         drawPlanks(graphics, this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
-
         drawThickOutline(graphics, this.leftPos, this.topPos + 134, this.imageWidth, 90, 2, 0xFF2E1F14);
 
         for (net.minecraft.world.inventory.Slot slot : this.menu.slots) {
@@ -351,8 +350,16 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
             if (isLocked) {
                 centeredText(graphics, "X", sx + 11, effStartY + 7, 0xFFFF5555);
             } else if (!activeEffect.equals("empty")) {
-                graphics.fakeItem(new ItemStack(Items.DIRT), sx + 3, effStartY + 3);
-            } else if (this.menu.getSlot(i).hasItem()) {
+                Item empoweredTomeItem = BuiltInRegistries.ITEM.get(Identifier.parse("r3ct_base_core:empowered_tome")).map(Holder::value).orElse(Items.BOOK);
+                ItemStack displayStack = new ItemStack(empoweredTomeItem);
+                displayStack.set(ModDataComponents.EFFECT_ID, activeEffect);
+                graphics.fakeItem(displayStack, sx + 3, effStartY + 3);
+            } else if (!this.menu.getSlot(i).hasItem()) {
+                String ghostId = (i == 0 || i == 1) ? "r3ct_base_core:magic_tome" : (i == 2 ? "r3ct_base_core:alchemy_tome" : "r3ct_base_core:dark_magic_tome");
+                Item ghostItem = BuiltInRegistries.ITEM.get(Identifier.parse(ghostId)).map(Holder::value).orElse(Items.BOOK);
+                graphics.fakeItem(new ItemStack(ghostItem), sx + 3, effStartY + 3);
+                graphics.fill(sx + 3, effStartY + 3, sx + 19, effStartY + 19, 0x66FFFFFF);
+            } else {
                 hasStagedEffects = true;
             }
         }

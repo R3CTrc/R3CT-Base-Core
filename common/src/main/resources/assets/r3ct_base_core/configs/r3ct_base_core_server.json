@@ -1,7 +1,6 @@
 {
   "_comment_version": "Do not change the version number! It is used for automatic config updates.",
-  "version": 1,
-
+  "version": 2,
   "tiers": [
     {
       "tierLevel": 0,
@@ -11,8 +10,7 @@
       "bulkItem": "minecraft:air",
       "bulkAmount": 0,
       "bonusRadius": 0,
-      "bonusSlots": 0,
-      "unlocksPool": 0
+      "bonusSlots": 0
     },
     {
       "tierLevel": 1,
@@ -21,9 +19,8 @@
       "mainAmount": 64,
       "bulkItem": "minecraft:smooth_stone",
       "bulkAmount": 128,
-      "bonusRadius": 16,
-      "bonusSlots": 1,
-      "unlocksPool": 1
+      "bonusRadius": 8,
+      "bonusSlots": 1
     },
     {
       "tierLevel": 2,
@@ -33,8 +30,7 @@
       "bulkItem": "minecraft:brick",
       "bulkAmount": 128,
       "bonusRadius": 8,
-      "bonusSlots": 0,
-      "unlocksPool": 0
+      "bonusSlots": 0
     },
     {
       "tierLevel": 3,
@@ -43,9 +39,8 @@
       "mainAmount": 16,
       "bulkItem": "minecraft:cobbled_deepslate",
       "bulkAmount": 256,
-      "bonusRadius": 0,
-      "bonusSlots": 1,
-      "unlocksPool": 0
+      "bonusRadius": 8,
+      "bonusSlots": 0
     },
     {
       "tierLevel": 4,
@@ -55,8 +50,7 @@
       "bulkItem": "minecraft:netherrack",
       "bulkAmount": 256,
       "bonusRadius": 0,
-      "bonusSlots": 0,
-      "unlocksPool": 2
+      "bonusSlots": 1
     },
     {
       "tierLevel": 5,
@@ -66,8 +60,7 @@
       "bulkItem": "minecraft:quartz_block",
       "bulkAmount": 128,
       "bonusRadius": 8,
-      "bonusSlots": 0,
-      "unlocksPool": 0
+      "bonusSlots": 0
     },
     {
       "tierLevel": 6,
@@ -76,9 +69,8 @@
       "mainAmount": 16,
       "bulkItem": "minecraft:moss_block",
       "bulkAmount": 128,
-      "bonusRadius": 0,
-      "bonusSlots": 1,
-      "unlocksPool": 0
+      "bonusRadius": 8,
+      "bonusSlots": 0
     },
     {
       "tierLevel": 7,
@@ -88,8 +80,7 @@
       "bulkItem": "minecraft:obsidian",
       "bulkAmount": 64,
       "bonusRadius": 0,
-      "bonusSlots": 0,
-      "unlocksPool": 3
+      "bonusSlots": 1
     },
     {
       "tierLevel": 8,
@@ -98,9 +89,8 @@
       "mainAmount": 1,
       "bulkItem": "minecraft:crying_obsidian",
       "bulkAmount": 32,
-      "bonusRadius": 16,
-      "bonusSlots": 0,
-      "unlocksPool": 0
+      "bonusRadius": 8,
+      "bonusSlots": 0
     },
     {
       "tierLevel": 9,
@@ -109,9 +99,8 @@
       "mainAmount": 1,
       "bulkItem": "minecraft:glowstone",
       "bulkAmount": 128,
-      "bonusRadius": 0,
-      "bonusSlots": 1,
-      "unlocksPool": 0
+      "bonusRadius": 8,
+      "bonusSlots": 0
     },
     {
       "tierLevel": 10,
@@ -120,9 +109,8 @@
       "mainAmount": 16,
       "bulkItem": "minecraft:purpur_block",
       "bulkAmount": 128,
-      "bonusRadius": 0,
-      "bonusSlots": 0,
-      "unlocksPool": 4
+      "bonusRadius": 8,
+      "bonusSlots": 0
     },
     {
       "tierLevel": 11,
@@ -132,137 +120,196 @@
       "bulkItem": "minecraft:sculk",
       "bulkAmount": 128,
       "bonusRadius": 0,
-      "bonusSlots": 0,
-      "unlocksPool": 5
+      "bonusSlots": 1
     }
   ],
-
-  "effects": [
+  "lecternRecipes": [
+    {
+      "id": "base_magic",
+      "nameKey": "r3ct_base_core.recipe.base_magic",
+      "descKey": "Tworzy Podstawową Księgę Magii",
+      "xpCost": 50,
+      "inputItem": "minecraft:book",
+      "ingredientItem": "minecraft:lapis_lazuli",
+      "ingredientAmount": 4,
+      "outputItem": "r3ct_base_core:magic_tome",
+      "effectId": ""
+    },
+    {
+      "id": "base_dark_magic",
+      "nameKey": "r3ct_base_core.recipe.base_dark_magic",
+      "descKey": "Tworzy Podstawową Księgę Czarnej Magii",
+      "xpCost": 50,
+      "inputItem": "minecraft:book",
+      "ingredientItem": "minecraft:bone",
+      "ingredientAmount": 4,
+      "outputItem": "r3ct_base_core:dark_magic_tome",
+      "effectId": ""
+    },
+    {
+      "id": "base_alchemy",
+      "nameKey": "r3ct_base_core.recipe.base_alchemy",
+      "descKey": "Tworzy Podstawową Księgę Alchemii",
+      "xpCost": 50,
+      "inputItem": "minecraft:book",
+      "ingredientItem": "minecraft:nether_wart",
+      "ingredientAmount": 4,
+      "outputItem": "r3ct_base_core:alchemy_tome",
+      "effectId": ""
+    },
     {
       "id": "furnace_overclock",
-      "name": "r3ct_base_core.effect.furnace_overclock.name",
-      "description": "r3ct_base_core.effect.furnace_overclock.desc",
+      "nameKey": "r3ct_base_core.effect.furnace_overclock.name",
+      "descKey": "r3ct_base_core.effect.furnace_overclock.desc",
       "xpCost": 150,
-      "itemCost": "minecraft:blast_furnace",
-      "itemAmount": 3,
-      "pool": 1
+      "inputItem": "r3ct_base_core:magic_tome",
+      "ingredientItem": "minecraft:blast_furnace",
+      "ingredientAmount": 3,
+      "outputItem": "r3ct_base_core:empowered_tome",
+      "effectId": "furnace_overclock"
     },
     {
       "id": "anti_trample",
-      "name": "r3ct_base_core.effect.anti_trample.name",
-      "description": "r3ct_base_core.effect.anti_trample.desc",
+      "nameKey": "r3ct_base_core.effect.anti_trample.name",
+      "descKey": "r3ct_base_core.effect.anti_trample.desc",
       "xpCost": 100,
-      "itemCost": "minecraft:slime_ball",
-      "itemAmount": 16,
-      "pool": 1
+      "inputItem": "r3ct_base_core:magic_tome",
+      "ingredientItem": "minecraft:slime_ball",
+      "ingredientAmount": 16,
+      "outputItem": "r3ct_base_core:empowered_tome",
+      "effectId": "anti_trample"
     },
     {
       "id": "crop_growth",
-      "name": "r3ct_base_core.effect.crop_growth.name",
-      "description": "r3ct_base_core.effect.crop_growth.desc",
+      "nameKey": "r3ct_base_core.effect.crop_growth.name",
+      "descKey": "r3ct_base_core.effect.crop_growth.desc",
       "xpCost": 250,
-      "itemCost": "minecraft:bone_meal",
-      "itemAmount": 64,
-      "pool": 1
+      "inputItem": "r3ct_base_core:alchemy_tome",
+      "ingredientItem": "minecraft:bone_meal",
+      "ingredientAmount": 64,
+      "outputItem": "r3ct_base_core:empowered_tome",
+      "effectId": "crop_growth"
     },
     {
       "id": "fall_resistance",
-      "name": "r3ct_base_core.effect.fall_resistance.name",
-      "description": "r3ct_base_core.effect.fall_resistance.desc",
+      "nameKey": "r3ct_base_core.effect.fall_resistance.name",
+      "descKey": "r3ct_base_core.effect.fall_resistance.desc",
       "xpCost": 350,
-      "itemCost": "minecraft:hay_block",
-      "itemAmount": 16,
-      "pool": 2
+      "inputItem": "r3ct_base_core:alchemy_tome",
+      "ingredientItem": "minecraft:hay_block",
+      "ingredientAmount": 16,
+      "outputItem": "r3ct_base_core:empowered_tome",
+      "effectId": "fall_resistance"
     },
     {
       "id": "satiation",
-      "name": "r3ct_base_core.effect.satiation.name",
-      "description": "r3ct_base_core.effect.satiation.desc",
+      "nameKey": "r3ct_base_core.effect.satiation.name",
+      "descKey": "r3ct_base_core.effect.satiation.desc",
       "xpCost": 400,
-      "itemCost": "minecraft:golden_carrot",
-      "itemAmount": 16,
-      "pool": 2
+      "inputItem": "r3ct_base_core:alchemy_tome",
+      "ingredientItem": "minecraft:golden_carrot",
+      "ingredientAmount": 16,
+      "outputItem": "r3ct_base_core:empowered_tome",
+      "effectId": "satiation"
     },
     {
       "id": "anti_spawn",
-      "name": "r3ct_base_core.effect.anti_spawn.name",
-      "description": "r3ct_base_core.effect.anti_spawn.desc",
+      "nameKey": "r3ct_base_core.effect.anti_spawn.name",
+      "descKey": "r3ct_base_core.effect.anti_spawn.desc",
       "xpCost": 500,
-      "itemCost": "minecraft:carved_pumpkin",
-      "itemAmount": 16,
-      "pool": 2
+      "inputItem": "r3ct_base_core:dark_magic_tome",
+      "ingredientItem": "minecraft:carved_pumpkin",
+      "ingredientAmount": 16,
+      "outputItem": "r3ct_base_core:empowered_tome",
+      "effectId": "anti_spawn"
     },
     {
       "id": "night_vision",
-      "name": "r3ct_base_core.effect.night_vision.name",
-      "description": "r3ct_base_core.effect.night_vision.desc",
+      "nameKey": "r3ct_base_core.effect.night_vision.name",
+      "descKey": "r3ct_base_core.effect.night_vision.desc",
       "xpCost": 600,
-      "itemCost": "minecraft:glowstone",
-      "itemAmount": 32,
-      "pool": 3
+      "inputItem": "r3ct_base_core:alchemy_tome",
+      "ingredientItem": "minecraft:glowstone",
+      "ingredientAmount": 32,
+      "outputItem": "r3ct_base_core:empowered_tome",
+      "effectId": "night_vision"
     },
     {
       "id": "animal_growth",
-      "name": "r3ct_base_core.effect.animal_growth.name",
-      "description": "r3ct_base_core.effect.animal_growth.desc",
+      "nameKey": "r3ct_base_core.effect.animal_growth.name",
+      "descKey": "r3ct_base_core.effect.animal_growth.desc",
       "xpCost": 650,
-      "itemCost": "minecraft:golden_apple",
-      "itemAmount": 4,
-      "pool": 3
+      "inputItem": "r3ct_base_core:alchemy_tome",
+      "ingredientItem": "minecraft:golden_apple",
+      "ingredientAmount": 4,
+      "outputItem": "r3ct_base_core:empowered_tome",
+      "effectId": "animal_growth"
     },
     {
       "id": "extended_reach",
-      "name": "r3ct_base_core.effect.extended_reach.name",
-      "description": "r3ct_base_core.effect.extended_reach.desc",
+      "nameKey": "r3ct_base_core.effect.extended_reach.name",
+      "descKey": "r3ct_base_core.effect.extended_reach.desc",
       "xpCost": 800,
-      "itemCost": "minecraft:ender_pearl",
-      "itemAmount": 16,
-      "pool": 3
+      "inputItem": "r3ct_base_core:magic_tome",
+      "ingredientItem": "minecraft:ender_pearl",
+      "ingredientAmount": 16,
+      "outputItem": "r3ct_base_core:empowered_tome",
+      "effectId": "extended_reach"
     },
     {
       "id": "fire_immunity",
-      "name": "r3ct_base_core.effect.fire_immunity.name",
-      "description": "r3ct_base_core.effect.fire_immunity.desc",
+      "nameKey": "r3ct_base_core.effect.fire_immunity.name",
+      "descKey": "r3ct_base_core.effect.fire_immunity.desc",
       "xpCost": 900,
-      "itemCost": "minecraft:magma_cream",
-      "itemAmount": 32,
-      "pool": 4
+      "inputItem": "r3ct_base_core:alchemy_tome",
+      "ingredientItem": "minecraft:magma_cream",
+      "ingredientAmount": 32,
+      "outputItem": "r3ct_base_core:empowered_tome",
+      "effectId": "fire_immunity"
     },
     {
       "id": "anti_explosion",
-      "name": "r3ct_base_core.effect.anti_explosion.name",
-      "description": "r3ct_base_core.effect.anti_explosion.desc",
+      "nameKey": "r3ct_base_core.effect.anti_explosion.name",
+      "descKey": "r3ct_base_core.effect.anti_explosion.desc",
       "xpCost": 1000,
-      "itemCost": "minecraft:crying_obsidian",
-      "itemAmount": 8,
-      "pool": 4
+      "inputItem": "r3ct_base_core:dark_magic_tome",
+      "ingredientItem": "minecraft:crying_obsidian",
+      "ingredientAmount": 8,
+      "outputItem": "r3ct_base_core:empowered_tome",
+      "effectId": "anti_explosion"
     },
     {
       "id": "pet_protection",
-      "name": "r3ct_base_core.effect.pet_protection.name",
-      "description": "r3ct_base_core.effect.pet_protection.desc",
+      "nameKey": "r3ct_base_core.effect.pet_protection.name",
+      "descKey": "r3ct_base_core.effect.pet_protection.desc",
       "xpCost": 1100,
-      "itemCost": "minecraft:diamond_horse_armor",
-      "itemAmount": 1,
-      "pool": 4
+      "inputItem": "r3ct_base_core:magic_tome",
+      "ingredientItem": "minecraft:diamond_horse_armor",
+      "ingredientAmount": 1,
+      "outputItem": "r3ct_base_core:empowered_tome",
+      "effectId": "pet_protection"
     },
     {
       "id": "slow_falling",
-      "name": "r3ct_base_core.effect.slow_falling.name",
-      "description": "r3ct_base_core.effect.slow_falling.desc",
+      "nameKey": "r3ct_base_core.effect.slow_falling.name",
+      "descKey": "r3ct_base_core.effect.slow_falling.desc",
       "xpCost": 1200,
-      "itemCost": "minecraft:phantom_membrane",
-      "itemAmount": 16,
-      "pool": 5
+      "inputItem": "r3ct_base_core:alchemy_tome",
+      "ingredientItem": "minecraft:phantom_membrane",
+      "ingredientAmount": 16,
+      "outputItem": "r3ct_base_core:empowered_tome",
+      "effectId": "slow_falling"
     },
     {
       "id": "mending_pulse",
-      "name": "r3ct_base_core.effect.mending_pulse.name",
-      "description": "r3ct_base_core.effect.mending_pulse.desc",
+      "nameKey": "r3ct_base_core.effect.mending_pulse.name",
+      "descKey": "r3ct_base_core.effect.mending_pulse.desc",
       "xpCost": 1500,
-      "itemCost": "minecraft:nether_star",
-      "itemAmount": 1,
-      "pool": 5
+      "inputItem": "r3ct_base_core:magic_tome",
+      "ingredientItem": "minecraft:nether_star",
+      "ingredientAmount": 1,
+      "outputItem": "r3ct_base_core:empowered_tome",
+      "effectId": "mending_pulse"
     }
   ]
 }

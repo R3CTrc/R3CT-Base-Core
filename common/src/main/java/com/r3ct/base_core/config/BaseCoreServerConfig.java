@@ -23,7 +23,8 @@ public class BaseCoreServerConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path CONFIG_PATH = Services.PLATFORM.getConfigDir().resolve("r3ct_base_core/r3ct_base_core_server.json");
     private static final File CONFIG_FILE = CONFIG_PATH.toFile();
-    private static final int CONFIG_VERSION = 1;
+
+    private static final int CONFIG_VERSION = 2;
 
     public static class TierUpgrade {
         public int tierLevel;
@@ -34,24 +35,13 @@ public class BaseCoreServerConfig {
         public int bulkAmount;
         public int bonusRadius;
         public int bonusSlots;
-        public int unlocksPool;
-    }
-
-    public static class EffectConfig {
-        public String id;
-        public String name;
-        public String description;
-        public int xpCost;
-        public String itemCost;
-        public int itemAmount;
-        public int pool;
     }
 
     public int version = CONFIG_VERSION;
 
     public List<TierUpgrade> tiers = new ArrayList<>();
 
-    public List<EffectConfig> effects = new ArrayList<>();
+    public List<LecternRecipeDef> lecternRecipes = new ArrayList<>();
 
     private static BaseCoreServerConfig instance = new BaseCoreServerConfig();
 
@@ -134,10 +124,6 @@ public class BaseCoreServerConfig {
         return instance.tiers.stream().filter(t -> t.tierLevel == level).findFirst().orElse(null);
     }
 
-    public static EffectConfig getEffect(String effectId) {
-        return instance.effects.stream().filter(e -> e.id.equals(effectId)).findFirst().orElse(null);
-    }
-
     public static int calculateTotalSlots(int currentTier) {
         int totalSlots = 0;
         for (int i = 0; i <= currentTier; i++) {
@@ -158,17 +144,6 @@ public class BaseCoreServerConfig {
             }
         }
         return totalRange;
-    }
-
-    public static int getMaxUnlockedPool(int currentTier) {
-        int maxPool = 0;
-        for (int i = 0; i <= currentTier; i++) {
-            TierUpgrade tier = getTier(i);
-            if (tier != null && tier.unlocksPool > maxPool) {
-                maxPool = tier.unlocksPool;
-            }
-        }
-        return maxPool;
     }
 
     public static String getServerConfigString() {

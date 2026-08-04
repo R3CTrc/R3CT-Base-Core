@@ -35,7 +35,7 @@ public class ArcaneLecternMenu extends AbstractContainerMenu {
 
         this.addDataSlot(this.xpCost);
 
-        this.addSlot(new Slot(container, 0, 26, 35) {
+        this.addSlot(new Slot(container, 0, 43, 35) {
             @Override
             public void setChanged() {
                 super.setChanged();
@@ -43,7 +43,7 @@ public class ArcaneLecternMenu extends AbstractContainerMenu {
             }
         });
 
-        this.addSlot(new Slot(container, 1, 56, 35) {
+        this.addSlot(new Slot(container, 1, 73, 35) {
             @Override
             public void setChanged() {
                 super.setChanged();
@@ -51,7 +51,7 @@ public class ArcaneLecternMenu extends AbstractContainerMenu {
             }
         });
 
-        this.addSlot(new Slot(container, 2, 116, 35) {
+        this.addSlot(new Slot(container, 2, 117, 35) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return false;
@@ -106,9 +106,10 @@ public class ArcaneLecternMenu extends AbstractContainerMenu {
             return;
         }
 
-        for (LecternRecipeDef recipe : LecternRecipes.RECIPES) {
+        for (LecternRecipeDef recipe : LecternRecipes.getRecipes()) {
             if (input.is(recipe.getInputItem()) && ingredient.is(recipe.getIngredientItem()) && ingredient.getCount() >= recipe.ingredientAmount()) {
                 ItemStack result = new ItemStack(recipe.getOutputItem());
+
                 if (recipe.effectId() != null && !recipe.effectId().isEmpty()) {
                     result.set(ModDataComponents.EFFECT_ID, recipe.effectId());
                 }

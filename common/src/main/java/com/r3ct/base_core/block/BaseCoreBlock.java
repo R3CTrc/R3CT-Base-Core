@@ -146,8 +146,9 @@ public class BaseCoreBlock extends Block implements EntityBlock {
                 data.coreX = pos.getX();
                 data.coreY = pos.getY();
                 data.coreZ = pos.getZ();
-
                 data.coreTier = coreBE.getTier();
+
+                data.activeSlots = new ArrayList<>(coreBE.getActiveEffectsFromTomes());
 
                 ModState.get(level.getServer()).setDirty();
                 BaseCoreServerLogic.grantAdvancement(player, "root");
@@ -213,6 +214,7 @@ public class BaseCoreBlock extends Block implements EntityBlock {
                         if (data.hasPlacedCore && data.coreX == pos.getX() && data.coreY == pos.getY() && data.coreZ == pos.getZ()) {
                             data.hasPlacedCore = false;
                             data.coreTier = 0;
+                            data.activeSlots.clear();
                             ModState.get(level.getServer()).setDirty();
                         }
                     } catch (IllegalArgumentException ignored) {}

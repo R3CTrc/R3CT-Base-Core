@@ -1,10 +1,12 @@
 package com.r3ct.base_core.client.screen;
 
 import com.r3ct.base_core.config.BaseCoreServerConfig;
+import com.r3ct.base_core.logic.LecternRecipes;
 import com.r3ct.base_core.registry.ModDataComponents;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -44,8 +46,26 @@ public class BaseCoreMenu extends AbstractContainerMenu {
             this.addSlot(new Slot(stagingContainer, i, effStartX + (i * 42) + 3, effStartY + 3) {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
-                    return stack.has(ModDataComponents.EFFECT_ID);
+                    if (!stack.has(ModDataComponents.EFFECT_ID)) return false;
+
+                    String effectId = stack.get(ModDataComponents.EFFECT_ID);
+
+                    var recipeOpt = LecternRecipes.getRecipeById(effectId);
+                    if (recipeOpt.isEmpty()) return false;
+
+                    String requiredBaseTome = recipeOpt.get().inputItem();
+
+                    if (slotIndex == 0 || slotIndex == 1) {
+                        return requiredBaseTome.equals("r3ct_base_core:magic_tome");
+                    } else if (slotIndex == 2) {
+                        return requiredBaseTome.equals("r3ct_base_core:alchemy_tome");
+                    } else if (slotIndex == 3) {
+                        return requiredBaseTome.equals("r3ct_base_core:dark_magic_tome");
+                    }
+
+                    return false;
                 }
+
                 @Override
                 public boolean isActive() {
                     return (!isClient || BaseCoreMenu.this.isOverviewTab) && slotIndex < BaseCoreServerConfig.calculateTotalSlots(getTier());

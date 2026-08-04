@@ -147,6 +147,14 @@ public class BaseCoreServerLogic {
             player.sendSystemMessage(Component.translatable("r3ct_base_core.message.effects_applied").withStyle(ChatFormatting.AQUA), true);
 
             List<String> activeEffects = coreBE.getActiveEffectsFromTomes();
+
+            try {
+                UUID ownerId = UUID.fromString(coreBE.getOwnerUUID());
+                PlayerData data = ModState.getPlayerData(level.getServer(), ownerId);
+                data.activeSlots = new java.util.ArrayList<>(activeEffects);
+                ModState.get(level.getServer()).setDirty();
+            } catch (IllegalArgumentException ignored) {}
+
             boolean allFull = true;
             for (int i = 0; i < 4; i++) {
                 if (i < maxSlots && coreBE.getItem(i).isEmpty()) {

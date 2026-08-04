@@ -41,7 +41,7 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
     }
 
     private int getMaxScroll() {
-        int listHeight = LecternRecipes.RECIPES.size() * recipeRowHeight;
+        int listHeight = LecternRecipes.getRecipes().size() * recipeRowHeight;
         int visibleHeight = this.imageHeight - 24;
         return Math.max(0, listHeight - visibleHeight);
     }
@@ -64,8 +64,11 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
             graphics.fill(sx + 16, sy, sx + 17, sy + 16, 0xFFFFFFFF);
         }
 
-        graphics.text(this.font, "+", this.leftPos + 47, this.topPos + 39, 0xFFEFEBE9, false);
-        graphics.text(this.font, "->", this.leftPos + 89, this.topPos + 39, 0xFFEFEBE9, false);
+        int plusCenterX = this.leftPos + 66 - (this.font.width("+") / 2);
+        graphics.text(this.font, "+", plusCenterX, this.topPos + 39, 0xFFEFEBE9, false);
+
+        int arrowCenterX = this.leftPos + 103 - (this.font.width("->") / 2);
+        graphics.text(this.font, "->", arrowCenterX, this.topPos + 39, 0xFFEFEBE9, false);
 
         int listStartX = panelX + 4;
         int listStartY = panelY + 20;
@@ -73,7 +76,7 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
 
         graphics.enableScissor(listStartX, listStartY, listStartX + panelW - 12, panelY + this.imageHeight - 4);
 
-        List<LecternRecipeDef> recipes = LecternRecipes.RECIPES;
+        List<LecternRecipeDef> recipes = LecternRecipes.getRecipes();
         for (int i = 0; i < recipes.size(); i++) {
             LecternRecipeDef recipe = recipes.get(i);
             int rowY = listStartY + (i * recipeRowHeight) - (int) scrollOffset;
@@ -92,19 +95,19 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
             ItemStack outputStack = new ItemStack(recipe.getOutputItem());
 
             graphics.item(inputStack, listStartX + 4, rowY + 5);
-            graphics.text(this.font, "+", listStartX + 23, rowY + 9, 0xFFEFEBE9, false);
+            graphics.text(this.font, "+", listStartX + 24, rowY + 9, 0xFFEFEBE9, false);
 
-            graphics.item(ingStack, listStartX + 32, rowY + 5);
-            graphics.itemDecorations(this.font, ingStack, listStartX + 32, rowY + 5);
+            graphics.item(ingStack, listStartX + 34, rowY + 5);
+            graphics.itemDecorations(this.font, ingStack, listStartX + 34, rowY + 5);
 
-            graphics.text(this.font, "->", listStartX + 51, rowY + 9, 0xFFEFEBE9, false);
+            graphics.text(this.font, "->", listStartX + 54, rowY + 9, 0xFFEFEBE9, false);
 
-            graphics.item(outputStack, listStartX + 64, rowY + 5);
+            graphics.item(outputStack, listStartX + 68, rowY + 5);
 
             if (recipe.xpCost() > 0) {
                 boolean hasEnoughListXp = this.minecraft.player.isCreative() || ArcaneLecternMenu.getTotalExperience(this.minecraft.player) >= recipe.xpCost();
                 int xpColor = hasEnoughListXp ? 0xFF55FF55 : 0xFFFF5555;
-                graphics.text(this.font, recipe.xpCost() + " XP", listStartX + 84, rowY + 9, xpColor, true);
+                graphics.text(this.font, recipe.xpCost() + " XP", listStartX + 89, rowY + 9, xpColor, true);
             }
 
             if (isHovered) {
@@ -136,7 +139,7 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
             Component fullText = Component.empty().append(prefix).append(xpAmount);
 
             int textW = this.font.width(fullText);
-            graphics.text(this.font, fullText, this.leftPos + 116 + 8 - (textW / 2), this.topPos + 58, 0xFFFFFFFF, true);
+            graphics.text(this.font, fullText, this.leftPos + 125 - (textW / 2), this.topPos + 58, 0xFFFFFFFF, true);
         }
 
         super.extractRenderState(graphics, mouseX, mouseY, a);
@@ -198,8 +201,8 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
             int clickY = (int) (mouseY - listStartY + scrollOffset);
             int clickedIndex = clickY / recipeRowHeight;
 
-            if (clickedIndex >= 0 && clickedIndex < LecternRecipes.RECIPES.size()) {
-                LecternRecipeDef clickedRecipe = LecternRecipes.RECIPES.get(clickedIndex);
+            if (clickedIndex >= 0 && clickedIndex < LecternRecipes.getRecipes().size()) {
+                LecternRecipeDef clickedRecipe = LecternRecipes.getRecipes().get(clickedIndex);
                 this.selectedRecipeId = clickedRecipe.id();
 
                 Services.PLATFORM.sendToServer(new LecternAutoFillPayload(clickedRecipe.id()));
