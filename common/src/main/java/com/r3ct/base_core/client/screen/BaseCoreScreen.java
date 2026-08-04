@@ -116,11 +116,9 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
             renderCustomTab(graphics, currentTabX, tabY, tabWidth, tabHeight, tab.getComponent(), isSelected, isHovered);
         }
 
-        graphics.fill(this.leftPos, this.topPos, this.leftPos + this.imageWidth, this.topPos + 134, 0xFFF5DEB3);
-        drawThickOutline(graphics, this.leftPos, this.topPos, this.imageWidth, 134, 2, 0xFF3E2723);
+        drawPlanks(graphics, this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
 
-        graphics.fill(this.leftPos, this.topPos + 134, this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 0xFFC6C6C6);
-        drawThickOutline(graphics, this.leftPos, this.topPos + 134, this.imageWidth, 90, 2, 0xFF3E2723);
+        drawThickOutline(graphics, this.leftPos, this.topPos + 134, this.imageWidth, 90, 2, 0xFF2E1F14);
 
         for (net.minecraft.world.inventory.Slot slot : this.menu.slots) {
             if (slot.isActive() && slot.index >= 4) {
@@ -141,8 +139,8 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         Component titleDisplay = Component.translatable("block.r3ct_base_core.base_core");
         Component topDisplay = Component.empty().append(titleComp).append(" (").append(romanTier).append(")");
 
-        graphics.text(this.font, titleDisplay, this.leftPos + 12, this.topPos + 6, 0xFF000000, false);
-        graphics.text(this.font, topDisplay, this.leftPos + this.imageWidth - this.font.width(topDisplay) - 12, this.topPos + 6, 0xFF3E2723, false);
+        graphics.text(this.font, titleDisplay, this.leftPos + 12, this.topPos + 6, 0xFFEFEBE9, true);
+        graphics.text(this.font, topDisplay, this.leftPos + this.imageWidth - this.font.width(topDisplay) - 12, this.topPos + 6, 0xFFEFEBE9, true);
 
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
     }
@@ -159,9 +157,9 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
     }
 
     private void renderCustomTab(GuiGraphicsExtractor graphics, int x, int y, int width, int height, Component text, boolean isSelected, boolean isHovered) {
-        int bgColor = isSelected ? 0xFFF5DEB3 : (isHovered ? 0xFFA1887F : 0xFF8D6E63);
-        int borderColor = 0xFF3E2723;
-        int textColor = isSelected ? 0xFF000000 : (isHovered ? 0xFFFFFFFF : 0xFFEFEBE9);
+        int bgColor = isSelected ? 0xFF4A3424 : (isHovered ? 0xFF634631 : 0xFF2E1F14);
+        int borderColor = 0xFF2E1F14;
+        int textColor = isSelected ? 0xFFEFEBE9 : (isHovered ? 0xFFFFFFFF : 0xFFBBBBBB);
 
         graphics.fill(x, y, x + width, y + height, bgColor);
         graphics.fill(x - 2, y - 2, x + width + 2, y, borderColor);
@@ -171,11 +169,11 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         if (!isSelected) {
             graphics.fill(x, y + height, x + width, y + height + 2, borderColor);
         } else {
-            graphics.fill(x, y + height, x + width, y + height + 2, 0xFFF5DEB3);
+            graphics.fill(x, y + height, x + width, y + height + 2, 0xFF4A3424);
         }
 
         int textX = x + (width - this.font.width(text)) / 2;
-        graphics.text(this.font, text, textX, y + (height - 8) / 2, textColor, false);
+        graphics.text(this.font, text, textX, y + (height - 8) / 2, textColor, true);
     }
 
     @Override
@@ -274,7 +272,7 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
 
         int infoX = this.leftPos + 12;
         int infoY = this.topPos + 22;
-        graphics.text(this.font, Component.literal("Obszar:").withStyle(net.minecraft.ChatFormatting.BLACK), infoX, infoY, 0xFF000000, false);
+        graphics.text(this.font, Component.literal("Obszar:"), infoX, infoY, 0xFFEFEBE9, true);
 
         int size = 32;
         int boxX = this.leftPos + 20;
@@ -308,26 +306,26 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         graphics.fill(cx - 2, cy - 2, cx + 3, cy + 3, 0xFF8D6E63);
         drawLine(graphics, cx, cy, cx - (size / 2), cy, 0xFF00AA00);
 
-        graphics.text(this.font, currentRange + " blocks", boxX + 58, boxY + 12, 0xFF00AA00, false);
-        graphics.text(this.font, diameterNum + " blocks", boxX + 58, boxY + 28, redColor, false);
+        graphics.text(this.font, currentRange + " blocks", boxX + 58, boxY + 12, 0xFF55FF55, true);
+        graphics.text(this.font, diameterNum + " blocks", boxX + 58, boxY + 28, 0xFFFF5555, true);
 
         this.toggleButtonX = this.leftPos + 140;
         this.toggleButtonY = this.topPos + 52;
         boolean isHoveringToggle = mouseX >= toggleButtonX && mouseX < toggleButtonX + toggleButtonSize && mouseY >= toggleButtonY && mouseY < toggleButtonY + toggleButtonSize;
         boolean currentBorderEnabled = isBorderEnabled();
 
-        graphics.fill(toggleButtonX, toggleButtonY, toggleButtonX + toggleButtonSize, toggleButtonY + toggleButtonSize, isHoveringToggle ? 0xFFE7CDB3 : 0xFFF5DEB3);
-        drawThickOutline(graphics, toggleButtonX, toggleButtonY, toggleButtonSize, toggleButtonSize, 1, 0xFF8D6E63);
+        graphics.fill(toggleButtonX, toggleButtonY, toggleButtonX + toggleButtonSize, toggleButtonY + toggleButtonSize, isHoveringToggle ? 0xFF634631 : 0xFF4A3424);
+        drawThickOutline(graphics, toggleButtonX, toggleButtonY, toggleButtonSize, toggleButtonSize, 1, 0xFF2E1F14);
         graphics.fakeItem(new ItemStack(Items.LIGHT_BLUE_STAINED_GLASS), toggleButtonX + 2, toggleButtonY + 2);
 
         if (currentBorderEnabled) {
-            centeredTextNoShadow(graphics, "✔", toggleButtonX + toggleButtonSize - 3, toggleButtonY + toggleButtonSize - 7, 0xFF00AA00);
+            centeredText(graphics, "✔", toggleButtonX + toggleButtonSize - 3, toggleButtonY + toggleButtonSize - 7, 0xFF55FF55);
         } else {
-            centeredTextNoShadow(graphics, "X", toggleButtonX + toggleButtonSize - 3, toggleButtonY + toggleButtonSize - 7, 0xFFFF5555);
+            centeredText(graphics, "X", toggleButtonX + toggleButtonSize - 3, toggleButtonY + toggleButtonSize - 7, 0xFFFF5555);
         }
 
         int effectsY = this.topPos + 93;
-        graphics.text(this.font, Component.literal("Efekty:").withStyle(net.minecraft.ChatFormatting.BLACK), infoX, effectsY, 0xFF000000, false);
+        graphics.text(this.font, Component.literal("Efekty:"), infoX, effectsY, 0xFFEFEBE9, true);
 
         int effStartX = this.leftPos + 14;
         int effStartY = this.topPos + 105;
@@ -347,11 +345,11 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
                 }
             }
 
-            graphics.fill(sx, effStartY, sx + 22, effStartY + 22, isLocked ? 0xFFD7CCC8 : 0xFFF5DEB3);
-            drawThickOutline(graphics, sx, effStartY, 22, 22, 2, 0xFF8D6E63);
+            graphics.fill(sx, effStartY, sx + 22, effStartY + 22, isLocked ? 0xFF2E1F14 : 0xFF4A3424);
+            drawThickOutline(graphics, sx, effStartY, 22, 22, 2, 0xFF1A110B);
 
             if (isLocked) {
-                centeredTextNoShadow(graphics, "X", sx + 11, effStartY + 7, 0xFFFF5555);
+                centeredText(graphics, "X", sx + 11, effStartY + 7, 0xFFFF5555);
             } else if (!activeEffect.equals("empty")) {
                 graphics.fakeItem(new ItemStack(Items.DIRT), sx + 3, effStartY + 3);
             } else if (this.menu.getSlot(i).hasItem()) {
@@ -364,9 +362,9 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
             int btnY = this.topPos + 89;
             boolean isBtnHovered = mouseX >= btnX && mouseX < btnX + 60 && mouseY >= btnY && mouseY < btnY + 16;
 
-            graphics.fill(btnX, btnY, btnX + 60, btnY + 16, isBtnHovered ? 0xFFC8E6C9 : 0xFF81C784);
-            drawThickOutline(graphics, btnX, btnY, 60, 16, 1, 0xFF2E7D32);
-            centeredTextNoShadow(graphics, Component.translatable("r3ct_base_core.gui.apply"), btnX + 30, btnY + 4, 0xFF000000);
+            graphics.fill(btnX, btnY, btnX + 60, btnY + 16, isBtnHovered ? 0xFF4CAF50 : 0xFF2E7D32);
+            drawThickOutline(graphics, btnX, btnY, 60, 16, 1, 0xFF1B5E20);
+            centeredText(graphics, Component.translatable("r3ct_base_core.gui.apply"), btnX + 30, btnY + 4, 0xFFFFFFFF);
         }
     }
 
@@ -376,7 +374,7 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         BaseCoreServerConfig.TierUpgrade nextTierConfig = BaseCoreServerConfig.getTier(currentTier + 1);
 
         if (nextTierConfig == null) {
-            centeredTextNoShadow(graphics, Component.translatable("r3ct_base_core.gui.upgrades.max_limit"), this.leftPos + (this.imageWidth / 2), this.topPos + 50, 0xFF000000);
+            centeredText(graphics, Component.translatable("r3ct_base_core.gui.upgrades.max_limit"), this.leftPos + (this.imageWidth / 2), this.topPos + 50, 0xFFEFEBE9);
             return;
         }
 
@@ -395,26 +393,26 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         Item nextMainItem = BuiltInRegistries.ITEM.get(Identifier.parse(nextTierConfig.mainItem)).map(Holder::value).orElse(Items.AIR);
         Item bulkItem = BuiltInRegistries.ITEM.get(Identifier.parse(nextTierConfig.bulkItem)).map(Holder::value).orElse(Items.AIR);
 
-        graphics.fill(leftBoxX, topY, leftBoxX + 24, topY + 24, 0xFFFFF8DC);
-        drawThickOutline(graphics, leftBoxX, topY, 24, 24, 2, 0xFF8D6E63);
+        graphics.fill(leftBoxX, topY, leftBoxX + 24, topY + 24, 0xFF4A3424);
+        drawThickOutline(graphics, leftBoxX, topY, 24, 24, 2, 0xFF2E1F14);
         graphics.fakeItem(new ItemStack(currentMain), leftBoxX + 4, topY + 4);
 
         String romanCurrent = currentTier == 0 ? "0" : toRoman(currentTier);
         Component currentDisplay = Component.empty().append(currentNameComp).append(" (").append(romanCurrent).append(")");
-        centeredTextNoShadow(graphics, currentDisplay, leftBoxX + 12, topY + 28, 0xFF000000);
+        centeredText(graphics, currentDisplay, leftBoxX + 12, topY + 28, 0xFFEFEBE9);
 
         int arrowX = this.leftPos + 77;
         int arrowY = topY + 4;
         Identifier VANILLA_ARROW = Identifier.parse("container/villager/trade_arrow");
 
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, VANILLA_ARROW, arrowX, arrowY, 24, 16, 0xFF8D6E63);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, VANILLA_ARROW, arrowX, arrowY, 24, 16, 0xFFEFEBE9);
 
-        graphics.fill(rightBoxX, topY, rightBoxX + 24, topY + 24, 0xFFFFF8DC);
-        drawThickOutline(graphics, rightBoxX, topY, 24, 24, 2, 0xFF8D6E63);
+        graphics.fill(rightBoxX, topY, rightBoxX + 24, topY + 24, 0xFF4A3424);
+        drawThickOutline(graphics, rightBoxX, topY, 24, 24, 2, 0xFF2E1F14);
         graphics.fakeItem(new ItemStack(nextMainItem), rightBoxX + 4, topY + 4);
 
         Component nextDisplay = Component.empty().append(Component.translatable(nextTierConfig.title)).append(" (").append(toRoman(nextTierConfig.tierLevel)).append(")");
-        centeredTextNoShadow(graphics, nextDisplay, rightBoxX + 12, topY + 28, 0xFF000000);
+        centeredText(graphics, nextDisplay, rightBoxX + 12, topY + 28, 0xFFEFEBE9);
 
         int mainSlotsNeeded = (int) Math.ceil(nextTierConfig.mainAmount / 64.0);
         int bulkSlotsNeeded = (int) Math.ceil(nextTierConfig.bulkAmount / 64.0);
@@ -423,8 +421,8 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
 
         int row1Y = this.topPos + 61;
         graphics.fakeItem(new ItemStack(nextMainItem), startX, row1Y - 1);
-        graphics.text(this.font, "x", startX + 20, row1Y + 4, 0xFF000000, false);
-        graphics.text(this.font, String.valueOf(nextTierConfig.mainAmount), startX + 30, row1Y + 4, 0xFF000000, false);
+        graphics.text(this.font, "x", startX + 20, row1Y + 4, 0xFFEFEBE9, true);
+        graphics.text(this.font, String.valueOf(nextTierConfig.mainAmount), startX + 30, row1Y + 4, 0xFFEFEBE9, true);
 
         for (int i = 0; i < mainSlotsNeeded; i++) {
             net.minecraft.world.inventory.Slot slot = this.menu.getSlot(4 + i);
@@ -438,8 +436,8 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
 
         int row2Y = this.topPos + 83;
         graphics.fakeItem(new ItemStack(bulkItem), startX, row2Y - 1);
-        graphics.text(this.font, "x", startX + 20, row2Y + 4, 0xFF000000, false);
-        graphics.text(this.font, String.valueOf(nextTierConfig.bulkAmount), startX + 30, row2Y + 4, 0xFF000000, false);
+        graphics.text(this.font, "x", startX + 20, row2Y + 4, 0xFFEFEBE9, true);
+        graphics.text(this.font, String.valueOf(nextTierConfig.bulkAmount), startX + 30, row2Y + 4, 0xFFEFEBE9, true);
 
         for (int i = 0; i < bulkSlotsNeeded; i++) {
             net.minecraft.world.inventory.Slot slot = this.menu.getSlot(8 + i);
@@ -470,18 +468,19 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         boolean canAfford = stagedMain >= nextTierConfig.mainAmount && stagedBulk >= nextTierConfig.bulkAmount;
         boolean isBtnHovered = mouseX >= btnX && mouseX < btnX + btnWidth && mouseY >= btnY && mouseY < btnY + btnHeight;
 
-        int boxColor = 0xFF8D6E63;
+        int boxColor = 0xFF4A3424;
         if (canAfford) {
             long time = System.currentTimeMillis();
             float pulse = (float) (Math.sin(time / 150.0) + 1.0) / 2.0f;
-            boxColor = 0xFF000000 | (255 << 16) | ((int)(170 + (85 * pulse)) << 8);
+            int g = (int)(100 + 50 * pulse);
+            boxColor = 0xFF000000 | (30 << 16) | (g << 8) | 30;
         } else if (isBtnHovered) {
-            boxColor = 0xFFA1887F;
+            boxColor = 0xFF634631;
         }
 
         graphics.fill(btnX, btnY, btnX + btnWidth, btnY + btnHeight, boxColor);
-        drawThickOutline(graphics, btnX, btnY, btnWidth, btnHeight, 1, 0xFF3E2723);
-        centeredTextNoShadow(graphics, Component.translatable("r3ct_base_core.gui.upgrades.start_upgrade"), btnX + (btnWidth / 2), btnY + 6, canAfford ? 0xFF000000 : 0xFFEFEBE9);
+        drawThickOutline(graphics, btnX, btnY, btnWidth, btnHeight, 1, 0xFF2E1F14);
+        centeredText(graphics, Component.translatable("r3ct_base_core.gui.upgrades.start_upgrade"), btnX + (btnWidth / 2), btnY + 6, canAfford ? 0xFFFFFFFF : 0xFFBBBBBB);
 
         boolean isRightBoxHovered = mouseX >= rightBoxX && mouseX < rightBoxX + 24 && mouseY >= topY && mouseY < topY + 24;
         if (isBtnHovered || isRightBoxHovered) {
@@ -504,6 +503,19 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
             tooltipLines.add(Component.translatable("r3ct_base_core.gui.upgrades.click_to_upgrade").withStyle(net.minecraft.ChatFormatting.GREEN));
         }
         graphics.setComponentTooltipForNextFrame(this.font, tooltipLines, mouseX, mouseY);
+    }
+
+    private void drawPlanks(GuiGraphicsExtractor graphics, int x, int y, int w, int h) {
+        graphics.fill(x, y, x + w, y + h, 0xFF4A3424);
+
+        for (int i = y; i < y + h; i += 16) {
+            int lineY = i;
+            if (lineY > y && lineY < y + h - 1) {
+                graphics.fill(x, lineY, x + w, lineY + 1, 0xFF2E1F14);
+                graphics.fill(x, lineY + 1, x + w, lineY + 2, 0xFF634631);
+            }
+        }
+        drawThickOutline(graphics, x, y, w, h, 2, 0xFF2E1F14);
     }
 
     private void drawLine(GuiGraphicsExtractor graphics, int x1, int y1, int x2, int y2, int color) {
@@ -544,12 +556,12 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         graphics.fill(x + w, y, x + w + thickness, y + h, color);
     }
 
-    private void centeredTextNoShadow(GuiGraphicsExtractor graphics, Component text, int x, int y, int color) {
-        graphics.text(this.font, text, x - this.font.width(text) / 2, y, color, false);
+    private void centeredText(GuiGraphicsExtractor graphics, Component text, int x, int y, int color) {
+        graphics.text(this.font, text, x - this.font.width(text) / 2, y, color, true);
     }
 
-    private void centeredTextNoShadow(GuiGraphicsExtractor graphics, String text, int x, int y, int color) {
-        graphics.text(this.font, text, x - this.font.width(text) / 2, y, color, false);
+    private void centeredText(GuiGraphicsExtractor graphics, String text, int x, int y, int color) {
+        graphics.text(this.font, text, x - this.font.width(text) / 2, y, color, true);
     }
 
     private String toRoman(int num) {
