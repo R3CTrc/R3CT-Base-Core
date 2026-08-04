@@ -394,12 +394,12 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         int mainSlotsNeeded = (int) Math.ceil(nextTierConfig.mainAmount / 64.0);
         int bulkSlotsNeeded = (int) Math.ceil(nextTierConfig.bulkAmount / 64.0);
 
-        int startX = this.leftPos + 26;
+        int startX = this.leftPos + 24;
 
-        int row1Y = this.topPos + 56;
+        int row1Y = this.topPos + 61;
         graphics.fakeItem(new ItemStack(nextMainItem), startX, row1Y - 1);
-        graphics.text(this.font, "x", startX + 19, row1Y + 4, 0xFF000000, false);
-        graphics.text(this.font, String.valueOf(nextTierConfig.mainAmount), startX + 28, row1Y + 4, 0xFF000000, false);
+        graphics.text(this.font, "x", startX + 20, row1Y + 4, 0xFF000000, false);
+        graphics.text(this.font, String.valueOf(nextTierConfig.mainAmount), startX + 30, row1Y + 4, 0xFF000000, false);
 
         for (int i = 0; i < mainSlotsNeeded; i++) {
             net.minecraft.world.inventory.Slot slot = this.menu.getSlot(4 + i);
@@ -411,10 +411,10 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
             }
         }
 
-        int row2Y = this.topPos + 78;
+        int row2Y = this.topPos + 83;
         graphics.fakeItem(new ItemStack(bulkItem), startX, row2Y - 1);
-        graphics.text(this.font, "x", startX + 19, row2Y + 4, 0xFF000000, false);
-        graphics.text(this.font, String.valueOf(nextTierConfig.bulkAmount), startX + 28, row2Y + 4, 0xFF000000, false);
+        graphics.text(this.font, "x", startX + 20, row2Y + 4, 0xFF000000, false);
+        graphics.text(this.font, String.valueOf(nextTierConfig.bulkAmount), startX + 30, row2Y + 4, 0xFF000000, false);
 
         for (int i = 0; i < bulkSlotsNeeded; i++) {
             net.minecraft.world.inventory.Slot slot = this.menu.getSlot(8 + i);
@@ -476,7 +476,6 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         }
 
         if (isNextTier) {
-            tooltipLines.add(Component.literal(""));
             tooltipLines.add(Component.translatable("r3ct_base_core.gui.upgrades.click_to_upgrade").withStyle(net.minecraft.ChatFormatting.GREEN));
         }
         graphics.setComponentTooltipForNextFrame(this.font, tooltipLines, mouseX, mouseY);

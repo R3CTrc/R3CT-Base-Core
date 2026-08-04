@@ -62,7 +62,6 @@ public class BaseCoreServerLogic {
             ItemStack stack = menu.getSlot(i).getItem();
             if (stack.is(mainItem)) stagedMain += stack.getCount();
         }
-
         for (int i = 8; i <= 11; i++) {
             ItemStack stack = menu.getSlot(i).getItem();
             if (stack.is(bulkItem)) stagedBulk += stack.getCount();
@@ -79,6 +78,15 @@ public class BaseCoreServerLogic {
 
         consumeFromStaging(menu, mainItem, tierConfig.mainAmount, 4, 7);
         consumeFromStaging(menu, bulkItem, tierConfig.bulkAmount, 8, 11);
+
+        for (int i = 4; i <= 11; i++) {
+            Slot slot = menu.getSlot(i);
+            if (slot.hasItem()) {
+                ItemStack leftover = slot.getItem().copy();
+                slot.set(ItemStack.EMPTY);
+                player.getInventory().placeItemBackInInventory(leftover);
+            }
+        }
 
         coreBE.setTier(nextTier);
 
