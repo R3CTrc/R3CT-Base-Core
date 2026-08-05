@@ -3,7 +3,9 @@ package com.r3ct.base_core.block;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -154,5 +156,39 @@ public class ArcaneLecternBlock extends BaseEntityBlock {
     protected void onExplosionHit(BlockState state, ServerLevel level, BlockPos pos, Explosion explosion, BiConsumer<ItemStack, BlockPos> onHit) {
         dropContents(level, pos);
         super.onExplosionHit(state, level, pos, explosion, onHit);
+    }
+
+    @Override
+    public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+        Direction facing = state.getValue(FACING);
+
+        spawnRotatedCandleFlame(level, pos, random, facing, 1.5, 19.5, 12.0);
+
+        spawnRotatedCandleFlame(level, pos, random, facing, 14.5, 19.5, 9.0);
+    }
+
+    private void spawnRotatedCandleFlame(Level level, BlockPos pos, RandomSource random, Direction facing, double pixelX, double pixelY, double pixelZ) {
+        double offsetX = pixelX / 16.0;
+        double offsetY = pixelY / 16.0;
+        double offsetZ = pixelZ / 16.0;
+
+        double dx = offsetX - 0.5;
+        double dz = offsetZ - 0.5;
+
+        double finalX = 0.5;
+        double finalZ = 0.5;
+
+        switch (facing) {
+            case EAST -> { finalX = 0.5 - dz; finalZ = 0.5 + dx; }
+            case SOUTH -> { finalX = 0.5 - dx; finalZ = 0.5 - dz; }
+            case WEST -> { finalX = 0.5 + dz; finalZ = 0.5 - dx; }
+            default -> { finalX = 0.5 + dx; finalZ = 0.5 + dz; }
+        }
+
+        level.addParticle(ParticleTypes.SMALL_FLAME, pos.getX() + finalX, pos.getY() + offsetY, pos.getZ() + finalZ, 0.0, 0.0, 0.0);
+
+        if (random.nextFloat() < 0.3F) {
+            level.addParticle(ParticleTypes.SMOKE, pos.getX() + finalX, pos.getY() + offsetY, pos.getZ() + finalZ, 0.0, 0.0, 0.0);
+        }
     }
 }

@@ -46,6 +46,7 @@ public class ModBlocks {
             .noOcclusion()
             .isViewBlocking((state, getter, pos) -> false)
             .sound(SoundType.WOOD)
+            .lightLevel(state -> 7)
     );
 
     public static final ResourceKey<BlockEntityType<?>> ARCANE_LECTERN_BE_KEY = ResourceKey.create(
