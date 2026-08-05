@@ -14,6 +14,11 @@
       "type": "single",
       "resource": "minecraft:item/echo_shard",
       "sprite": "r3ct_base_core:block/echo_shard"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:entity/skeleton/wither_skeleton",
+      "sprite": "r3ct_base_core:block/wither_skeleton"
     }
   ]
 }
