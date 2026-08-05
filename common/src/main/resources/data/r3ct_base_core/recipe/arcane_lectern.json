@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CBA",
+    " L ",
+    "DDD"
+  ],
+  "key": {
+    "C": "#minecraft:candles",
+    "B": "minecraft:book",
+    "A": "minecraft:amethyst_shard",
+    "L": "#minecraft:logs",
+    "D": "#minecraft:stone_crafting_materials"
+  },
+  "result": {
+    "id": "r3ct_base_core:arcane_lectern",
+    "count": 1
+  }
+}
