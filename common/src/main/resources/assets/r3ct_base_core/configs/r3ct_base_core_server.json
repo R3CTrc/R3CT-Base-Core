@@ -133,7 +133,8 @@
       "ingredientItem": "minecraft:lapis_lazuli",
       "ingredientAmount": 4,
       "outputItem": "r3ct_base_core:magic_tome",
-      "effectId": ""
+      "effectId": "",
+      "colorHex": "#00FFFF"
     },
     {
       "id": "base_dark_magic",
@@ -144,7 +145,8 @@
       "ingredientItem": "minecraft:bone",
       "ingredientAmount": 4,
       "outputItem": "r3ct_base_core:dark_magic_tome",
-      "effectId": ""
+      "effectId": "",
+      "colorHex": "#AA00AA"
     },
     {
       "id": "base_alchemy",
@@ -155,7 +157,8 @@
       "ingredientItem": "minecraft:nether_wart",
       "ingredientAmount": 4,
       "outputItem": "r3ct_base_core:alchemy_tome",
-      "effectId": ""
+      "effectId": "",
+      "colorHex": "#55FF55"
     },
     {
       "id": "furnace_overclock",
@@ -166,7 +169,8 @@
       "ingredientItem": "minecraft:blast_furnace",
       "ingredientAmount": 3,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "furnace_overclock"
+      "effectId": "furnace_overclock",
+      "colorHex": "#FF5500"
     },
     {
       "id": "anti_trample",
@@ -177,7 +181,8 @@
       "ingredientItem": "minecraft:slime_ball",
       "ingredientAmount": 16,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "anti_trample"
+      "effectId": "anti_trample",
+      "colorHex": "#55FF55"
     },
     {
       "id": "crop_growth",
@@ -188,7 +193,8 @@
       "ingredientItem": "minecraft:bone_meal",
       "ingredientAmount": 64,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "crop_growth"
+      "effectId": "crop_growth",
+      "colorHex": "#00AA00"
     },
     {
       "id": "fall_resistance",
@@ -199,7 +205,8 @@
       "ingredientItem": "minecraft:hay_block",
       "ingredientAmount": 16,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "fall_resistance"
+      "effectId": "fall_resistance",
+      "colorHex": "#FFFF55"
     },
     {
       "id": "satiation",
@@ -210,7 +217,8 @@
       "ingredientItem": "minecraft:golden_carrot",
       "ingredientAmount": 16,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "satiation"
+      "effectId": "satiation",
+      "colorHex": "#FFAA00"
     },
     {
       "id": "anti_spawn",
@@ -221,7 +229,8 @@
       "ingredientItem": "minecraft:carved_pumpkin",
       "ingredientAmount": 16,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "anti_spawn"
+      "effectId": "anti_spawn",
+      "colorHex": "#555555"
     },
     {
       "id": "night_vision",
@@ -232,7 +241,8 @@
       "ingredientItem": "minecraft:glowstone",
       "ingredientAmount": 32,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "night_vision"
+      "effectId": "night_vision",
+      "colorHex": "#FFFFAA"
     },
     {
       "id": "animal_growth",
@@ -243,7 +253,8 @@
       "ingredientItem": "minecraft:golden_apple",
       "ingredientAmount": 4,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "animal_growth"
+      "effectId": "animal_growth",
+      "colorHex": "#FF55FF"
     },
     {
       "id": "extended_reach",
@@ -254,7 +265,8 @@
       "ingredientItem": "minecraft:ender_pearl",
       "ingredientAmount": 16,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "extended_reach"
+      "effectId": "extended_reach",
+      "colorHex": "#AA00AA"
     },
     {
       "id": "fire_immunity",
@@ -265,7 +277,8 @@
       "ingredientItem": "minecraft:magma_cream",
       "ingredientAmount": 32,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "fire_immunity"
+      "effectId": "fire_immunity",
+      "colorHex": "#FFAA00"
     },
     {
       "id": "anti_explosion",
@@ -276,7 +289,8 @@
       "ingredientItem": "minecraft:crying_obsidian",
       "ingredientAmount": 8,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "anti_explosion"
+      "effectId": "anti_explosion",
+      "colorHex": "#330033"
     },
     {
       "id": "pet_protection",
@@ -287,7 +301,8 @@
       "ingredientItem": "minecraft:diamond_horse_armor",
       "ingredientAmount": 1,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "pet_protection"
+      "effectId": "pet_protection",
+      "colorHex": "#55FFFF"
     },
     {
       "id": "slow_falling",
@@ -298,7 +313,8 @@
       "ingredientItem": "minecraft:phantom_membrane",
       "ingredientAmount": 16,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "slow_falling"
+      "effectId": "slow_falling",
+      "colorHex": "#FFFFFF"
     },
     {
       "id": "mending_pulse",
@@ -309,7 +325,8 @@
       "ingredientItem": "minecraft:nether_star",
       "ingredientAmount": 1,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "mending_pulse"
+      "effectId": "mending_pulse",
+      "colorHex": "#55FF55"
     }
   ]
 }

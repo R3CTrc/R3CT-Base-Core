@@ -1,6 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:item/book"
+    "layer0": "r3ct_base_core:item/alchemy_tome_base",
+    "layer1": "r3ct_base_core:item/alchemy_tome_overlay"
   }
 }

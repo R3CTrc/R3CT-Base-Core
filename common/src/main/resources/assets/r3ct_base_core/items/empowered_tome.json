@@ -1,1 +1,46 @@
-{"model": {"type": "minecraft:model", "model": "r3ct_base_core:item/empowered_tome"}}
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/book"
+    },
+    "cases": [
+      {
+        "when": 1.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "r3ct_base_core:item/magic_tome",
+          "tints": [
+            { "type": "minecraft:constant", "value": -1 },
+            { "type": "minecraft:custom_model_data", "index": 0, "default": -1 }
+          ]
+        }
+      },
+      {
+        "when": 2.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "r3ct_base_core:item/alchemy_tome",
+          "tints": [
+            { "type": "minecraft:constant", "value": -1 },
+            { "type": "minecraft:custom_model_data", "index": 0, "default": -1 }
+          ]
+        }
+      },
+      {
+        "when": 3.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "r3ct_base_core:item/dark_magic_tome",
+          "tints": [
+            { "type": "minecraft:constant", "value": -1 },
+            { "type": "minecraft:custom_model_data", "index": 0, "default": -1 }
+          ]
+        }
+      }
+    ]
+  }
+}
