@@ -24,7 +24,7 @@ public class BaseCoreServerConfig {
     private static final Path CONFIG_PATH = Services.PLATFORM.getConfigDir().resolve("r3ct_base_core/r3ct_base_core_server.json");
     private static final File CONFIG_FILE = CONFIG_PATH.toFile();
 
-    private static final int CONFIG_VERSION = 2;
+    private static final int CONFIG_VERSION = 1;
 
     public static class TierUpgrade {
         public int tierLevel;

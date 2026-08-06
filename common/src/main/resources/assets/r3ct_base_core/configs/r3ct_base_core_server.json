@@ -1,6 +1,6 @@
 {
   "_comment_version": "Do not change the version number! It is used for automatic config updates.",
-  "version": 2,
+  "version": 1,
   "tiers": [
     {
       "tierLevel": 0,
@@ -161,15 +161,15 @@
       "colorHex": "#55FF55"
     },
     {
-      "id": "furnace_overclock",
-      "nameKey": "r3ct_base_core.effect.furnace_overclock.name",
-      "descKey": "r3ct_base_core.effect.furnace_overclock.desc",
-      "xpCost": 150,
+      "id": "industrial_overclock",
+      "nameKey": "r3ct_base_core.effect.industrial_overclock.name",
+      "descKey": "r3ct_base_core.effect.industrial_overclock.desc",
+      "xpCost": 200,
       "inputItem": "r3ct_base_core:magic_tome",
       "ingredientItem": "minecraft:blast_furnace",
-      "ingredientAmount": 3,
+      "ingredientAmount": 2,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "furnace_overclock",
+      "effectId": "industrial_overclock",
       "colorHex": "#FF5500"
     },
     {
@@ -245,15 +245,15 @@
       "colorHex": "#FFFFAA"
     },
     {
-      "id": "animal_growth",
-      "nameKey": "r3ct_base_core.effect.animal_growth.name",
-      "descKey": "r3ct_base_core.effect.animal_growth.desc",
+      "id": "livestock_boost",
+      "nameKey": "r3ct_base_core.effect.livestock_boost.name",
+      "descKey": "r3ct_base_core.effect.livestock_boost.desc",
       "xpCost": 650,
       "inputItem": "r3ct_base_core:alchemy_tome",
       "ingredientItem": "minecraft:golden_apple",
       "ingredientAmount": 4,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "animal_growth",
+      "effectId": "livestock_boost",
       "colorHex": "#FF55FF"
     },
     {
@@ -305,16 +305,52 @@
       "colorHex": "#55FFFF"
     },
     {
-      "id": "slow_falling",
-      "nameKey": "r3ct_base_core.effect.slow_falling.name",
-      "descKey": "r3ct_base_core.effect.slow_falling.desc",
+      "id": "hostile_slowness",
+      "nameKey": "r3ct_base_core.effect.hostile_slowness.name",
+      "descKey": "r3ct_base_core.effect.hostile_slowness.desc",
       "xpCost": 1200,
-      "inputItem": "r3ct_base_core:alchemy_tome",
-      "ingredientItem": "minecraft:phantom_membrane",
+      "inputItem": "r3ct_base_core:dark_magic_tome",
+      "ingredientItem": "minecraft:fermented_spider_eye",
       "ingredientAmount": 16,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "slow_falling",
-      "colorHex": "#FFFFFF"
+      "effectId": "hostile_slowness",
+      "colorHex": "#4A6E73"
+    },
+    {
+      "id": "pvp_protection",
+      "nameKey": "r3ct_base_core.effect.pvp_protection.name",
+      "descKey": "r3ct_base_core.effect.pvp_protection.desc",
+      "xpCost": 1000,
+      "inputItem": "r3ct_base_core:magic_tome",
+      "ingredientItem": "minecraft:shield",
+      "ingredientAmount": 1,
+      "outputItem": "r3ct_base_core:empowered_tome",
+      "effectId": "pvp_protection",
+      "colorHex": "#5555FF"
+    },
+    {
+      "id": "twin_breeding",
+      "nameKey": "r3ct_base_core.effect.twin_breeding.name",
+      "descKey": "r3ct_base_core.effect.twin_breeding.desc",
+      "xpCost": 750,
+      "inputItem": "r3ct_base_core:alchemy_tome",
+      "ingredientItem": "minecraft:egg",
+      "ingredientAmount": 16,
+      "outputItem": "r3ct_base_core:empowered_tome",
+      "effectId": "twin_breeding",
+      "colorHex": "#FF88AA"
+    },
+    {
+      "id": "fuel_efficiency",
+      "nameKey": "r3ct_base_core.effect.fuel_efficiency.name",
+      "descKey": "r3ct_base_core.effect.fuel_efficiency.desc",
+      "xpCost": 350,
+      "inputItem": "r3ct_base_core:alchemy_tome",
+      "ingredientItem": "minecraft:coal_block",
+      "ingredientAmount": 4,
+      "outputItem": "r3ct_base_core:empowered_tome",
+      "effectId": "fuel_efficiency",
+      "colorHex": "#333333"
     },
     {
       "id": "mending_pulse",

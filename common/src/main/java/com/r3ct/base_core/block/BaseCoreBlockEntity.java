@@ -156,13 +156,18 @@ public class BaseCoreBlockEntity extends BlockEntity implements Container, MenuP
         for (String effectId : activeEffects) {
             switch (effectId) {
                 case "fire_immunity":
-                    if (!playersInRange.isEmpty()) applyAuraToPlayers(playersInRange, MobEffects.FIRE_RESISTANCE, 220);
+                    if (!playersInRange.isEmpty()) applyAuraToPlayers(playersInRange, MobEffects.FIRE_RESISTANCE, 240);
                     break;
                 case "night_vision":
-                    if (!playersInRange.isEmpty()) applyAuraToPlayers(playersInRange, MobEffects.NIGHT_VISION, 220);
+                    if (!playersInRange.isEmpty()) applyAuraToPlayers(playersInRange, MobEffects.NIGHT_VISION, 240);
                     break;
-                case "slow_falling":
-                    if (!playersInRange.isEmpty()) applyAuraToPlayers(playersInRange, MobEffects.SLOW_FALLING, 220);
+                case "hostile_slowness":
+                    List<net.minecraft.world.entity.monster.Monster> monsters = level.getEntitiesOfClass(net.minecraft.world.entity.monster.Monster.class, boundingBox);
+                    if (!monsters.isEmpty()) {
+                        for (net.minecraft.world.entity.monster.Monster monster : monsters) {
+                            monster.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 240, 1, true, false, true));
+                        }
+                    }
                     break;
                 case "satiation":
                     if (!playersInRange.isEmpty()) {

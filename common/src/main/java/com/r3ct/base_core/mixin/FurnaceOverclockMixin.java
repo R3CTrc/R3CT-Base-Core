@@ -31,7 +31,7 @@ public abstract class FurnaceOverclockMixin {
         if (!currentState.hasProperty(BlockStateProperties.LIT) || !currentState.getValue(BlockStateProperties.LIT)) {
             return;
         }
-        if (BaseCoreEventLogic.isEffectActiveAt(level, pos, "furnace_overclock")) {
+        if (BaseCoreEventLogic.isEffectActiveAt(level, pos, "industrial_overclock")) {
             baseCore$isExtraTick.set(true);
             try {
                 serverTick(level, pos, currentState, entity);
