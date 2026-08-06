@@ -9,7 +9,7 @@
     },
     "cases": [
       {
-        "when": 1.0,
+        "when": "1",
         "model": {
           "type": "minecraft:model",
           "model": "r3ct_base_core:item/magic_tome",
@@ -20,7 +20,7 @@
         }
       },
       {
-        "when": 2.0,
+        "when": "2",
         "model": {
           "type": "minecraft:model",
           "model": "r3ct_base_core:item/alchemy_tome",
@@ -31,7 +31,7 @@
         }
       },
       {
-        "when": 3.0,
+        "when": "3",
         "model": {
           "type": "minecraft:model",
           "model": "r3ct_base_core:item/dark_magic_tome",

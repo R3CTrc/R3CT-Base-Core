@@ -46,9 +46,4 @@ public class EmpoweredTomeItem extends Item {
             builder.accept(Component.literal("Brak mocy. Pusty moduł.").withStyle(ChatFormatting.DARK_RED));
         }
     }
-
-    @Override
-    public boolean isFoil(ItemStack stack) {
-        return stack.has(ModDataComponents.EFFECT_ID);
-    }
 }

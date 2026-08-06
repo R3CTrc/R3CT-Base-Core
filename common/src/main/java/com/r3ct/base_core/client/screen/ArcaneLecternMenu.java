@@ -113,23 +113,24 @@ public class ArcaneLecternMenu extends AbstractContainerMenu {
                 if (recipe.effectId() != null && !recipe.effectId().isEmpty()) {
                     result.set(ModDataComponents.EFFECT_ID, recipe.effectId());
 
-                    float tomeType = 0f;
-                    if ("r3ct_base_core:magic_tome".equals(recipe.inputItem())) tomeType = 1f;
-                    else if ("r3ct_base_core:alchemy_tome".equals(recipe.inputItem())) tomeType = 2f;
-                    else if ("r3ct_base_core:dark_magic_tome".equals(recipe.inputItem())) tomeType = 3f;
+                    String tomeType = "0";
+                    if ("r3ct_base_core:magic_tome".equals(recipe.inputItem())) tomeType = "1";
+                    else if ("r3ct_base_core:alchemy_tome".equals(recipe.inputItem())) tomeType = "2";
+                    else if ("r3ct_base_core:dark_magic_tome".equals(recipe.inputItem())) tomeType = "3";
 
-                    int tintColor = 0xFFFFFF;
+                    int tintColor = -1;
                     if (recipe.colorHex() != null && !recipe.colorHex().isEmpty()) {
                         try {
-                            tintColor = Integer.parseInt(recipe.colorHex().replace("#", ""), 16);
+                            String hex = recipe.colorHex().replace("#", "");
+                            tintColor = (0xFF << 24) | Integer.parseInt(hex, 16);
                         } catch (NumberFormatException ignored) {}
                     }
 
                     result.set(net.minecraft.core.component.DataComponents.CUSTOM_MODEL_DATA,
                             new net.minecraft.world.item.component.CustomModelData(
+                                    java.util.List.of(),
+                                    java.util.List.of(),
                                     java.util.List.of(tomeType),
-                                    java.util.List.of(),
-                                    java.util.List.of(),
                                     java.util.List.of(tintColor)
                             )
                     );
