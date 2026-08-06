@@ -205,6 +205,8 @@ public class BaseCoreBlock extends Block implements EntityBlock {
         if (!level.isClientSide()) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof BaseCoreBlockEntity coreBE) {
+                net.minecraft.world.Containers.dropContents(level, pos, coreBE);
+
                 String uuidStr = coreBE.getOwnerUUID();
                 if (uuidStr != null && !uuidStr.isEmpty()) {
                     try {

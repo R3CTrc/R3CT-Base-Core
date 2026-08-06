@@ -74,6 +74,9 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
         int listStartY = panelY + 20;
         int maxScroll = getMaxScroll();
 
+        ItemStack hoveredItem = null;
+        Component hoveredRecipeText = null;
+
         graphics.enableScissor(listStartX, listStartY, listStartX + panelW - 12, panelY + this.imageHeight - 4);
 
         List<LecternRecipeDef> recipes = LecternRecipes.getRecipes();
@@ -92,7 +95,8 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
 
             ItemStack inputStack = new ItemStack(recipe.getInputItem());
             ItemStack ingStack = new ItemStack(recipe.getIngredientItem(), recipe.ingredientAmount());
-            ItemStack outputStack = new ItemStack(recipe.getOutputItem());
+
+            ItemStack outputStack = com.r3ct.base_core.item.EmpoweredTomeItem.createFromRecipe(recipe.getOutputItem(), recipe);
 
             graphics.item(inputStack, listStartX + 4, rowY + 5);
             graphics.text(this.font, "+", listStartX + 24, rowY + 9, 0xFFEFEBE9, false);
@@ -111,10 +115,23 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
             }
 
             if (isHovered) {
-                graphics.setTooltipForNextFrame(this.font, Component.translatable(recipe.nameKey()).withStyle(ChatFormatting.GOLD), mouseX, mouseY);
+                boolean onInput = mouseX >= listStartX + 4 && mouseX < listStartX + 20 && mouseY >= rowY + 5 && mouseY < rowY + 21;
+                boolean onIng = mouseX >= listStartX + 34 && mouseX < listStartX + 50 && mouseY >= rowY + 5 && mouseY < rowY + 21;
+                boolean onOut = mouseX >= listStartX + 68 && mouseX < listStartX + 84 && mouseY >= rowY + 5 && mouseY < rowY + 21;
+
+                if (onInput) hoveredItem = inputStack;
+                else if (onIng) hoveredItem = ingStack;
+                else if (onOut) hoveredItem = outputStack;
+                else hoveredRecipeText = Component.translatable(recipe.nameKey()).withStyle(ChatFormatting.GOLD);
             }
         }
         graphics.disableScissor();
+
+        if (hoveredItem != null) {
+            graphics.setTooltipForNextFrame(this.font, hoveredItem, mouseX, mouseY);
+        } else if (hoveredRecipeText != null) {
+            graphics.setTooltipForNextFrame(this.font, hoveredRecipeText, mouseX, mouseY);
+        }
 
         int scrollbarX = panelX + panelW - 10;
         int scrollbarY = panelY + 20;
@@ -166,7 +183,10 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
                 if (!this.menu.getSlot(2).hasItem()) {
                     int s2x = this.leftPos + this.menu.getSlot(2).x;
                     int s2y = this.topPos + this.menu.getSlot(2).y;
-                    graphics.fakeItem(new ItemStack(recipe.getOutputItem()), s2x, s2y);
+
+                    ItemStack ghostOutput = com.r3ct.base_core.item.EmpoweredTomeItem.createFromRecipe(recipe.getOutputItem(), recipe);
+
+                    graphics.fakeItem(ghostOutput, s2x, s2y);
                     graphics.fill(s2x, s2y, s2x + 16, s2y + 16, 0x66FFFFFF);
                 }
             });

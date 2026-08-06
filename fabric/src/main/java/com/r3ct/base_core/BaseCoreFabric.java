@@ -82,7 +82,12 @@ public class BaseCoreFabric implements ModInitializer {
 					output.accept(MAGIC_TOME);
 					output.accept(DARK_MAGIC_TOME);
 					output.accept(ALCHEMY_TOME);
-					output.accept(EMPOWERED_TOME);
+
+					for (com.r3ct.base_core.config.LecternRecipeDef recipe : com.r3ct.base_core.logic.LecternRecipes.getRecipes()) {
+						if (recipe.effectId() != null && !recipe.effectId().isEmpty()) {
+							output.accept(com.r3ct.base_core.item.EmpoweredTomeItem.createFromRecipe(EMPOWERED_TOME, recipe));
+						}
+					}
 				})
 				.build()
 		);
@@ -92,6 +97,7 @@ public class BaseCoreFabric implements ModInitializer {
 		PayloadTypeRegistry.serverboundPlay().register(ToggleBorderPayload.TYPE, ToggleBorderPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(LecternAutoFillPayload.TYPE, LecternAutoFillPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ApplyEffectsPayload.TYPE, ApplyEffectsPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(RemoveEffectPayload.TYPE, RemoveEffectPayload.CODEC);
 
 		ServerPlayNetworking.registerGlobalReceiver(UpgradeBaseCorePayload.TYPE, (payload, context) -> {
 			context.server().execute(() -> {
@@ -108,6 +114,12 @@ public class BaseCoreFabric implements ModInitializer {
 		ServerPlayNetworking.registerGlobalReceiver(ApplyEffectsPayload.TYPE, (payload, context) -> {
 			context.server().execute(() -> {
 				BaseCoreServerLogic.handleApplyEffectsRequest(context.player(), payload);
+			});
+		});
+
+		ServerPlayNetworking.registerGlobalReceiver(RemoveEffectPayload.TYPE, (payload, context) -> {
+			context.server().execute(() -> {
+				BaseCoreServerLogic.handleRemoveEffectRequest(context.player(), payload);
 			});
 		});
 

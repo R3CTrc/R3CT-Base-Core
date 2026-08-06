@@ -99,6 +99,14 @@ public class BaseCoreNeoForge {
             });
         });
 
+        registrar.playToServer(RemoveEffectPayload.TYPE, RemoveEffectPayload.CODEC, (payload, context) -> {
+            context.enqueueWork(() -> {
+                if (context.player() instanceof ServerPlayer player) {
+                    BaseCoreServerLogic.handleRemoveEffectRequest(player, payload);
+                }
+            });
+        });
+
         registrar.playToServer(LecternAutoFillPayload.TYPE, LecternAutoFillPayload.CODEC, (payload, context) -> {
             context.enqueueWork(() -> {
                 if (context.player() instanceof ServerPlayer player) {
@@ -142,7 +150,12 @@ public class BaseCoreNeoForge {
                                 output.accept(MAGIC_TOME);
                                 output.accept(DARK_MAGIC_TOME);
                                 output.accept(ALCHEMY_TOME);
-                                output.accept(EMPOWERED_TOME);
+
+                                for (com.r3ct.base_core.config.LecternRecipeDef recipe : com.r3ct.base_core.logic.LecternRecipes.getRecipes()) {
+                                    if (recipe.effectId() != null && !recipe.effectId().isEmpty()) {
+                                        output.accept(com.r3ct.base_core.item.EmpoweredTomeItem.createFromRecipe(EMPOWERED_TOME, recipe));
+                                    }
+                                }
                             })
                             .build()
             );

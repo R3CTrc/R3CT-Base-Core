@@ -46,4 +46,34 @@ public class EmpoweredTomeItem extends Item {
             builder.accept(Component.literal("Brak mocy. Pusty moduł.").withStyle(ChatFormatting.DARK_RED));
         }
     }
+
+    public static ItemStack createFromRecipe(Item item, com.r3ct.base_core.config.LecternRecipeDef recipe) {
+        ItemStack stack = new ItemStack(item);
+        if (recipe.effectId() != null && !recipe.effectId().isEmpty()) {
+            stack.set(ModDataComponents.EFFECT_ID, recipe.effectId());
+
+            String tomeType = "0";
+            if ("r3ct_base_core:magic_tome".equals(recipe.inputItem())) tomeType = "1";
+            else if ("r3ct_base_core:alchemy_tome".equals(recipe.inputItem())) tomeType = "2";
+            else if ("r3ct_base_core:dark_magic_tome".equals(recipe.inputItem())) tomeType = "3";
+
+            int tintColor = -1;
+            if (recipe.colorHex() != null && !recipe.colorHex().isEmpty()) {
+                try {
+                    String hex = recipe.colorHex().replace("#", "");
+                    tintColor = (0xFF << 24) | Integer.parseInt(hex, 16);
+                } catch (NumberFormatException ignored) {}
+            }
+
+            stack.set(net.minecraft.core.component.DataComponents.CUSTOM_MODEL_DATA,
+                    new net.minecraft.world.item.component.CustomModelData(
+                            java.util.List.of(),
+                            java.util.List.of(),
+                            java.util.List.of(tomeType),
+                            java.util.List.of(tintColor)
+                    )
+            );
+        }
+        return stack;
+    }
 }

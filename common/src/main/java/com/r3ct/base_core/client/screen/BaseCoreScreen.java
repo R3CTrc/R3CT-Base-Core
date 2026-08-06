@@ -211,17 +211,51 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
                     return true;
                 }
 
-                boolean hasStagedEffects = false;
-                for(int i = 0; i < 4; i++) if (this.menu.getSlot(i).hasItem()) hasStagedEffects = true;
-
-                if (hasStagedEffects) {
-                    int btnX = this.leftPos + 104;
-                    int btnY = this.topPos + 89;
-                    if (mouseX >= btnX && mouseX < btnX + 60 && mouseY >= btnY && mouseY < btnY + 16) {
-                        Services.PLATFORM.sendToServer(new ApplyEffectsPayload(this.menu.getCorePos()));
-                        this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F));
-                        return true;
+                com.r3ct.base_core.block.BaseCoreBlockEntity coreBE = getCoreEntity();
+                if (coreBE != null) {
+                    int maxSlots = BaseCoreServerConfig.calculateTotalSlots(this.menu.getTier());
+                    for (int i = 0; i < maxSlots; i++) {
+                        int sx = this.leftPos + this.menu.getSlot(i).x;
+                        int sy = this.topPos + this.menu.getSlot(i).y;
+                        if (mouseX >= sx && mouseX < sx + 16 && mouseY >= sy && mouseY < sy + 16) {
+                            if (!coreBE.getItem(i).isEmpty()) {
+                                Services.PLATFORM.sendToServer(new com.r3ct.base_core.network.RemoveEffectPayload(this.menu.getCorePos(), i));
+                                this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                                return true;
+                            }
+                        }
                     }
+                }
+
+                int requiredXp = 0;
+                boolean hasStagedEffects = false;
+                for(int i = 0; i < 4; i++) {
+                    ItemStack staged = this.menu.getSlot(i).getItem();
+                    if (!staged.isEmpty()) {
+                        hasStagedEffects = true;
+                        String effectId = staged.get(ModDataComponents.EFFECT_ID);
+                        if (effectId != null) {
+                            var recipeOpt = com.r3ct.base_core.logic.LecternRecipes.getRecipeById(effectId);
+                            if (recipeOpt.isPresent()) {
+                                requiredXp += recipeOpt.get().xpCost();
+                            }
+                        }
+                    }
+                }
+
+                int btnX = this.leftPos + 100;
+                int btnY = this.topPos + 105;
+                if (mouseX >= btnX && mouseX < btnX + 60 && mouseY >= btnY && mouseY < btnY + 16) {
+                    if (hasStagedEffects) {
+                        boolean hasEnoughXp = this.minecraft.player.isCreative() || com.r3ct.base_core.client.screen.ArcaneLecternMenu.getTotalExperience(this.minecraft.player) >= requiredXp;
+                        if (hasEnoughXp) {
+                            Services.PLATFORM.sendToServer(new ApplyEffectsPayload(this.menu.getCorePos()));
+                            this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F));
+                        } else {
+                            this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.ENDERMAN_TELEPORT, 1.0F));
+                        }
+                    }
+                    return true;
                 }
             }
 
@@ -326,53 +360,85 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         int effectsY = this.topPos + 93;
         graphics.text(this.font, Component.literal("Efekty:"), infoX, effectsY, 0xFFEFEBE9, true);
 
-        int effStartX = this.leftPos + 14;
-        int effStartY = this.topPos + 105;
+        com.r3ct.base_core.block.BaseCoreBlockEntity coreBE = getCoreEntity();
+        int requiredXp = 0;
         boolean hasStagedEffects = false;
 
-        com.r3ct.base_core.block.BaseCoreBlockEntity coreBE = getCoreEntity();
-
         for (int i = 0; i < 4; i++) {
-            int sx = effStartX + (i * 42);
+            net.minecraft.world.inventory.Slot slot = this.menu.getSlot(i);
+            int sx = this.leftPos + slot.x;
+            int sy = this.topPos + slot.y;
             boolean isLocked = i >= maxSlots;
 
-            String activeEffect = "empty";
-            if (coreBE != null) {
-                ItemStack coreStack = coreBE.getItem(i);
-                if (!coreStack.isEmpty() && coreStack.has(ModDataComponents.EFFECT_ID)) {
-                    activeEffect = coreStack.get(ModDataComponents.EFFECT_ID);
-                }
-            }
+            graphics.fill(sx - 1, sy - 1, sx + 17, sy + 17, 0xFF373737);
+            graphics.fill(sx, sy, sx + 16, sy + 16, 0xFF8B8B8B);
+            graphics.fill(sx, sy + 16, sx + 17, sy + 17, 0xFFFFFFFF);
+            graphics.fill(sx + 16, sy, sx + 17, sy + 16, 0xFFFFFFFF);
 
-            graphics.fill(sx, effStartY, sx + 22, effStartY + 22, isLocked ? 0xFF2E1F14 : 0xFF4A3424);
-            drawThickOutline(graphics, sx, effStartY, 22, 22, 2, 0xFF1A110B);
+            ItemStack activeStack = ItemStack.EMPTY;
+            if (coreBE != null) activeStack = coreBE.getItem(i);
 
             if (isLocked) {
-                centeredText(graphics, "X", sx + 11, effStartY + 7, 0xFFFF5555);
-            } else if (!activeEffect.equals("empty")) {
-                Item empoweredTomeItem = BuiltInRegistries.ITEM.get(Identifier.parse("r3ct_base_core:empowered_tome")).map(Holder::value).orElse(Items.BOOK);
-                ItemStack displayStack = new ItemStack(empoweredTomeItem);
-                displayStack.set(ModDataComponents.EFFECT_ID, activeEffect);
-                graphics.fakeItem(displayStack, sx + 3, effStartY + 3);
-            } else if (!this.menu.getSlot(i).hasItem()) {
                 String ghostId = (i == 0 || i == 1) ? "r3ct_base_core:magic_tome" : (i == 2 ? "r3ct_base_core:alchemy_tome" : "r3ct_base_core:dark_magic_tome");
                 Item ghostItem = BuiltInRegistries.ITEM.get(Identifier.parse(ghostId)).map(Holder::value).orElse(Items.BOOK);
-                graphics.fakeItem(new ItemStack(ghostItem), sx + 3, effStartY + 3);
-                graphics.fill(sx + 3, effStartY + 3, sx + 19, effStartY + 19, 0x66FFFFFF);
+                graphics.fakeItem(new ItemStack(ghostItem), sx, sy);
+
+                graphics.fill(sx, sy, sx + 16, sy + 16, 0x66FFFFFF);
+                centeredText(graphics, "X", sx + 8, sy + 4, 0xFFFF5555);
+            } else if (!activeStack.isEmpty()) {
+                graphics.fakeItem(activeStack, sx, sy);
+                boolean isHoveringSlot = mouseX >= sx && mouseX < sx + 16 && mouseY >= sy && mouseY < sy + 16;
+
+                if (isHoveringSlot) {
+                    graphics.fill(sx, sy, sx + 16, sy + 16, 0x80FFFFFF);
+                    graphics.text(this.font, "X", sx + 10, sy + 1, 0xFFFF5555, true);
+                    graphics.setTooltipForNextFrame(this.font, activeStack, mouseX, mouseY);
+                }
+            } else if (!slot.hasItem()) {
+                String ghostId = (i == 0 || i == 1) ? "r3ct_base_core:magic_tome" : (i == 2 ? "r3ct_base_core:alchemy_tome" : "r3ct_base_core:dark_magic_tome");
+                Item ghostItem = BuiltInRegistries.ITEM.get(Identifier.parse(ghostId)).map(Holder::value).orElse(Items.BOOK);
+                graphics.fakeItem(new ItemStack(ghostItem), sx, sy);
+                graphics.fill(sx, sy, sx + 16, sy + 16, 0x66FFFFFF);
             } else {
                 hasStagedEffects = true;
+                graphics.fakeItem(slot.getItem(), sx, sy);
+
+                String effectId = slot.getItem().get(ModDataComponents.EFFECT_ID);
+                if (effectId != null) {
+                    var recipeOpt = com.r3ct.base_core.logic.LecternRecipes.getRecipeById(effectId);
+                    if (recipeOpt.isPresent()) {
+                        requiredXp += recipeOpt.get().xpCost();
+                    }
+                }
             }
         }
 
-        if (hasStagedEffects) {
-            int btnX = this.leftPos + 104;
-            int btnY = this.topPos + 89;
-            boolean isBtnHovered = mouseX >= btnX && mouseX < btnX + 60 && mouseY >= btnY && mouseY < btnY + 16;
+        int btnX = this.leftPos + 100;
+        int btnY = this.topPos + 105;
+        boolean hasEnoughXp = this.minecraft.player.isCreative() || com.r3ct.base_core.client.screen.ArcaneLecternMenu.getTotalExperience(this.minecraft.player) >= requiredXp;
+        boolean canApply = hasStagedEffects && hasEnoughXp;
+        boolean isBtnHovered = mouseX >= btnX && mouseX < btnX + 60 && mouseY >= btnY && mouseY < btnY + 16;
 
-            graphics.fill(btnX, btnY, btnX + 60, btnY + 16, isBtnHovered ? 0xFF4CAF50 : 0xFF2E7D32);
-            drawThickOutline(graphics, btnX, btnY, 60, 16, 1, 0xFF1B5E20);
-            centeredText(graphics, Component.translatable("r3ct_base_core.gui.apply"), btnX + 30, btnY + 4, 0xFFFFFFFF);
+        if (hasStagedEffects) {
+            Component xpText = Component.literal("Koszt: ").withStyle(net.minecraft.ChatFormatting.WHITE)
+                    .append(Component.literal(requiredXp + " XP").withStyle(hasEnoughXp ? net.minecraft.ChatFormatting.GREEN : net.minecraft.ChatFormatting.RED));
+
+            centeredText(graphics, xpText, btnX + 30, btnY - 10, 0xFFFFFFFF);
         }
+
+        int btnColor = 0xFF4A3424;
+        if (canApply) {
+            long time = System.currentTimeMillis();
+            float pulse = (float) (Math.sin(time / 150.0) + 1.0) / 2.0f;
+            int g = (int)(100 + 50 * pulse);
+            btnColor = 0xFF000000 | (30 << 16) | (g << 8) | 30;
+        } else if (isBtnHovered) {
+            btnColor = 0xFF634631;
+        }
+
+        graphics.fill(btnX, btnY, btnX + 60, btnY + 16, btnColor);
+        drawThickOutline(graphics, btnX, btnY, 60, 16, 1, 0xFF2E1F14);
+        centeredText(graphics, Component.translatable("r3ct_base_core.gui.apply"), btnX + 30, btnY + 4, canApply ? 0xFFFFFFFF : 0xFFBBBBBB);
     }
 
     private void renderUpgradesTab(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
@@ -492,6 +558,13 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         boolean isRightBoxHovered = mouseX >= rightBoxX && mouseX < rightBoxX + 24 && mouseY >= topY && mouseY < topY + 24;
         if (isBtnHovered || isRightBoxHovered) {
             renderTierTooltip(graphics, nextTierConfig, true, mouseX, mouseY);
+        }
+        if (mouseX >= startX && mouseX < startX + 16 && mouseY >= row1Y - 1 && mouseY < row1Y + 15) {
+            graphics.setTooltipForNextFrame(this.font, new ItemStack(nextMainItem), mouseX, mouseY);
+        }
+
+        if (mouseX >= startX && mouseX < startX + 16 && mouseY >= row2Y - 1 && mouseY < row2Y + 15) {
+            graphics.setTooltipForNextFrame(this.font, new ItemStack(bulkItem), mouseX, mouseY);
         }
     }
 

@@ -123,6 +123,26 @@ public class BaseCoreServerLogic {
         if (!(player.containerMenu instanceof BaseCoreMenu menu)) return;
 
         int maxSlots = BaseCoreServerConfig.calculateTotalSlots(coreBE.getTier());
+        int requiredXp = 0;
+
+        for (int i = 0; i < maxSlots; i++) {
+            ItemStack stagedStack = menu.getSlot(i).getItem();
+            if (!stagedStack.isEmpty() && stagedStack.has(ModDataComponents.EFFECT_ID)) {
+                String effectId = stagedStack.get(ModDataComponents.EFFECT_ID);
+                var recipe = com.r3ct.base_core.logic.LecternRecipes.getRecipeById(effectId).orElse(null);
+                if (recipe != null) requiredXp += recipe.xpCost();
+            }
+        }
+
+        if (requiredXp > 0) {
+            if (!player.isCreative() && com.r3ct.base_core.client.screen.ArcaneLecternMenu.getTotalExperience(player) < requiredXp) return;
+            if (!player.isCreative()) {
+                com.r3ct.base_core.client.screen.ArcaneLecternMenu.removeExperience(player, requiredXp);
+            }
+        } else {
+            return;
+        }
+
         boolean appliedAny = false;
 
         for (int i = 0; i < maxSlots; i++) {
@@ -168,6 +188,32 @@ public class BaseCoreServerLogic {
             if (allFull && maxSlots == 4) grantAdvancement(player, "all_slots");
             if (activeEffects.contains("anti_spawn") && activeEffects.contains("anti_explosion")) grantAdvancement(player, "safe_zone");
             if (activeEffects.contains("crop_growth") && activeEffects.contains("anti_trample")) grantAdvancement(player, "farming_combo");
+        }
+    }
+
+    public static void handleRemoveEffectRequest(ServerPlayer player, com.r3ct.base_core.network.RemoveEffectPayload payload) {
+        Level level = player.level();
+        BlockEntity be = level.getBlockEntity(payload.pos());
+        if (!(be instanceof BaseCoreBlockEntity coreBE)) return;
+        if (!coreBE.getOwnerUUID().equals(player.getUUID().toString())) return;
+
+        int slot = payload.slotIndex();
+        if (slot >= 0 && slot < 4) {
+            ItemStack activeStack = coreBE.getItem(slot);
+            if (!activeStack.isEmpty()) {
+                player.getInventory().placeItemBackInInventory(activeStack);
+                coreBE.setItem(slot, ItemStack.EMPTY);
+                coreBE.forceSync();
+
+                try {
+                    UUID ownerId = UUID.fromString(coreBE.getOwnerUUID());
+                    PlayerData data = ModState.getPlayerData(level.getServer(), ownerId);
+                    data.activeSlots = new java.util.ArrayList<>(coreBE.getActiveEffectsFromTomes());
+                    ModState.get(level.getServer()).setDirty();
+                } catch (IllegalArgumentException ignored) {}
+
+                level.playSound(null, payload.pos(), SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1.0f, 1.0f);
+            }
         }
     }
 

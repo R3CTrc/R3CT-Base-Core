@@ -39,14 +39,19 @@ public class BaseCoreMenu extends AbstractContainerMenu {
 
         boolean isClient = playerInventory.player.level().isClientSide();
 
-        int effStartX = 14;
+        int effStartX = 16;
         int effStartY = 105;
         for (int i = 0; i < 4; ++i) {
             final int slotIndex = i;
-            this.addSlot(new Slot(stagingContainer, i, effStartX + (i * 42) + 3, effStartY + 3) {
+            this.addSlot(new Slot(stagingContainer, i, effStartX + (i * 20), effStartY) {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
                     if (!stack.has(ModDataComponents.EFFECT_ID)) return false;
+
+                    net.minecraft.world.level.block.entity.BlockEntity be = playerInventory.player.level().getBlockEntity(getCorePos());
+                    if (be instanceof com.r3ct.base_core.block.BaseCoreBlockEntity coreBE) {
+                        if (!coreBE.getItem(slotIndex).isEmpty()) return false;
+                    }
 
                     String effectId = stack.get(ModDataComponents.EFFECT_ID);
 
