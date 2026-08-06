@@ -23,18 +23,19 @@ public class BaseCoreMenu extends AbstractContainerMenu {
     private final ContainerData data;
     public boolean isOverviewTab = true;
 
-    public final SimpleContainer stagingContainer;
+    private final Container container;
 
     public BaseCoreMenu(int containerId, Inventory playerInventory) {
-        this(containerId, playerInventory, new SimpleContainerData(5));
+        this(containerId, playerInventory, new SimpleContainer(16), new SimpleContainerData(5));
     }
 
-    public BaseCoreMenu(int containerId, Inventory playerInventory, ContainerData data) {
+    public BaseCoreMenu(int containerId, Inventory playerInventory, Container container, ContainerData data) {
         super(ModMenuTypes.BASE_CORE_MENU, containerId);
+        checkContainerSize(container, 16);
         checkContainerDataCount(data, 5);
 
+        this.container = container;
         this.data = data;
-        this.stagingContainer = new SimpleContainer(12);
         this.addDataSlots(data);
 
         boolean isClient = playerInventory.player.level().isClientSide();
@@ -43,7 +44,7 @@ public class BaseCoreMenu extends AbstractContainerMenu {
         int effStartY = 105;
         for (int i = 0; i < 4; ++i) {
             final int slotIndex = i;
-            this.addSlot(new Slot(stagingContainer, i, effStartX + (i * 20), effStartY) {
+            this.addSlot(new Slot(container, i + 4, effStartX + (i * 20), effStartY) {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
                     if (!stack.has(ModDataComponents.EFFECT_ID)) return false;
@@ -80,7 +81,7 @@ public class BaseCoreMenu extends AbstractContainerMenu {
 
         for (int i = 0; i < 4; ++i) {
             final int localI = i;
-            this.addSlot(new Slot(stagingContainer, 4 + i, 80 + (i * 18), 61) {
+            this.addSlot(new Slot(container, i + 8, 80 + (i * 18), 61) {
                 @Override
                 public boolean isActive() {
                     if (isClient && BaseCoreMenu.this.isOverviewTab) return false;
@@ -101,7 +102,7 @@ public class BaseCoreMenu extends AbstractContainerMenu {
 
         for (int i = 0; i < 4; ++i) {
             final int localI = i;
-            this.addSlot(new Slot(stagingContainer, 8 + i, 80 + (i * 18), 83) {
+            this.addSlot(new Slot(container, i + 12, 80 + (i * 18), 83) {
                 @Override
                 public boolean isActive() {
                     if (isClient && BaseCoreMenu.this.isOverviewTab) return false;
@@ -131,7 +132,7 @@ public class BaseCoreMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return true;
+        return this.container.stillValid(player);
     }
 
     @Override
@@ -181,11 +182,5 @@ public class BaseCoreMenu extends AbstractContainerMenu {
             slot.onTake(player, itemstack1);
         }
         return itemstack;
-    }
-
-    @Override
-    public void removed(Player player) {
-        super.removed(player);
-        this.clearContainer(player, this.stagingContainer);
     }
 }

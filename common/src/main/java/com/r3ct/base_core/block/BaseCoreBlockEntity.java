@@ -52,7 +52,7 @@ public class BaseCoreBlockEntity extends BlockEntity implements Container, MenuP
     private int tier = 0;
     private boolean showBorder = false;
 
-    private final NonNullList<ItemStack> items = NonNullList.withSize(4, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> items = NonNullList.withSize(16, ItemStack.EMPTY);
 
     protected final net.minecraft.world.inventory.ContainerData dataAccess = new net.minecraft.world.inventory.ContainerData() {
         @Override
@@ -300,7 +300,7 @@ public class BaseCoreBlockEntity extends BlockEntity implements Container, MenuP
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        return new BaseCoreMenu(containerId, playerInventory, this.dataAccess);
+        return new BaseCoreMenu(containerId, playerInventory, this, this.dataAccess);
     }
 
     @Override

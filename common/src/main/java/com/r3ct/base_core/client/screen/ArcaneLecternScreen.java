@@ -64,10 +64,10 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
             graphics.fill(sx + 16, sy, sx + 17, sy + 16, 0xFFFFFFFF);
         }
 
-        int plusCenterX = this.leftPos + 66 - (this.font.width("+") / 2);
+        int plusCenterX = this.leftPos + 52 - (this.font.width("+") / 2);
         graphics.text(this.font, "+", plusCenterX, this.topPos + 39, 0xFFEFEBE9, false);
 
-        int arrowCenterX = this.leftPos + 103 - (this.font.width("->") / 2);
+        int arrowCenterX = this.leftPos + 110 - (this.font.width("->") / 2);
         graphics.text(this.font, "->", arrowCenterX, this.topPos + 39, 0xFFEFEBE9, false);
 
         int listStartX = panelX + 4;
@@ -156,7 +156,13 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
             Component fullText = Component.empty().append(prefix).append(xpAmount);
 
             int textW = this.font.width(fullText);
-            graphics.text(this.font, fullText, this.leftPos + 125 - (textW / 2), this.topPos + 58, 0xFFFFFFFF, true);
+            int textX = this.leftPos + 146 - (textW / 2);
+
+            if (textX + textW > this.leftPos + this.imageWidth - 6) {
+                textX = this.leftPos + this.imageWidth - 6 - textW;
+            }
+
+            graphics.text(this.font, fullText, textX, this.topPos + 58, 0xFFFFFFFF, true);
         }
 
         super.extractRenderState(graphics, mouseX, mouseY, a);
