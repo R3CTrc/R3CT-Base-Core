@@ -69,7 +69,7 @@ public class BaseCoreBlockItem extends BlockItem {
 
         if (!effects.isEmpty()) {
             builder.accept(Component.empty());
-            builder.accept(Component.literal("Aktywne efekty:").withStyle(ChatFormatting.GRAY));
+            builder.accept(Component.translatable("r3ct_base_core.gui.stats.active_effects").withStyle(ChatFormatting.GRAY));
 
             for (String effectId : effects) {
                 LecternRecipes.getRecipeById(effectId).ifPresent(recipe -> {

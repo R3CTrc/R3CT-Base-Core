@@ -40,10 +40,10 @@ public class EmpoweredTomeItem extends Item {
             LecternRecipes.getRecipeById(effectId).ifPresent(recipe -> {
                 builder.accept(Component.translatable(recipe.descKey()).withStyle(ChatFormatting.GRAY));
                 builder.accept(Component.empty());
-                builder.accept(Component.literal("Moduł Rdzenia Bazy").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC));
+                builder.accept(Component.translatable("item.r3ct_base_core.empowered_tome.module").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC));
             });
         } else {
-            builder.accept(Component.literal("Brak mocy. Pusty moduł.").withStyle(ChatFormatting.DARK_RED));
+            builder.accept(Component.translatable("item.r3ct_base_core.empowered_tome.empty").withStyle(ChatFormatting.DARK_RED));
         }
     }
 

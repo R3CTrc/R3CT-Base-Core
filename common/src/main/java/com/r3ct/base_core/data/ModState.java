@@ -50,7 +50,7 @@ public class ModState extends SavedData {
                     try {
                         state.players.put(UUID.fromString(key), PlayerData.fromNbt(playerDataNbt));
                     } catch (IllegalArgumentException e) {
-                        Constants.LOG.error("Błąd ładowania danych dla UUID: " + key, e);
+                        Constants.LOG.error("Failed to load player data for UUID: " + key, e);
                     }
                 });
             }

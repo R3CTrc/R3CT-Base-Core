@@ -111,7 +111,8 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
             if (recipe.xpCost() > 0) {
                 boolean hasEnoughListXp = this.minecraft.player.isCreative() || ArcaneLecternMenu.getTotalExperience(this.minecraft.player) >= recipe.xpCost();
                 int xpColor = hasEnoughListXp ? 0xFF55FF55 : 0xFFFF5555;
-                graphics.text(this.font, recipe.xpCost() + " XP", listStartX + 89, rowY + 9, xpColor, true);
+                Component costComponent = Component.literal(String.valueOf(recipe.xpCost())).append(" ").append(Component.translatable("r3ct_base_core.gui.xp"));
+                graphics.text(this.font, costComponent, listStartX + 89, rowY + 9, xpColor, true);
             }
 
             if (isHovered) {
@@ -151,8 +152,8 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
         if (currentXpCost > 0) {
             boolean hasEnoughXp = this.minecraft.player.isCreative() || ArcaneLecternMenu.getTotalExperience(this.minecraft.player) >= currentXpCost;
 
-            Component prefix = Component.literal("Koszt: ").withStyle(ChatFormatting.GRAY);
-            Component xpAmount = Component.literal(currentXpCost + " XP").withStyle(hasEnoughXp ? ChatFormatting.GREEN : ChatFormatting.RED);
+            Component prefix = Component.translatable("r3ct_base_core.gui.cost").append(": ").withStyle(ChatFormatting.GRAY);
+            Component xpAmount = Component.literal(String.valueOf(currentXpCost)).append(" ").append(Component.translatable("r3ct_base_core.gui.xp")).withStyle(hasEnoughXp ? ChatFormatting.GREEN : ChatFormatting.RED);
             Component fullText = Component.empty().append(prefix).append(xpAmount);
 
             int textW = this.font.width(fullText);
@@ -203,7 +204,7 @@ public class ArcaneLecternScreen extends AbstractContainerScreen<ArcaneLecternMe
     protected void extractLabels(@NonNull GuiGraphicsExtractor graphics, int xm, int ym) {
         graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFFEFEBE9, true);
         graphics.text(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0xFFEFEBE9, true);
-        graphics.text(this.font, Component.literal("Dostępne Receptury"), -panelW + 6, 6, 0xFFEFEBE9, true);
+        graphics.text(this.font, Component.translatable("r3ct_base_core.gui.available_recipes"), -panelW + 6, 6, 0xFFEFEBE9, true);
     }
 
     @Override

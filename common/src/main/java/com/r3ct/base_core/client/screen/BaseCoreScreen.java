@@ -305,7 +305,7 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
 
         int infoX = this.leftPos + 12;
         int infoY = this.topPos + 22;
-        graphics.text(this.font, Component.literal("Obszar:"), infoX, infoY, 0xFFEFEBE9, true);
+        graphics.text(this.font, Component.translatable("r3ct_base_core.gui.stats.area"), infoX, infoY, 0xFFEFEBE9, true);
 
         int size = 32;
         int boxX = this.leftPos + 20;
@@ -339,8 +339,8 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         graphics.fill(cx - 2, cy - 2, cx + 3, cy + 3, 0xFF8D6E63);
         drawLine(graphics, cx, cy, cx - (size / 2), cy, 0xFF00AA00);
 
-        graphics.text(this.font, currentRange + " blocks", boxX + 58, boxY + 12, 0xFF55FF55, true);
-        graphics.text(this.font, diameterNum + " blocks", boxX + 58, boxY + 28, 0xFFFF5555, true);
+        graphics.text(this.font, currentRange + " " + Component.translatable("r3ct_base_core.gui.stats.blocks").getString(), boxX + 58, boxY + 12, 0xFF55FF55, true);
+        graphics.text(this.font, diameterNum + " " + Component.translatable("r3ct_base_core.gui.stats.blocks").getString(), boxX + 58, boxY + 28, 0xFFFF5555, true);
 
         this.toggleButtonX = this.leftPos + 140;
         this.toggleButtonY = this.topPos + 52;
@@ -358,7 +358,7 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         }
 
         int effectsY = this.topPos + 93;
-        graphics.text(this.font, Component.literal("Efekty:"), infoX, effectsY, 0xFFEFEBE9, true);
+        graphics.text(this.font, Component.translatable("r3ct_base_core.gui.stats.effects"), infoX, effectsY, 0xFFEFEBE9, true);
 
         com.r3ct.base_core.block.BaseCoreBlockEntity coreBE = getCoreEntity();
         int requiredXp = 0;
@@ -420,8 +420,8 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         boolean isBtnHovered = mouseX >= btnX && mouseX < btnX + 60 && mouseY >= btnY && mouseY < btnY + 16;
 
         if (hasStagedEffects) {
-            Component xpText = Component.literal("Koszt: ").withStyle(net.minecraft.ChatFormatting.WHITE)
-                    .append(Component.literal(requiredXp + " XP").withStyle(hasEnoughXp ? net.minecraft.ChatFormatting.GREEN : net.minecraft.ChatFormatting.RED));
+            Component xpText = Component.translatable("r3ct_base_core.gui.cost").append(": ").withStyle(net.minecraft.ChatFormatting.WHITE)
+                    .append(Component.literal(String.valueOf(requiredXp)).append(" ").append(Component.translatable("r3ct_base_core.gui.xp")).withStyle(hasEnoughXp ? net.minecraft.ChatFormatting.GREEN : net.minecraft.ChatFormatting.RED));
 
             centeredText(graphics, xpText, btnX + 30, btnY - 10, 0xFFFFFFFF);
         }
