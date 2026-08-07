@@ -237,7 +237,7 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
                         if (effectId != null) {
                             var recipeOpt = com.r3ct.base_core.logic.LecternRecipes.getRecipeById(effectId);
                             if (recipeOpt.isPresent()) {
-                                requiredXp += recipeOpt.get().xpCost();
+                                requiredXp += BaseCoreServerConfig.calculateActivationCost(recipeOpt.get());
                             }
                         }
                     }
@@ -407,7 +407,7 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
                 if (effectId != null) {
                     var recipeOpt = com.r3ct.base_core.logic.LecternRecipes.getRecipeById(effectId);
                     if (recipeOpt.isPresent()) {
-                        requiredXp += recipeOpt.get().xpCost();
+                        requiredXp += BaseCoreServerConfig.calculateActivationCost(recipeOpt.get());
                     }
                 }
             }

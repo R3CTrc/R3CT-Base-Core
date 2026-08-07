@@ -130,7 +130,7 @@ public class BaseCoreServerLogic {
             if (!stagedStack.isEmpty() && stagedStack.has(ModDataComponents.EFFECT_ID)) {
                 String effectId = stagedStack.get(ModDataComponents.EFFECT_ID);
                 var recipe = com.r3ct.base_core.logic.LecternRecipes.getRecipeById(effectId).orElse(null);
-                if (recipe != null) requiredXp += recipe.xpCost();
+                if (recipe != null) requiredXp += BaseCoreServerConfig.calculateActivationCost(recipe);
             }
         }
 

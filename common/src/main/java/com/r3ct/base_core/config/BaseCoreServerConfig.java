@@ -39,6 +39,12 @@ public class BaseCoreServerConfig {
 
     public int version = CONFIG_VERSION;
 
+    public int activationCostPercentMagic = 75;
+    public int activationCostPercentAlchemy = 50;
+    public int activationCostPercentDarkMagic = 25;
+
+    public int activationCostRounding = 50;
+
     public List<TierUpgrade> tiers = new ArrayList<>();
 
     public List<LecternRecipeDef> lecternRecipes = new ArrayList<>();
@@ -144,6 +150,28 @@ public class BaseCoreServerConfig {
             }
         }
         return totalRange;
+    }
+
+    public static int calculateActivationCost(com.r3ct.base_core.config.LecternRecipeDef recipe) {
+        if (recipe == null) return 0;
+
+        int percent = 0;
+        if (recipe.inputItem().equals("r3ct_base_core:magic_tome")) {
+            percent = instance.activationCostPercentMagic;
+        } else if (recipe.inputItem().equals("r3ct_base_core:alchemy_tome")) {
+            percent = instance.activationCostPercentAlchemy;
+        } else if (recipe.inputItem().equals("r3ct_base_core:dark_magic_tome")) {
+            percent = instance.activationCostPercentDarkMagic;
+        }
+
+        double rawCost = recipe.xpCost() * (percent / 100.0);
+        int roundTo = instance.activationCostRounding;
+
+        if (roundTo <= 1) {
+            return (int) Math.round(rawCost);
+        }
+
+        return (int) (Math.round(rawCost / roundTo) * roundTo);
     }
 
     public static String getServerConfigString() {
