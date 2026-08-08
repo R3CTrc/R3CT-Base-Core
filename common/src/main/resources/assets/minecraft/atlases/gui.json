@@ -2,6 +2,41 @@
   "sources": [
     {
       "type": "single",
+      "resource": "minecraft:item/bone_meal",
+      "sprite": "r3ct_base_core:mob_effect/crop_growth"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:item/slime_ball",
+      "sprite": "r3ct_base_core:mob_effect/anti_trample"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:item/wheat",
+      "sprite": "r3ct_base_core:mob_effect/livestock_boost"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:item/golden_apple",
+      "sprite": "r3ct_base_core:mob_effect/twin_breeding"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:item/redstone",
+      "sprite": "r3ct_base_core:mob_effect/industrial_overclock"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:item/charcoal",
+      "sprite": "r3ct_base_core:mob_effect/fuel_efficiency"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:block/obsidian",
+      "sprite": "r3ct_base_core:mob_effect/anti_explosion"
+    },
+    {
+      "type": "single",
       "resource": "minecraft:item/iron_chestplate",
       "sprite": "r3ct_base_core:mob_effect/pvp_protection"
     },
@@ -17,6 +52,16 @@
     },
     {
       "type": "single",
+      "resource": "minecraft:item/diamond_horse_armor",
+      "sprite": "r3ct_base_core:mob_effect/pet_protection"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:block/cobweb",
+      "sprite": "r3ct_base_core:mob_effect/hostile_slowness"
+    },
+    {
+      "type": "single",
       "resource": "minecraft:item/magma_cream",
       "sprite": "r3ct_base_core:mob_effect/fire_immunity"
     },
@@ -29,6 +74,11 @@
       "type": "single",
       "resource": "minecraft:item/fishing_rod",
       "sprite": "r3ct_base_core:mob_effect/extended_reach"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:block/soul_lantern",
+      "sprite": "r3ct_base_core:mob_effect/anti_spawn"
     },
     {
       "type": "single",

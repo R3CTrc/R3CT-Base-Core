@@ -30,9 +30,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.CropBlock;
-import net.minecraft.world.level.block.StemBlock;
-import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -167,13 +164,11 @@ public class BaseCoreBlockEntity extends BlockEntity implements Container, MenuP
                 case "fire_immunity":
                     if (!playersInRange.isEmpty()) {
                         applyFakeEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.FIRE_IMMUNITY);
-                        applyAuraToPlayers(playersInRange, MobEffects.FIRE_RESISTANCE, 240);
                     }
                     break;
                 case "night_vision":
                     if (!playersInRange.isEmpty()) {
                         applyFakeEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.NIGHT_VISION);
-                        applyAuraToPlayers(playersInRange, MobEffects.NIGHT_VISION, 240);
                     }
                     break;
                 case "satiation":
@@ -243,12 +238,6 @@ public class BaseCoreBlockEntity extends BlockEntity implements Container, MenuP
                 || block instanceof net.minecraft.world.level.block.CocoaBlock
                 || block instanceof net.minecraft.world.level.block.ChorusFlowerBlock
                 || block instanceof net.minecraft.world.level.block.GrowingPlantHeadBlock;
-    }
-
-    private static void applyAuraToPlayers(List<ServerPlayer> players, net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> effect, int duration) {
-        for (ServerPlayer player : players) {
-            player.addEffect(new MobEffectInstance(effect, duration, 0, false, false, false));
-        }
     }
 
     private static void applyFakeEffectToPlayers(List<ServerPlayer> players, net.minecraft.world.effect.MobEffect effect) {

@@ -153,6 +153,8 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         } else if (currentTab == Tab.UPGRADES) {
             renderUpgradesTab(graphics, mouseX, mouseY);
         }
+
+        renderActiveEffectsPanel(graphics, mouseX, mouseY);
     }
 
     private void renderCustomTab(GuiGraphicsExtractor graphics, int x, int y, int width, int height, Component text, boolean isSelected, boolean isHovered) {
@@ -583,6 +585,41 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
             tooltipLines.add(Component.translatable("r3ct_base_core.gui.upgrades.click_to_upgrade").withStyle(net.minecraft.ChatFormatting.GREEN));
         }
         graphics.setComponentTooltipForNextFrame(this.font, tooltipLines, mouseX, mouseY);
+    }
+
+    private void renderActiveEffectsPanel(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        com.r3ct.base_core.block.BaseCoreBlockEntity core = getCoreEntity();
+        if (core == null) return;
+
+        java.util.List<String> activeEffects = core.getActiveEffectsFromTomes();
+        if (activeEffects.isEmpty()) return;
+
+        int panelX = this.leftPos + this.imageWidth + 2;
+        int panelY = this.topPos;
+        int panelWidth = 120;
+        int yStep = 33;
+
+        Identifier bgSprite = Identifier.withDefaultNamespace("container/inventory/effect_background");
+
+        for (int i = 0; i < activeEffects.size(); i++) {
+            String effectId = activeEffects.get(i);
+            int rowY = panelY + (i * yStep);
+
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, bgSprite, panelX, rowY, panelWidth, 32);
+
+            Identifier iconSprite = Identifier.fromNamespaceAndPath("r3ct_base_core", "mob_effect/" + effectId);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, iconSprite, panelX + 7, rowY + 7, 18, 18);
+
+            Component effectName = Component.translatable("r3ct_base_core.effect." + effectId + ".name");
+            graphics.text(this.font, effectName, panelX + 32, rowY + 7, 0xFFFFFF, false);
+
+            graphics.text(this.font, Component.literal("Aktywny"), panelX + 32, rowY + 16, 0xFF808080, false);
+
+            if (mouseX >= panelX && mouseX <= panelX + panelWidth && mouseY >= rowY && mouseY < rowY + 32) {
+                Component effectDesc = Component.translatable("r3ct_base_core.effect." + effectId + ".desc");
+                graphics.setTooltipForNextFrame(this.font, effectDesc, mouseX, mouseY);
+            }
+        }
     }
 
     private void drawPlanks(GuiGraphicsExtractor graphics, int x, int y, int w, int h) {

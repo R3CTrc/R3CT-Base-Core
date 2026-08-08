@@ -11,7 +11,9 @@
     "BrewingFuelEfficiencyMixin",
     "BrewingOverclockMixin",
     "ExtendedReachMixin",
+    "ExtinguishFireMixin",
     "FallResistanceMixin",
+    "FireImmunityMixin",
     "FurnaceFuelEfficiencyMixin",
     "FurnaceOverclockMixin",
     "LivestockAgeMixin",
@@ -21,7 +23,10 @@
     "PvPProtectionMixin",
     "TwinBreedingMixin"
   ],
-  "client": [],
+  "client": [
+    "FogRendererMixin",
+    "LightmapRenderStateExtractorMixin"
+  ],
   "server": [],
   "injectors": {
     "defaultRequire": 1
