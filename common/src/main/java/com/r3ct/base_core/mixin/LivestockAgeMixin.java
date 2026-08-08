@@ -1,7 +1,7 @@
 package com.r3ct.base_core.mixin;
 
-import com.r3ct.base_core.logic.BaseCoreEventLogic;
-import net.minecraft.server.level.ServerLevel;
+import com.r3ct.base_core.registry.ModEffects;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.AgeableMob;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,14 +19,10 @@ public abstract class LivestockAgeMixin {
     @Inject(method = "aiStep", at = @At("HEAD"))
     private void onAiStep(CallbackInfo ci) {
         AgeableMob entity = (AgeableMob) (Object) this;
-        if (entity.level() instanceof ServerLevel serverLevel) {
-            if (this.canAgeUp()) {
-                if (serverLevel.getGameTime() % 4 == 0) {
-                    if (BaseCoreEventLogic.isEffectActiveAt(serverLevel, entity.blockPosition(), "livestock_boost")) {
-                        int currentAge = this.getAge();
-                        this.setAge(currentAge + 1);
-                    }
-                }
+
+        if (!entity.level().isClientSide() && this.canAgeUp() && entity.tickCount % 4 == 0) {
+            if (entity.hasEffect(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(ModEffects.LIVESTOCK_BOOST))) {
+                this.setAge(this.getAge() + 1);
             }
         }
     }

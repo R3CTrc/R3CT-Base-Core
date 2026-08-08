@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.r3ct.base_core.block.BaseCoreBlockEntity;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
+import com.r3ct.base_core.network.SyncCoreStatePayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.ShapeRenderer;
@@ -11,7 +12,6 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.ARGB;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -26,6 +26,16 @@ public class BaseCoreClientLogic {
 
     private static final Set<BaseCoreBlockEntity> TRACKED_CORES = Collections.newSetFromMap(new WeakHashMap<>());
     public static List<AABB> scannerBorders = new ArrayList<>();
+
+    public static boolean clientHasCore = false;
+    public static net.minecraft.core.BlockPos clientCorePos = net.minecraft.core.BlockPos.ZERO;
+    public static String clientCoreDim = "";
+
+    public static void handleCoreStateSync(com.r3ct.base_core.network.SyncCoreStatePayload payload) {
+        clientHasCore = payload.hasCore();
+        clientCorePos = payload.pos();
+        clientCoreDim = payload.dimension();
+    }
 
     public static void trackCore(BaseCoreBlockEntity core) {
         TRACKED_CORES.add(core);
@@ -88,27 +98,5 @@ public class BaseCoreClientLogic {
         }
 
         bufferSource.endBatch(RenderTypes.lines());
-    }
-
-    public static boolean hasNightVisionAura(Player player) {
-        if (!player.level().isClientSide()) return false;
-
-        BlockPos playerPos = player.blockPosition();
-
-        for (BaseCoreBlockEntity core : TRACKED_CORES) {
-            if (core.isRemoved() || core.getLevel() != player.level()) continue;
-
-            int radius = BaseCoreServerConfig.calculateRangeUpToTier(core.getTier());
-
-            if (Math.abs(playerPos.getX() - core.getBlockPos().getX()) <= radius &&
-                    Math.abs(playerPos.getY() - core.getBlockPos().getY()) <= radius &&
-                    Math.abs(playerPos.getZ() - core.getBlockPos().getZ()) <= radius) {
-
-                if (core.getActiveEffectsFromTomes().contains("night_vision")) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 }

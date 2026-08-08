@@ -9,6 +9,7 @@ import com.r3ct.base_core.logic.BaseCoreServerLogic;
 import com.r3ct.base_core.item.BlueprintItem;
 import com.r3ct.base_core.registry.ModDataComponents;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -114,6 +115,10 @@ public class BaseCoreNeoForge {
                 }
             });
         });
+
+        registrar.playToClient(SyncCoreStatePayload.TYPE, SyncCoreStatePayload.CODEC, (payload, context) -> {
+            context.enqueueWork(() -> BaseCoreNeoForgeClient.ClientPayloadHandlers.handleCoreStateSync(payload));
+        });
     }
 
     private void onRegister(RegisterEvent event) {
@@ -125,6 +130,10 @@ public class BaseCoreNeoForge {
             helper.register(Identifier.parse(Constants.MOD_ID + ":night_vision"), com.r3ct.base_core.registry.ModEffects.NIGHT_VISION);
             helper.register(Identifier.parse(Constants.MOD_ID + ":extended_reach"), com.r3ct.base_core.registry.ModEffects.EXTENDED_REACH);
             helper.register(Identifier.parse(Constants.MOD_ID + ":mending_pulse"), com.r3ct.base_core.registry.ModEffects.MENDING_PULSE);
+            helper.register(Identifier.parse(Constants.MOD_ID + ":pet_protection"), com.r3ct.base_core.registry.ModEffects.PET_PROTECTION);
+            helper.register(Identifier.parse(Constants.MOD_ID + ":hostile_slowness"), com.r3ct.base_core.registry.ModEffects.HOSTILE_SLOWNESS);
+            helper.register(Identifier.parse(Constants.MOD_ID + ":livestock_boost"), com.r3ct.base_core.registry.ModEffects.LIVESTOCK_BOOST);
+            helper.register(Identifier.parse(Constants.MOD_ID + ":twin_breeding"), com.r3ct.base_core.registry.ModEffects.TWIN_BREEDING);
         });
 
         event.register(Registries.BLOCK, helper -> {
@@ -177,6 +186,10 @@ public class BaseCoreNeoForge {
         if (event.getEntity() instanceof ServerPlayer player) {
             String serverJson = BaseCoreServerConfig.getServerConfigString();
             PacketDistributor.sendToPlayer(player, new ConfigSyncPayload(serverJson));
+            com.r3ct.base_core.data.PlayerData data = com.r3ct.base_core.data.ModState.getPlayerData(player.level().getServer(), player.getUUID());
+            BlockPos pos = data.hasPlacedCore ? new BlockPos(data.coreX, data.coreY, data.coreZ) : BlockPos.ZERO;
+            String dim = data.hasPlacedCore ? data.coreDimension : "";
+            PacketDistributor.sendToPlayer(player, new SyncCoreStatePayload(data.hasPlacedCore, pos, dim));
         }
     }
 }

@@ -36,13 +36,6 @@ public class BaseCoreEventLogic {
         return false;
     }
 
-    public static boolean shouldCancelPvP(ServerLevel level, net.minecraft.world.entity.player.Player attacker, net.minecraft.world.entity.player.Player target) {
-        boolean attackerInSafeZone = isEffectActiveAt(level, attacker.blockPosition(), "pvp_protection");
-        boolean targetInSafeZone = isEffectActiveAt(level, target.blockPosition(), "pvp_protection");
-
-        return attackerInSafeZone || targetInSafeZone;
-    }
-
     public static boolean isEffectActiveAt(ServerLevel level, BlockPos eventPos, String effectId) {
         ModState state = ModState.get(level.getServer());
         String currentDimension = level.dimension().identifier().toString();

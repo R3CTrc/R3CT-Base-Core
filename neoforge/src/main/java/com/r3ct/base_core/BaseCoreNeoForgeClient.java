@@ -8,6 +8,7 @@ import com.r3ct.base_core.config.BaseCoreClientConfig;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.logic.BaseCoreClientLogic;
 import com.r3ct.base_core.network.ConfigSyncPayload;
+import com.r3ct.base_core.network.SyncCoreStatePayload;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -44,6 +45,7 @@ public class BaseCoreNeoForgeClient {
         @SubscribeEvent
         public static void onClientLoggedOut(ClientPlayerNetworkEvent.LoggingOut event) {
             BaseCoreServerConfig.load();
+            BaseCoreClientLogic.clientHasCore = false;
         }
 
         @SubscribeEvent
@@ -55,6 +57,10 @@ public class BaseCoreNeoForgeClient {
     public static class ClientPayloadHandlers {
         public static void handleConfigSync(ConfigSyncPayload payload) {
             BaseCoreServerConfig.syncFromServer(payload.serverJson());
+        }
+
+        public static void handleCoreStateSync(SyncCoreStatePayload payload) {
+            BaseCoreClientLogic.handleCoreStateSync(payload);
         }
     }
 }

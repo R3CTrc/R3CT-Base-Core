@@ -3,14 +3,11 @@ package com.r3ct.base_core.block;
 import com.r3ct.base_core.data.ModState;
 import com.r3ct.base_core.data.PlayerData;
 import com.r3ct.base_core.logic.BaseCoreServerLogic;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -75,43 +72,6 @@ public class BaseCoreBlock extends Block implements EntityBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        Player player = context.getPlayer();
-        Level level = context.getLevel();
-
-        if (player instanceof ServerPlayer serverPlayer && !level.isClientSide()) {
-            PlayerData data = ModState.getPlayerData(level.getServer(), serverPlayer.getUUID());
-
-            if (data.hasPlacedCore) {
-                ResourceKey<Level> dimKey = ResourceKey.create(Registries.DIMENSION, Identifier.parse(data.coreDimension));
-                ServerLevel targetLevel = level.getServer().getLevel(dimKey);
-                BlockPos targetPos = new BlockPos(data.coreX, data.coreY, data.coreZ);
-
-                boolean coreExists = false;
-
-                if (targetLevel != null) {
-                    if (targetLevel.isLoaded(targetPos)) {
-                        BlockEntity targetBE = targetLevel.getBlockEntity(targetPos);
-                        if (targetBE instanceof BaseCoreBlockEntity coreBE && serverPlayer.getUUID().toString().equals(coreBE.getOwnerUUID())) {
-                            coreExists = true;
-                        }
-                    } else {
-                        coreExists = true;
-                    }
-                }
-
-                if (coreExists) {
-                    serverPlayer.sendSystemMessage(Component.translatable("r3ct_base_core.message.core_exists", data.coreX, data.coreY, data.coreZ, data.coreDimension).withStyle(ChatFormatting.RED), true);
-                    if (targetLevel != null && !targetLevel.isLoaded(targetPos)) {
-                        serverPlayer.sendSystemMessage(Component.translatable("r3ct_base_core.message.core_exists_hint").withStyle(ChatFormatting.GRAY));
-                    }
-                    return null;
-                } else {
-                    data.hasPlacedCore = false;
-                    ModState.get(level.getServer()).setDirty();
-                }
-            }
-        }
-
         return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection());
     }
 
@@ -152,6 +112,10 @@ public class BaseCoreBlock extends Block implements EntityBlock {
 
                 ModState.get(level.getServer()).setDirty();
                 BaseCoreServerLogic.grantAdvancement(player, "root");
+
+                player.connection.send(new ClientboundCustomPayloadPacket(
+                        new com.r3ct.base_core.network.SyncCoreStatePayload(true, pos, data.coreDimension)
+                ));
 
                 level.setBlock(pos, state.setValue(TIER, coreBE.getTier()), 3);
             }
@@ -218,6 +182,13 @@ public class BaseCoreBlock extends Block implements EntityBlock {
                             data.coreTier = 0;
                             data.activeSlots.clear();
                             ModState.get(level.getServer()).setDirty();
+
+                            ServerPlayer ownerPlayer = level.getServer().getPlayerList().getPlayer(ownerId);
+                            if (ownerPlayer != null) {
+                                ownerPlayer.connection.send(new ClientboundCustomPayloadPacket(
+                                        new com.r3ct.base_core.network.SyncCoreStatePayload(false, BlockPos.ZERO, "")
+                                ));
+                            }
                         }
                     } catch (IllegalArgumentException ignored) {}
                 }

@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -61,6 +62,10 @@ public class BaseCoreFabric implements ModInitializer {
 		Registry.register(BuiltInRegistries.MOB_EFFECT, Identifier.parse(Constants.MOD_ID + ":night_vision"), com.r3ct.base_core.registry.ModEffects.NIGHT_VISION);
 		Registry.register(BuiltInRegistries.MOB_EFFECT, Identifier.parse(Constants.MOD_ID + ":extended_reach"), com.r3ct.base_core.registry.ModEffects.EXTENDED_REACH);
 		Registry.register(BuiltInRegistries.MOB_EFFECT, Identifier.parse(Constants.MOD_ID + ":mending_pulse"), com.r3ct.base_core.registry.ModEffects.MENDING_PULSE);
+		Registry.register(BuiltInRegistries.MOB_EFFECT, Identifier.parse(Constants.MOD_ID + ":pet_protection"), com.r3ct.base_core.registry.ModEffects.PET_PROTECTION);
+		Registry.register(BuiltInRegistries.MOB_EFFECT, Identifier.parse(Constants.MOD_ID + ":hostile_slowness"), com.r3ct.base_core.registry.ModEffects.HOSTILE_SLOWNESS);
+		Registry.register(BuiltInRegistries.MOB_EFFECT, Identifier.parse(Constants.MOD_ID + ":livestock_boost"), com.r3ct.base_core.registry.ModEffects.LIVESTOCK_BOOST);
+		Registry.register(BuiltInRegistries.MOB_EFFECT, Identifier.parse(Constants.MOD_ID + ":twin_breeding"), com.r3ct.base_core.registry.ModEffects.TWIN_BREEDING);
 
 		Registry.register(BuiltInRegistries.BLOCK, ModBlocks.BASE_CORE_KEY, ModBlocks.BASE_CORE);
 		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":base_core"), BASE_CORE_ITEM);
@@ -106,6 +111,7 @@ public class BaseCoreFabric implements ModInitializer {
 		PayloadTypeRegistry.serverboundPlay().register(LecternAutoFillPayload.TYPE, LecternAutoFillPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ApplyEffectsPayload.TYPE, ApplyEffectsPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(RemoveEffectPayload.TYPE, RemoveEffectPayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(SyncCoreStatePayload.TYPE, SyncCoreStatePayload.CODEC);
 
 		ServerPlayNetworking.registerGlobalReceiver(UpgradeBaseCorePayload.TYPE, (payload, context) -> {
 			context.server().execute(() -> {
@@ -139,6 +145,10 @@ public class BaseCoreFabric implements ModInitializer {
 			ServerPlayer player = handler.getPlayer();
 			String serverJson = BaseCoreServerConfig.getServerConfigString();
 			ServerPlayNetworking.send(player, new ConfigSyncPayload(serverJson));
+			com.r3ct.base_core.data.PlayerData data = com.r3ct.base_core.data.ModState.getPlayerData(server, player.getUUID());
+			BlockPos pos = data.hasPlacedCore ? new BlockPos(data.coreX, data.coreY, data.coreZ) : BlockPos.ZERO;
+			String dim = data.hasPlacedCore ? data.coreDimension : "";
+			ServerPlayNetworking.send(player, new SyncCoreStatePayload(data.hasPlacedCore, pos, dim));
 		});
 	}
 }

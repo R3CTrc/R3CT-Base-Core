@@ -23,7 +23,19 @@ public class EmpoweredTomeItem extends Item {
 
         if (effectId != null) {
             return LecternRecipes.getRecipeById(effectId)
-                    .map(recipe -> Component.translatable("r3ct_base_core.tome." + recipe.effectId()).withStyle(ChatFormatting.GOLD))
+                    .map(recipe -> {
+                        ChatFormatting color = ChatFormatting.GOLD;
+
+                        if ("r3ct_base_core:magic_tome".equals(recipe.inputItem())) {
+                            color = ChatFormatting.AQUA;
+                        } else if ("r3ct_base_core:alchemy_tome".equals(recipe.inputItem())) {
+                            color = ChatFormatting.GREEN;
+                        } else if ("r3ct_base_core:dark_magic_tome".equals(recipe.inputItem())) {
+                            color = ChatFormatting.LIGHT_PURPLE;
+                        }
+
+                        return Component.translatable("r3ct_base_core.tome." + recipe.effectId()).withStyle(color);
+                    })
                     .orElse(Component.translatable("item.r3ct_base_core.empowered_tome"));
         }
 

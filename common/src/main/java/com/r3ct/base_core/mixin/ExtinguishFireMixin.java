@@ -1,6 +1,7 @@
 package com.r3ct.base_core.mixin;
 
-import com.r3ct.base_core.logic.BaseCoreEventLogic;
+import com.r3ct.base_core.registry.ModEffects;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -22,37 +23,20 @@ public abstract class ExtinguishFireMixin extends Entity {
         super(entityType, level);
     }
 
-    @Unique
-    private boolean baseCore$isTamedPet() {
-        LivingEntity entity = (LivingEntity) (Object) this;
-        if (entity instanceof TamableAnimal tamable) {
-            return tamable.isTame();
-        }
-        if (entity instanceof AbstractHorse horse) {
-            return horse.isTamed();
-        }
-        if (entity instanceof net.minecraft.world.entity.animal.happyghast.HappyGhast) {
-            return true;
-        }
-        return false;
-    }
-
     @Inject(method = "baseTick", at = @At("HEAD"))
     private void onBaseTick(CallbackInfo ci) {
         if (!this.level().isClientSide() && this.isOnFire() && this.level() instanceof ServerLevel serverLevel) {
             LivingEntity entity = (LivingEntity) (Object) this;
 
-            if (entity instanceof Player) {
-                if (BaseCoreEventLogic.isEffectActiveAt(serverLevel, entity.blockPosition(), "fire_immunity")) {
+            if (entity instanceof Player player) {
+                if (player.hasEffect(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(ModEffects.FIRE_IMMUNITY))) {
                     this.clearFire();
                     return;
                 }
             }
 
-            if (this.baseCore$isTamedPet()) {
-                if (BaseCoreEventLogic.isEffectActiveAt(serverLevel, entity.blockPosition(), "pet_protection")) {
-                    this.clearFire();
-                }
+            if (entity.hasEffect(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(ModEffects.PET_PROTECTION))) {
+                this.clearFire();
             }
         }
     }

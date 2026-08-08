@@ -1,6 +1,7 @@
 package com.r3ct.base_core.mixin;
 
-import com.r3ct.base_core.logic.BaseCoreEventLogic;
+import com.r3ct.base_core.registry.ModEffects;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -17,8 +18,9 @@ public class PvPProtectionMixin {
     @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
     private void onAttack(Entity target, CallbackInfo ci) {
         Player attacker = (Player) (Object) this;
-        if (attacker.level() instanceof ServerLevel serverLevel && target instanceof Player targetPlayer) {
-            if (BaseCoreEventLogic.shouldCancelPvP(serverLevel, attacker, targetPlayer)) {
+        if (target instanceof Player targetPlayer) {
+            if (attacker.hasEffect(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(ModEffects.PVP_PROTECTION)) ||
+                    targetPlayer.hasEffect(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(ModEffects.PVP_PROTECTION))) {
                 ci.cancel();
             }
         }
@@ -29,7 +31,8 @@ public class PvPProtectionMixin {
         Player targetPlayer = (Player) (Object) this;
         Entity attacker = source.getEntity();
         if (attacker instanceof Player attackerPlayer && attackerPlayer != targetPlayer) {
-            if (BaseCoreEventLogic.shouldCancelPvP(level, attackerPlayer, targetPlayer)) {
+            if (attackerPlayer.hasEffect(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(ModEffects.PVP_PROTECTION)) ||
+                    targetPlayer.hasEffect(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(ModEffects.PVP_PROTECTION))) {
                 cir.setReturnValue(false);
             }
         }

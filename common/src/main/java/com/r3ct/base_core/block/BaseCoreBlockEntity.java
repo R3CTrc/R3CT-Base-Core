@@ -147,33 +147,30 @@ public class BaseCoreBlockEntity extends BlockEntity implements Container, MenuP
         int radius = BaseCoreServerConfig.calculateRangeUpToTier(entity.tier);
         AABB boundingBox = new AABB(pos).inflate(radius);
         List<ServerPlayer> playersInRange = level.getEntitiesOfClass(ServerPlayer.class, boundingBox);
-
         List<String> activeEffects = entity.getActiveEffectsFromTomes();
+
+        boolean isBeaconTick = (entity.tickCounter % 80 == 0);
 
         for (String effectId : activeEffects) {
             switch (effectId) {
                 case "pvp_protection":
-                    if (!playersInRange.isEmpty()) applyFakeEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.PVP_PROTECTION);
+                    if (isBeaconTick) applyRealEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.PVP_PROTECTION);
                     break;
                 case "fall_resistance":
-                    if (!playersInRange.isEmpty()) applyFakeEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.FALL_RESISTANCE);
+                    if (isBeaconTick) applyRealEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.FALL_RESISTANCE);
                     break;
                 case "extended_reach":
-                    if (!playersInRange.isEmpty()) applyFakeEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.EXTENDED_REACH);
+                    if (isBeaconTick) applyRealEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.EXTENDED_REACH);
                     break;
                 case "fire_immunity":
-                    if (!playersInRange.isEmpty()) {
-                        applyFakeEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.FIRE_IMMUNITY);
-                    }
+                    if (isBeaconTick) applyRealEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.FIRE_IMMUNITY);
                     break;
                 case "night_vision":
-                    if (!playersInRange.isEmpty()) {
-                        applyFakeEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.NIGHT_VISION);
-                    }
+                    if (isBeaconTick) applyRealEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.NIGHT_VISION);
                     break;
                 case "satiation":
+                    if (isBeaconTick) applyRealEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.SATIATION);
                     if (!playersInRange.isEmpty()) {
-                        applyFakeEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.SATIATION);
                         for (ServerPlayer player : playersInRange) {
                             float currentSat = player.getFoodData().getSaturationLevel();
                             if (currentSat < 1.0f) {
@@ -183,20 +180,33 @@ public class BaseCoreBlockEntity extends BlockEntity implements Container, MenuP
                     }
                     break;
                 case "mending_pulse":
-                    if (!playersInRange.isEmpty()) {
-                        applyFakeEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.MENDING_PULSE);
-                        if (entity.tickCounter % 100 == 0) {
-                            applyMendingPulse(level, playersInRange);
-                        }
+                    if (isBeaconTick) applyRealEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.MENDING_PULSE);
+                    if (!playersInRange.isEmpty() && entity.tickCounter % 100 == 0) {
+                        applyMendingPulse(level, playersInRange);
                     }
                     break;
-
+                case "pet_protection":
+                    if (isBeaconTick) {
+                        List<net.minecraft.world.entity.LivingEntity> pets = getTamedPetsInRange(level, boundingBox);
+                        applyRealEffectToEntities(pets, com.r3ct.base_core.registry.ModEffects.PET_PROTECTION);
+                    }
+                    break;
                 case "hostile_slowness":
-                    List<net.minecraft.world.entity.monster.Monster> monsters = level.getEntitiesOfClass(net.minecraft.world.entity.monster.Monster.class, boundingBox);
-                    if (!monsters.isEmpty()) {
-                        for (net.minecraft.world.entity.monster.Monster monster : monsters) {
-                            monster.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 240, 1, true, false, true));
-                        }
+                    if (isBeaconTick) {
+                        List<net.minecraft.world.entity.monster.Monster> monsters = level.getEntitiesOfClass(net.minecraft.world.entity.monster.Monster.class, boundingBox);
+                        applyRealEffectToEntities(monsters, com.r3ct.base_core.registry.ModEffects.HOSTILE_SLOWNESS);
+                    }
+                    break;
+                case "livestock_boost":
+                    if (isBeaconTick) {
+                        List<net.minecraft.world.entity.animal.Animal> animals = level.getEntitiesOfClass(net.minecraft.world.entity.animal.Animal.class, boundingBox);
+                        applyRealEffectToEntities(animals, com.r3ct.base_core.registry.ModEffects.LIVESTOCK_BOOST);
+                    }
+                    break;
+                case "twin_breeding":
+                    if (isBeaconTick) {
+                        List<net.minecraft.world.entity.animal.Animal> animals = level.getEntitiesOfClass(net.minecraft.world.entity.animal.Animal.class, boundingBox);
+                        applyRealEffectToEntities(animals, com.r3ct.base_core.registry.ModEffects.TWIN_BREEDING);
                     }
                     break;
                 case "crop_growth":
@@ -240,11 +250,32 @@ public class BaseCoreBlockEntity extends BlockEntity implements Container, MenuP
                 || block instanceof net.minecraft.world.level.block.GrowingPlantHeadBlock;
     }
 
-    private static void applyFakeEffectToPlayers(List<ServerPlayer> players, net.minecraft.world.effect.MobEffect effect) {
+    private static void applyRealEffectToPlayers(List<ServerPlayer> players, net.minecraft.world.effect.MobEffect effect) {
         net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> registeredHolder = net.minecraft.core.registries.BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect);
         for (ServerPlayer player : players) {
-            player.addEffect(new MobEffectInstance(registeredHolder, 240, 0, false, false, true));
+            player.addEffect(new MobEffectInstance(registeredHolder, 200, 0, true, true, true));
         }
+    }
+
+    private static void applyRealEffectToEntities(List<? extends net.minecraft.world.entity.LivingEntity> entities, net.minecraft.world.effect.MobEffect effect) {
+        net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> registeredHolder = net.minecraft.core.registries.BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect);
+        for (net.minecraft.world.entity.LivingEntity entity : entities) {
+            entity.addEffect(new MobEffectInstance(registeredHolder, 200, 0, true, true, true));
+        }
+    }
+
+    private static List<net.minecraft.world.entity.LivingEntity> getTamedPetsInRange(Level level, AABB box) {
+        List<net.minecraft.world.entity.LivingEntity> pets = new ArrayList<>();
+        for (net.minecraft.world.entity.LivingEntity entity : level.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class, box)) {
+            if (entity instanceof net.minecraft.world.entity.TamableAnimal tamable && tamable.isTame()) {
+                pets.add(entity);
+            } else if (entity instanceof net.minecraft.world.entity.animal.equine.AbstractHorse horse && horse.isTamed()) {
+                pets.add(entity);
+            } else if (entity instanceof net.minecraft.world.entity.animal.happyghast.HappyGhast) {
+                pets.add(entity);
+            }
+        }
+        return pets;
     }
 
     private static void applyMendingPulse(Level level, List<ServerPlayer> players) {

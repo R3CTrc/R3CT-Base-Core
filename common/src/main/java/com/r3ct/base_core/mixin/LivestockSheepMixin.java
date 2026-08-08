@@ -1,7 +1,7 @@
 package com.r3ct.base_core.mixin;
 
-import com.r3ct.base_core.logic.BaseCoreEventLogic;
-import net.minecraft.server.level.ServerLevel;
+import com.r3ct.base_core.registry.ModEffects;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.animal.sheep.Sheep;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,12 +18,10 @@ public abstract class LivestockSheepMixin {
     @Inject(method = "aiStep", at = @At("HEAD"))
     private void onAiStep(CallbackInfo ci) {
         Sheep sheep = (Sheep) (Object) this;
-        if (sheep.level() instanceof ServerLevel serverLevel) {
-            if (this.isSheared() && !sheep.isBaby()) {
-                if (serverLevel.getRandom().nextInt(4000) == 0) {
-                    if (BaseCoreEventLogic.isEffectActiveAt(serverLevel, sheep.blockPosition(), "livestock_boost")) {
-                        this.setSheared(false);
-                    }
+        if (!sheep.level().isClientSide() && this.isSheared() && !sheep.isBaby()) {
+            if (sheep.getRandom().nextInt(4000) == 0) {
+                if (sheep.hasEffect(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(ModEffects.LIVESTOCK_BOOST))) {
+                    this.setSheared(false);
                 }
             }
         }

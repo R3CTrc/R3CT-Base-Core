@@ -1,6 +1,7 @@
 package com.r3ct.base_core.mixin;
 
-import com.r3ct.base_core.logic.BaseCoreEventLogic;
+import com.r3ct.base_core.registry.ModEffects;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.animal.Animal;
@@ -17,16 +18,14 @@ public class TwinBreedingMixin {
         Animal parent = (Animal) (Object) this;
 
         if (parent.getRandom().nextFloat() < 0.25f) {
-
-            if (BaseCoreEventLogic.isEffectActiveAt(level, parent.blockPosition(), "twin_breeding")) {
+            if (parent.hasEffect(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(ModEffects.TWIN_BREEDING)) ||
+                    mate.hasEffect(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(ModEffects.TWIN_BREEDING))) {
 
                 AgeableMob twin = parent.getBreedOffspring(level, mate);
 
                 if (twin != null) {
                     twin.setBaby(true);
-
                     twin.snapTo(parent.getX(), parent.getY(), parent.getZ(), 0.0F, 0.0F);
-
                     level.addFreshEntityWithPassengers(twin);
                 }
             }
