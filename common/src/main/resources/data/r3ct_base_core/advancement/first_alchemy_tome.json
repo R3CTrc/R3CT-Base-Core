@@ -1,0 +1,13 @@
+{
+  "parent": "r3ct_base_core:craft_arcane_lectern",
+  "display": {
+    "icon": { "id": "minecraft:brewing_stand" },
+    "title": { "translate": "r3ct_base_core.advancement.first_alchemy_tome.title" },
+    "description": { "translate": "r3ct_base_core.advancement.first_alchemy_tome.desc" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": { "unlocked": { "trigger": "minecraft:impossible" } }
+}

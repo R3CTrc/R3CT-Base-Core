@@ -1,0 +1,20 @@
+{
+  "parent": "r3ct_base_core:root",
+  "display": {
+    "icon": { "id": "r3ct_base_core:base_core" },
+    "title": { "translate": "r3ct_base_core.advancement.craft_base_core.title" },
+    "description": { "translate": "r3ct_base_core.advancement.craft_base_core.desc" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_base_core": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [ { "items": "r3ct_base_core:base_core" } ]
+      }
+    }
+  }
+}

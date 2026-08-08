@@ -1,5 +1,5 @@
 {
-  "parent": "r3ct_base_core:root",
+  "parent": "r3ct_base_core:craft_base_core",
   "display": {
     "icon": { "id": "minecraft:redstone_torch" },
     "title": { "translate": "r3ct_base_core.advancement.first_upgrade.title" },

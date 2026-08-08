@@ -186,9 +186,12 @@ public class BaseCoreServerLogic {
             }
 
             if (allFull && maxSlots == 4) grantAdvancement(player, "all_slots");
-            if (activeEffects.contains("anti_spawn") && activeEffects.contains("anti_explosion")) grantAdvancement(player, "safe_zone");
-            if (activeEffects.contains("crop_growth") && activeEffects.contains("anti_trample")) grantAdvancement(player, "farming_combo");
             if (!activeEffects.isEmpty()) grantAdvancement(player, "first_effect");
+            if (activeEffects.contains("crop_growth") && activeEffects.contains("anti_trample")) grantAdvancement(player, "farming_combo");
+            if (activeEffects.contains("industrial_overclock") && activeEffects.contains("fuel_efficiency")) grantAdvancement(player, "industrial_and_fuel");
+            if (activeEffects.contains("livestock_boost") && activeEffects.contains("twin_breeding")) grantAdvancement(player, "breeding_and_growth");
+            if (activeEffects.contains("anti_explosion") && activeEffects.contains("hostile_slowness")) grantAdvancement(player, "pacified_base");
+            if (activeEffects.contains("anti_explosion") && activeEffects.contains("hostile_slowness") && activeEffects.contains("anti_spawn")) grantAdvancement(player, "absolute_defense");
         }
     }
 

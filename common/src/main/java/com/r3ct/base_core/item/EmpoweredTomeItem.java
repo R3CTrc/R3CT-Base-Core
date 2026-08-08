@@ -23,7 +23,7 @@ public class EmpoweredTomeItem extends Item {
 
         if (effectId != null) {
             return LecternRecipes.getRecipeById(effectId)
-                    .map(recipe -> Component.translatable(recipe.nameKey()).withStyle(ChatFormatting.GOLD))
+                    .map(recipe -> Component.translatable("r3ct_base_core.tome." + recipe.effectId()).withStyle(ChatFormatting.GOLD))
                     .orElse(Component.translatable("item.r3ct_base_core.empowered_tome"));
         }
 

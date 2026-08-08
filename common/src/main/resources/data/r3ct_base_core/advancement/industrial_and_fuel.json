@@ -1,0 +1,13 @@
+{
+  "parent": "r3ct_base_core:first_effect",
+  "display": {
+    "icon": { "id": "minecraft:blast_furnace" },
+    "title": { "translate": "r3ct_base_core.advancement.industrial_and_fuel.title" },
+    "description": { "translate": "r3ct_base_core.advancement.industrial_and_fuel.desc" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": { "unlocked": { "trigger": "minecraft:impossible" } }
+}

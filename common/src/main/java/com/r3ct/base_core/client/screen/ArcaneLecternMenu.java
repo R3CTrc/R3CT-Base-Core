@@ -74,6 +74,31 @@ public class ArcaneLecternMenu extends AbstractContainerMenu {
                     }
                     player.level().playSound(null, player.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 1.0f, 1.0f);
                 }
+
+                if (!player.level().isClientSide() && player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                    String effectId = stack.get(ModDataComponents.EFFECT_ID);
+                    if (effectId != null) {
+                        net.minecraft.resources.Identifier advancementId = null;
+
+                        if (java.util.List.of("crop_growth", "anti_trample", "livestock_boost", "twin_breeding", "industrial_overclock", "fuel_efficiency", "anti_explosion", "pvp_protection").contains(effectId)) {
+                            advancementId = net.minecraft.resources.Identifier.parse("r3ct_base_core:first_magic_tome");
+                        }
+                        else if (java.util.List.of("fall_resistance", "satiation", "pet_protection", "hostile_slowness", "fire_immunity", "night_vision").contains(effectId)) {
+                            advancementId = net.minecraft.resources.Identifier.parse("r3ct_base_core:first_alchemy_tome");
+                        }
+                        else if (java.util.List.of("extended_reach", "anti_spawn", "mending_pulse").contains(effectId)) {
+                            advancementId = net.minecraft.resources.Identifier.parse("r3ct_base_core:first_dark_magic_tome");
+                        }
+
+                        if (advancementId != null) {
+                            net.minecraft.advancements.AdvancementHolder advancement = serverPlayer.level().getServer().getAdvancements().get(advancementId);
+                            if (advancement != null) {
+                                serverPlayer.getAdvancements().award(advancement, "unlocked");
+                            }
+                        }
+                    }
+                }
+
                 updateCraftingResult();
                 super.onTake(player, stack);
             }

@@ -1,0 +1,13 @@
+{
+  "parent": "r3ct_base_core:craft_arcane_lectern",
+  "display": {
+    "icon": { "id": "minecraft:enchanted_book" },
+    "title": { "translate": "r3ct_base_core.advancement.first_magic_tome.title" },
+    "description": { "translate": "r3ct_base_core.advancement.first_magic_tome.desc" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": { "unlocked": { "trigger": "minecraft:impossible" } }
+}

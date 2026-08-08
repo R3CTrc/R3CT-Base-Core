@@ -1,0 +1,13 @@
+{
+  "parent": "r3ct_base_core:pacified_base",
+  "display": {
+    "icon": { "id": "minecraft:soul_lantern" },
+    "title": { "translate": "r3ct_base_core.advancement.absolute_defense.title" },
+    "description": { "translate": "r3ct_base_core.advancement.absolute_defense.desc" },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": { "unlocked": { "trigger": "minecraft:impossible" } }
+}

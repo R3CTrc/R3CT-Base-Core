@@ -210,7 +210,19 @@ public class BaseCoreBlockEntity extends BlockEntity implements Container, MenuP
 
     private static boolean isCrop(BlockState state) {
         var block = state.getBlock();
-        return block instanceof CropBlock || block instanceof StemBlock || block instanceof SweetBerryBushBlock;
+        return block instanceof net.minecraft.world.level.block.CropBlock
+                || block instanceof net.minecraft.world.level.block.StemBlock
+                || block instanceof net.minecraft.world.level.block.SweetBerryBushBlock
+                || block instanceof net.minecraft.world.level.block.SaplingBlock
+                || block instanceof net.minecraft.world.level.block.SugarCaneBlock
+                || block instanceof net.minecraft.world.level.block.CactusBlock
+                || block instanceof net.minecraft.world.level.block.BambooStalkBlock
+                || block instanceof net.minecraft.world.level.block.BambooSaplingBlock
+                || block instanceof net.minecraft.world.level.block.PitcherCropBlock
+                || block instanceof net.minecraft.world.level.block.NetherWartBlock
+                || block instanceof net.minecraft.world.level.block.CocoaBlock
+                || block instanceof net.minecraft.world.level.block.ChorusFlowerBlock
+                || block instanceof net.minecraft.world.level.block.GrowingPlantHeadBlock;
     }
 
     private static void applyAuraToPlayers(List<ServerPlayer> players, net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> effect, int duration) {
