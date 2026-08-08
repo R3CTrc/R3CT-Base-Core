@@ -47,6 +47,7 @@ public class BaseCoreBlockItem extends BlockItem {
                 }
             }
             else if (player instanceof ServerPlayer serverPlayer) {
+                ModState state = ModState.get(level.getServer());
                 PlayerData data = ModState.getPlayerData(level.getServer(), serverPlayer.getUUID());
 
                 if (data.hasPlacedCore) {
@@ -74,11 +75,41 @@ public class BaseCoreBlockItem extends BlockItem {
                         return InteractionResult.FAIL;
                     } else {
                         data.hasPlacedCore = false;
-                        ModState.get(level.getServer()).setDirty();
+                        state.setDirty();
 
                         serverPlayer.connection.send(new ClientboundCustomPayloadPacket(
                                 new com.r3ct.base_core.network.SyncCoreStatePayload(false, BlockPos.ZERO, "")
                         ));
+                    }
+                }
+
+                boolean preventInside = BaseCoreServerConfig.getInstance().preventPlacementInsideOtherBase;
+                boolean preventOverlap = BaseCoreServerConfig.getInstance().preventOverlappingBases;
+
+                if (preventInside || preventOverlap) {
+                    BlockPos clickPos = context.getClickedPos();
+                    String currentDim = level.dimension().identifier().toString();
+                    int maxRadius = BaseCoreServerConfig.calculateRangeUpToTier(11);
+
+                    for (PlayerData otherData : state.players.values()) {
+                        if (otherData.hasPlacedCore && currentDim.equals(otherData.coreDimension)) {
+                            double dx = otherData.coreX - clickPos.getX();
+                            double dz = otherData.coreZ - clickPos.getZ();
+                            double dist = Math.sqrt(dx * dx + dz * dz);
+
+                            if (preventOverlap) {
+                                if (dist <= (maxRadius * 2)) {
+                                    serverPlayer.sendSystemMessage(Component.translatable("r3ct_base_core.message.overlap_error").withStyle(ChatFormatting.RED));
+                                    return InteractionResult.FAIL;
+                                }
+                            }
+                            else if (preventInside) {
+                                if (dist <= maxRadius) {
+                                    serverPlayer.sendSystemMessage(Component.translatable("r3ct_base_core.message.inside_error").withStyle(ChatFormatting.RED));
+                                    return InteractionResult.FAIL;
+                                }
+                            }
+                        }
                     }
                 }
             }

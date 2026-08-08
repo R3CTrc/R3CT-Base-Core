@@ -45,8 +45,10 @@ public class BaseCoreServerConfig {
 
     public int activationCostRounding = 50;
 
-    public List<TierUpgrade> tiers = new ArrayList<>();
+    public boolean preventPlacementInsideOtherBase = true;
+    public boolean preventOverlappingBases = false;
 
+    public List<TierUpgrade> tiers = new ArrayList<>();
     public List<LecternRecipeDef> lecternRecipes = new ArrayList<>();
 
     private static BaseCoreServerConfig instance = new BaseCoreServerConfig();
