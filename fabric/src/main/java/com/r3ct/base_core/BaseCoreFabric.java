@@ -54,6 +54,14 @@ public class BaseCoreFabric implements ModInitializer {
 		ModDataComponents.init();
 		BaseCoreServerConfig.load();
 
+		Registry.register(BuiltInRegistries.MOB_EFFECT, Identifier.parse(Constants.MOD_ID + ":pvp_protection"), com.r3ct.base_core.registry.ModEffects.PVP_PROTECTION);
+		Registry.register(BuiltInRegistries.MOB_EFFECT, Identifier.parse(Constants.MOD_ID + ":fall_resistance"), com.r3ct.base_core.registry.ModEffects.FALL_RESISTANCE);
+		Registry.register(BuiltInRegistries.MOB_EFFECT, Identifier.parse(Constants.MOD_ID + ":satiation"), com.r3ct.base_core.registry.ModEffects.SATIATION);
+		Registry.register(BuiltInRegistries.MOB_EFFECT, Identifier.parse(Constants.MOD_ID + ":fire_immunity"), com.r3ct.base_core.registry.ModEffects.FIRE_IMMUNITY);
+		Registry.register(BuiltInRegistries.MOB_EFFECT, Identifier.parse(Constants.MOD_ID + ":night_vision"), com.r3ct.base_core.registry.ModEffects.NIGHT_VISION);
+		Registry.register(BuiltInRegistries.MOB_EFFECT, Identifier.parse(Constants.MOD_ID + ":extended_reach"), com.r3ct.base_core.registry.ModEffects.EXTENDED_REACH);
+		Registry.register(BuiltInRegistries.MOB_EFFECT, Identifier.parse(Constants.MOD_ID + ":mending_pulse"), com.r3ct.base_core.registry.ModEffects.MENDING_PULSE);
+
 		Registry.register(BuiltInRegistries.BLOCK, ModBlocks.BASE_CORE_KEY, ModBlocks.BASE_CORE);
 		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":base_core"), BASE_CORE_ITEM);
 		Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, ModBlocks.BASE_CORE_BE_KEY, ModBlocks.BASE_CORE_BE_TYPE);

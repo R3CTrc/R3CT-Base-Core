@@ -155,27 +155,52 @@ public class BaseCoreBlockEntity extends BlockEntity implements Container, MenuP
 
         for (String effectId : activeEffects) {
             switch (effectId) {
+                case "pvp_protection":
+                    if (!playersInRange.isEmpty()) applyFakeEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.PVP_PROTECTION);
+                    break;
+                case "fall_resistance":
+                    if (!playersInRange.isEmpty()) applyFakeEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.FALL_RESISTANCE);
+                    break;
+                case "extended_reach":
+                    if (!playersInRange.isEmpty()) applyFakeEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.EXTENDED_REACH);
+                    break;
                 case "fire_immunity":
-                    if (!playersInRange.isEmpty()) applyAuraToPlayers(playersInRange, MobEffects.FIRE_RESISTANCE, 240);
+                    if (!playersInRange.isEmpty()) {
+                        applyFakeEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.FIRE_IMMUNITY);
+                        applyAuraToPlayers(playersInRange, MobEffects.FIRE_RESISTANCE, 240);
+                    }
                     break;
                 case "night_vision":
-                    if (!playersInRange.isEmpty()) applyAuraToPlayers(playersInRange, MobEffects.NIGHT_VISION, 240);
-                    break;
-                case "hostile_slowness":
-                    List<net.minecraft.world.entity.monster.Monster> monsters = level.getEntitiesOfClass(net.minecraft.world.entity.monster.Monster.class, boundingBox);
-                    if (!monsters.isEmpty()) {
-                        for (net.minecraft.world.entity.monster.Monster monster : monsters) {
-                            monster.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 240, 1, true, false, true));
-                        }
+                    if (!playersInRange.isEmpty()) {
+                        applyFakeEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.NIGHT_VISION);
+                        applyAuraToPlayers(playersInRange, MobEffects.NIGHT_VISION, 240);
                     }
                     break;
                 case "satiation":
                     if (!playersInRange.isEmpty()) {
+                        applyFakeEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.SATIATION);
                         for (ServerPlayer player : playersInRange) {
                             float currentSat = player.getFoodData().getSaturationLevel();
                             if (currentSat < 1.0f) {
                                 player.getFoodData().setSaturation(Math.min(1.0f, currentSat + 0.05f));
                             }
+                        }
+                    }
+                    break;
+                case "mending_pulse":
+                    if (!playersInRange.isEmpty()) {
+                        applyFakeEffectToPlayers(playersInRange, com.r3ct.base_core.registry.ModEffects.MENDING_PULSE);
+                        if (entity.tickCounter % 100 == 0) {
+                            applyMendingPulse(level, playersInRange);
+                        }
+                    }
+                    break;
+
+                case "hostile_slowness":
+                    List<net.minecraft.world.entity.monster.Monster> monsters = level.getEntitiesOfClass(net.minecraft.world.entity.monster.Monster.class, boundingBox);
+                    if (!monsters.isEmpty()) {
+                        for (net.minecraft.world.entity.monster.Monster monster : monsters) {
+                            monster.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 240, 1, true, false, true));
                         }
                     }
                     break;
@@ -197,11 +222,6 @@ public class BaseCoreBlockEntity extends BlockEntity implements Container, MenuP
                                         rx + 0.5, ry + 0.5, rz + 0.5, 1, 0.2, 0.2, 0.2, 0.0);
                             }
                         }
-                    }
-                    break;
-                case "mending_pulse":
-                    if (entity.tickCounter % 100 == 0 && !playersInRange.isEmpty()) {
-                        applyMendingPulse(level, playersInRange);
                     }
                     break;
             }
@@ -227,7 +247,14 @@ public class BaseCoreBlockEntity extends BlockEntity implements Container, MenuP
 
     private static void applyAuraToPlayers(List<ServerPlayer> players, net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> effect, int duration) {
         for (ServerPlayer player : players) {
-            player.addEffect(new MobEffectInstance(effect, duration, 0, true, false, true));
+            player.addEffect(new MobEffectInstance(effect, duration, 0, false, false, false));
+        }
+    }
+
+    private static void applyFakeEffectToPlayers(List<ServerPlayer> players, net.minecraft.world.effect.MobEffect effect) {
+        net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> registeredHolder = net.minecraft.core.registries.BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect);
+        for (ServerPlayer player : players) {
+            player.addEffect(new MobEffectInstance(registeredHolder, 240, 0, false, false, true));
         }
     }
 

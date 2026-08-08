@@ -123,6 +123,14 @@
   "r3ct_base_core.tome.anti_spawn": "Dark Magic Tome of Safe Zone",
   "r3ct_base_core.tome.mending_pulse": "Dark Magic Tome of Mending Pulse",
 
+  "effect.r3ct_base_core.pvp_protection": "Haven of Peace",
+  "effect.r3ct_base_core.fall_resistance": "Soft Landing",
+  "effect.r3ct_base_core.satiation": "Horn of Plenty",
+  "effect.r3ct_base_core.fire_immunity": "Dragon's Skin",
+  "effect.r3ct_base_core.night_vision": "Feline Eyes",
+  "effect.r3ct_base_core.extended_reach": "Extended Reach",
+  "effect.r3ct_base_core.mending_pulse": "Mending Pulse",
+
   "r3ct_base_core.advancement.root.title": "Architect of a New Era",
   "r3ct_base_core.advancement.root.desc": "Obtain or place your very first Base Core.",
   "r3ct_base_core.advancement.first_upgrade.title": "The First Spark",

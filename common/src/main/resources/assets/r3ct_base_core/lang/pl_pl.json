@@ -123,6 +123,14 @@
   "r3ct_base_core.tome.anti_spawn": "Księga Czarnej Magii Bezpiecznej Strefy",
   "r3ct_base_core.tome.mending_pulse": "Księga Czarnej Magii Pulsacyjnej Naprawy",
 
+  "effect.r3ct_base_core.pvp_protection": "Przystań Pokoju",
+  "effect.r3ct_base_core.fall_resistance": "Miękkie Lądowanie",
+  "effect.r3ct_base_core.satiation": "Róg Obfitości",
+  "effect.r3ct_base_core.fire_immunity": "Skóra Smoka",
+  "effect.r3ct_base_core.night_vision": "Kocie Oczy",
+  "effect.r3ct_base_core.extended_reach": "Wydłużone Ramię",
+  "effect.r3ct_base_core.mending_pulse": "Pulsacyjna Naprawa",
+
   "r3ct_base_core.advancement.root.title": "Architekt Nowej Ery",
   "r3ct_base_core.advancement.root.desc": "Zdobądź lub postaw swój pierwszy Rdzeń Bazy.",
   "r3ct_base_core.advancement.first_upgrade.title": "Pierwsza Iskra",

@@ -117,6 +117,16 @@ public class BaseCoreNeoForge {
     }
 
     private void onRegister(RegisterEvent event) {
+        event.register(Registries.MOB_EFFECT, helper -> {
+            helper.register(Identifier.parse(Constants.MOD_ID + ":pvp_protection"), com.r3ct.base_core.registry.ModEffects.PVP_PROTECTION);
+            helper.register(Identifier.parse(Constants.MOD_ID + ":fall_resistance"), com.r3ct.base_core.registry.ModEffects.FALL_RESISTANCE);
+            helper.register(Identifier.parse(Constants.MOD_ID + ":satiation"), com.r3ct.base_core.registry.ModEffects.SATIATION);
+            helper.register(Identifier.parse(Constants.MOD_ID + ":fire_immunity"), com.r3ct.base_core.registry.ModEffects.FIRE_IMMUNITY);
+            helper.register(Identifier.parse(Constants.MOD_ID + ":night_vision"), com.r3ct.base_core.registry.ModEffects.NIGHT_VISION);
+            helper.register(Identifier.parse(Constants.MOD_ID + ":extended_reach"), com.r3ct.base_core.registry.ModEffects.EXTENDED_REACH);
+            helper.register(Identifier.parse(Constants.MOD_ID + ":mending_pulse"), com.r3ct.base_core.registry.ModEffects.MENDING_PULSE);
+        });
+
         event.register(Registries.BLOCK, helper -> {
             helper.register(ModBlocks.BASE_CORE_KEY, ModBlocks.BASE_CORE);
             helper.register(ModBlocks.ARCANE_LECTERN_KEY, ModBlocks.ARCANE_LECTERN);

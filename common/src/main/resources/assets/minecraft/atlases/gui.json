@@ -1,0 +1,39 @@
+{
+  "sources": [
+    {
+      "type": "single",
+      "resource": "minecraft:item/iron_chestplate",
+      "sprite": "r3ct_base_core:mob_effect/pvp_protection"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:item/feather",
+      "sprite": "r3ct_base_core:mob_effect/fall_resistance"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:item/honey_bottle",
+      "sprite": "r3ct_base_core:mob_effect/satiation"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:item/magma_cream",
+      "sprite": "r3ct_base_core:mob_effect/fire_immunity"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:item/ender_eye",
+      "sprite": "r3ct_base_core:mob_effect/night_vision"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:item/fishing_rod",
+      "sprite": "r3ct_base_core:mob_effect/extended_reach"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:item/echo_shard",
+      "sprite": "r3ct_base_core:mob_effect/mending_pulse"
+    }
+  ]
+}
