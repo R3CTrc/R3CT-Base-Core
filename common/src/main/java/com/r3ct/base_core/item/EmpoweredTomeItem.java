@@ -50,7 +50,8 @@ public class EmpoweredTomeItem extends Item {
 
         if (effectId != null) {
             LecternRecipes.getRecipeById(effectId).ifPresent(recipe -> {
-                builder.accept(Component.translatable(recipe.descKey()).withStyle(ChatFormatting.GRAY));
+                builder.accept(Component.translatable(recipe.descKey() + ".1").withStyle(ChatFormatting.GRAY));
+                builder.accept(Component.translatable(recipe.descKey() + ".2").withStyle(ChatFormatting.GRAY));
                 builder.accept(Component.empty());
                 builder.accept(Component.translatable("item.r3ct_base_core.empowered_tome.module").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC));
             });

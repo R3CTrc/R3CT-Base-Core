@@ -214,15 +214,22 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
                 }
 
                 com.r3ct.base_core.block.BaseCoreBlockEntity coreBE = getCoreEntity();
+
                 if (coreBE != null) {
                     int maxSlots = BaseCoreServerConfig.calculateTotalSlots(this.menu.getTier());
+
                     for (int i = 0; i < maxSlots; i++) {
                         int sx = this.leftPos + this.menu.getSlot(i).x;
                         int sy = this.topPos + this.menu.getSlot(i).y;
+
                         if (mouseX >= sx && mouseX < sx + 16 && mouseY >= sy && mouseY < sy + 16) {
                             if (!coreBE.getItem(i).isEmpty()) {
-                                Services.PLATFORM.sendToServer(new com.r3ct.base_core.network.RemoveEffectPayload(this.menu.getCorePos(), i));
+                                final int slotToExtract = i;
+                                ItemStack activeStack = coreBE.getItem(i).copy();
                                 this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                                this.minecraft.setScreen(new ConfirmExtractScreen(this, activeStack, () -> {
+                                    Services.PLATFORM.sendToServer(new com.r3ct.base_core.network.RemoveEffectPayload(this.menu.getCorePos(), slotToExtract));
+                                }));
                                 return true;
                             }
                         }
@@ -358,6 +365,9 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         } else {
             centeredText(graphics, "X", toggleButtonX + toggleButtonSize - 3, toggleButtonY + toggleButtonSize - 7, 0xFFFF5555);
         }
+        if (isHoveringToggle) {
+            graphics.setTooltipForNextFrame(this.font, Component.translatable("r3ct_base_core.gui.toggle_border.tooltip"), mouseX, mouseY);
+        }
 
         int effectsY = this.topPos + 93;
         graphics.text(this.font, Component.translatable("r3ct_base_core.gui.stats.effects"), infoX, effectsY, 0xFFEFEBE9, true);
@@ -430,10 +440,14 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
 
         int btnColor = 0xFF4A3424;
         if (canApply) {
-            long time = System.currentTimeMillis();
-            float pulse = (float) (Math.sin(time / 150.0) + 1.0) / 2.0f;
-            int g = (int)(100 + 50 * pulse);
-            btnColor = 0xFF000000 | (30 << 16) | (g << 8) | 30;
+            if (isBtnHovered) {
+                btnColor = 0xFF000000 | (30 << 16) | (150 << 8) | 30;
+            } else {
+                long time = System.currentTimeMillis();
+                float pulse = (float) (Math.sin(time / 150.0) + 1.0) / 2.0f;
+                int g = (int)(100 + 50 * pulse);
+                btnColor = 0xFF000000 | (30 << 16) | (g << 8) | 30;
+            }
         } else if (isBtnHovered) {
             btnColor = 0xFF634631;
         }
@@ -545,10 +559,14 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
 
         int boxColor = 0xFF4A3424;
         if (canAfford) {
-            long time = System.currentTimeMillis();
-            float pulse = (float) (Math.sin(time / 150.0) + 1.0) / 2.0f;
-            int g = (int)(100 + 50 * pulse);
-            boxColor = 0xFF000000 | (30 << 16) | (g << 8) | 30;
+            if (isBtnHovered) {
+                boxColor = 0xFF000000 | (30 << 16) | (150 << 8) | 30;
+            } else {
+                long time = System.currentTimeMillis();
+                float pulse = (float) (Math.sin(time / 150.0) + 1.0) / 2.0f;
+                int g = (int)(100 + 50 * pulse);
+                boxColor = 0xFF000000 | (30 << 16) | (g << 8) | 30;
+            }
         } else if (isBtnHovered) {
             boxColor = 0xFF634631;
         }
@@ -581,9 +599,6 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
             tooltipLines.add(Component.literal("+ " + tierConfig.bonusSlots + " ").append(Component.translatable("r3ct_base_core.gui.stats.slots")).withStyle(net.minecraft.ChatFormatting.GREEN));
         }
 
-        if (isNextTier) {
-            tooltipLines.add(Component.translatable("r3ct_base_core.gui.upgrades.click_to_upgrade").withStyle(net.minecraft.ChatFormatting.GREEN));
-        }
         graphics.setComponentTooltipForNextFrame(this.font, tooltipLines, mouseX, mouseY);
     }
 
@@ -594,9 +609,26 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         java.util.List<String> activeEffects = core.getActiveEffectsFromTomes();
         if (activeEffects.isEmpty()) return;
 
+        int maxTextWidth = 0;
+        Component statusText = Component.literal("Aktywny");
+        int statusWidth = this.font.width(statusText);
+
+        for (String effectId : activeEffects) {
+            Component effectName = Component.translatable("r3ct_base_core.effect." + effectId + ".name");
+            int nameWidth = this.font.width(effectName);
+            if (nameWidth > maxTextWidth) {
+                maxTextWidth = nameWidth;
+            }
+        }
+
+        if (statusWidth > maxTextWidth) {
+            maxTextWidth = statusWidth;
+        }
+
+        int panelWidth = Math.max(120, 32 + maxTextWidth + 10);
+
         int panelX = this.leftPos + this.imageWidth + 2;
         int panelY = this.topPos;
-        int panelWidth = 120;
         int yStep = 33;
 
         Identifier bgSprite = Identifier.withDefaultNamespace("container/inventory/effect_background");
@@ -611,13 +643,16 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
             graphics.blitSprite(RenderPipelines.GUI_TEXTURED, iconSprite, panelX + 7, rowY + 7, 18, 18);
 
             Component effectName = Component.translatable("r3ct_base_core.effect." + effectId + ".name");
-            graphics.text(this.font, effectName, panelX + 32, rowY + 7, 0xFFFFFF, false);
 
-            graphics.text(this.font, Component.literal("Aktywny"), panelX + 32, rowY + 16, 0xFF808080, false);
+            graphics.text(this.font, effectName, panelX + 32, rowY + 7, 0xFFFFFFFF, false);
+            graphics.text(this.font, statusText, panelX + 32, rowY + 16, 0xFF808080, false);
 
             if (mouseX >= panelX && mouseX <= panelX + panelWidth && mouseY >= rowY && mouseY < rowY + 32) {
-                Component effectDesc = Component.translatable("r3ct_base_core.effect." + effectId + ".desc");
-                graphics.setTooltipForNextFrame(this.font, effectDesc, mouseX, mouseY);
+                java.util.List<Component> tooltipLines = new java.util.ArrayList<>();
+                tooltipLines.add(Component.translatable("r3ct_base_core.effect." + effectId + ".desc.1").withStyle(net.minecraft.ChatFormatting.GRAY));
+                tooltipLines.add(Component.translatable("r3ct_base_core.effect." + effectId + ".desc.2").withStyle(net.minecraft.ChatFormatting.GRAY));
+
+                graphics.setComponentTooltipForNextFrame(this.font, tooltipLines, mouseX, mouseY);
             }
         }
     }

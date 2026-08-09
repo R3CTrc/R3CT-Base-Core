@@ -37,9 +37,6 @@ public class BaseCoreFabric implements ModInitializer {
 	public static final Item BLUEPRINT_ITEM = new BlueprintItem(new Item.Properties()
 			.setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":blueprint")))
 			.stacksTo(16)
-			.component(DataComponents.LORE, new ItemLore(List.of(
-					Component.translatable("item.r3ct_base_core.blueprint.desc").withStyle(ChatFormatting.GRAY)
-			)))
 	);
 
 	public static final Item ARCANE_LECTERN_ITEM = new BlockItem(ModBlocks.ARCANE_LECTERN, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":arcane_lectern"))));
