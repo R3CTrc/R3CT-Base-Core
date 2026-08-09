@@ -2,6 +2,7 @@ package com.r3ct.base_core;
 
 import com.r3ct.base_core.client.screen.ArcaneLecternScreen;
 import com.r3ct.base_core.client.screen.BaseCoreScreen;
+import com.r3ct.base_core.client.screen.BaseCoreVisitorScreen;
 import com.r3ct.base_core.client.screen.ModMenuTypes;
 import com.r3ct.base_core.config.BaseCoreClientConfig;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
@@ -42,6 +43,7 @@ public class BaseCoreFabricClient implements ClientModInitializer {
 		});
 
 		MenuScreens.register(ModMenuTypes.BASE_CORE_MENU, BaseCoreScreen::new);
+		MenuScreens.register(ModMenuTypes.BASE_CORE_VISITOR_MENU, BaseCoreVisitorScreen::new);
 		MenuScreens.register(ModMenuTypes.ARCANE_LECTERN_MENU, ArcaneLecternScreen::new);
 	}
 }

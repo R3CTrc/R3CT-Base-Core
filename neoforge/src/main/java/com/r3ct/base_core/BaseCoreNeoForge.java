@@ -152,6 +152,7 @@ public class BaseCoreNeoForge {
         });
         event.register(Registries.MENU, helper -> {
             helper.register(ResourceKey.create(Registries.MENU, Identifier.parse(Constants.MOD_ID + ":base_core_menu")), ModMenuTypes.BASE_CORE_MENU);
+            helper.register(ResourceKey.create(Registries.MENU, Identifier.parse(Constants.MOD_ID + ":base_core_visitor_menu")), ModMenuTypes.BASE_CORE_VISITOR_MENU);
             helper.register(ResourceKey.create(Registries.MENU, Identifier.parse(Constants.MOD_ID + ":arcane_lectern_menu")), ModMenuTypes.ARCANE_LECTERN_MENU);
         });
         event.register(Registries.CREATIVE_MODE_TAB, helper -> {

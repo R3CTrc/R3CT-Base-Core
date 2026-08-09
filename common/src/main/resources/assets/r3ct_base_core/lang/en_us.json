@@ -20,7 +20,6 @@
   "r3ct_base_core.message.core_exists_hint": "If the block was destroyed due to an error, go to those coordinates to load the chunk. The game will notice it's missing and reset your limit.",
   "r3ct_base_core.message.inside_error": "You cannot place a Base Core within the territory of another player's base!",
   "r3ct_base_core.message.overlap_error": "You cannot place a Base Core here! Its maximum territory would overlap with another base.",
-  "r3ct_base_core.message.not_your_base": "This is not your Base Core!",
   "r3ct_base_core.message.upgrade.max_tier": "Architecture limit reached.",
   "r3ct_base_core.message.upgrade.missing_main": "Missing required main resources!",
   "r3ct_base_core.message.upgrade.missing_bulk": "Missing required common resources!",

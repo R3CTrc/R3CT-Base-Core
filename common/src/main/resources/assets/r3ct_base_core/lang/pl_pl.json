@@ -20,7 +20,6 @@
   "r3ct_base_core.message.core_exists_hint": "Jeśli blok uległ zniszczeniu przez błąd, udaj się na tamte kordy aby załadować teren. Gra zobaczy, że go nie ma i automatycznie zresetuje Twój limit.",
   "r3ct_base_core.message.inside_error": "Nie możesz postawić Rdzenia na terytorium innej bazy!",
   "r3ct_base_core.message.overlap_error": "Nie możesz tu postawić Rdzenia! Jego maksymalna strefa nałożyłaby się na inną bazę.",
-  "r3ct_base_core.message.not_your_base": "To nie jest Twój Rdzeń Bazy!",
   "r3ct_base_core.message.upgrade.max_tier": "Osiągnięto limit architektury.",
   "r3ct_base_core.message.upgrade.missing_main": "Brak wymaganych zasobów głównych!",
   "r3ct_base_core.message.upgrade.missing_bulk": "Brak wymaganych zasobów pospolitych!",

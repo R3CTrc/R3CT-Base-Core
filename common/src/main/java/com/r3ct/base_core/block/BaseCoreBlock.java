@@ -108,6 +108,8 @@ public class BaseCoreBlock extends Block implements EntityBlock {
                 data.coreZ = pos.getZ();
                 data.coreTier = coreBE.getTier();
 
+                data.lastKnownName = player.getName().getString();
+
                 data.activeSlots = new ArrayList<>(coreBE.getActiveEffectsFromTomes());
 
                 ModState.get(level.getServer()).setDirty();
@@ -201,10 +203,51 @@ public class BaseCoreBlock extends Block implements EntityBlock {
         if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof BaseCoreBlockEntity coreBE) {
+
                 if (coreBE.getOwnerUUID().equals(player.getUUID().toString())) {
                     serverPlayer.openMenu(coreBE);
                 } else {
-                    serverPlayer.sendSystemMessage(Component.translatable("r3ct_base_core.message.not_your_base"), true);
+                    String ownerName = "Unknown";
+                    try {
+                        UUID ownerId = UUID.fromString(coreBE.getOwnerUUID());
+                        PlayerData ownerData = ModState.getPlayerData(serverPlayer.level().getServer(), ownerId);
+
+                        if (ownerData.lastKnownName != null && !ownerData.lastKnownName.isEmpty()) {
+                            ownerName = ownerData.lastKnownName;
+                        }
+                    } catch (Exception ignored) {}
+
+                    final String finalOwnerName = ownerName;
+
+                    serverPlayer.openMenu(new net.minecraft.world.SimpleMenuProvider(
+                            (id, inv, p) -> {
+                                net.minecraft.world.SimpleContainer visitorContainer = new net.minecraft.world.SimpleContainer(4);
+                                for(int i = 0; i < 4; i++) {
+                                    visitorContainer.setItem(i, coreBE.getItem(i).copy());
+                                }
+
+                                net.minecraft.world.inventory.ContainerData visitorData = new net.minecraft.world.inventory.ContainerData() {
+                                    @Override
+                                    public int get(int index) {
+                                        return switch (index) {
+                                            case 0 -> coreBE.getTier();
+                                            case 1 -> coreBE.getShowBorder() ? 1 : 0;
+                                            case 2 -> pos.getX();
+                                            case 3 -> pos.getY();
+                                            case 4 -> pos.getZ();
+                                            default -> 0;
+                                        };
+                                    }
+                                    @Override
+                                    public void set(int index, int value) {}
+                                    @Override
+                                    public int getCount() { return 5; }
+                                };
+
+                                return new com.r3ct.base_core.client.screen.BaseCoreVisitorMenu(id, visitorContainer, visitorData);
+                            },
+                            Component.literal(finalOwnerName)
+                    ));
                 }
             }
         }

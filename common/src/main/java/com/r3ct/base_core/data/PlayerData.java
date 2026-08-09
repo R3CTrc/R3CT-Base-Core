@@ -17,6 +17,8 @@ public class PlayerData {
     public int coreTier = 0;
     public List<String> activeSlots = new ArrayList<>();
 
+    public String lastKnownName = "Unknown";
+
     public static final Codec<PlayerData> CODEC = CompoundTag.CODEC.xmap(PlayerData::fromNbt, PlayerData::toNbt);
 
     public PlayerData() {
@@ -33,6 +35,8 @@ public class PlayerData {
 
         nbt.putInt("coreTier", coreTier);
         nbt.putString("activeSlotsStr", String.join(",", activeSlots));
+
+        nbt.putString("lastKnownName", lastKnownName != null ? lastKnownName : "Unknown");
 
         return nbt;
     }
@@ -52,6 +56,8 @@ public class PlayerData {
         if (!slotsStr.isEmpty()) {
             data.activeSlots = new ArrayList<>(Arrays.asList(slotsStr.split(",")));
         }
+
+        data.lastKnownName = nbt.getString("lastKnownName").orElse("Unknown");
 
         return data;
     }
