@@ -93,9 +93,10 @@ public class BaseCoreBlockItem extends BlockItem {
 
                     for (PlayerData otherData : state.players.values()) {
                         if (otherData.hasPlacedCore && currentDim.equals(otherData.coreDimension)) {
-                            double dx = otherData.coreX - clickPos.getX();
-                            double dz = otherData.coreZ - clickPos.getZ();
-                            double dist = Math.sqrt(dx * dx + dz * dz);
+
+                            int distX = Math.abs(otherData.coreX - clickPos.getX());
+                            int distZ = Math.abs(otherData.coreZ - clickPos.getZ());
+                            int dist = Math.max(distX, distZ);
 
                             if (preventOverlap) {
                                 if (dist <= (maxRadius * 2)) {
