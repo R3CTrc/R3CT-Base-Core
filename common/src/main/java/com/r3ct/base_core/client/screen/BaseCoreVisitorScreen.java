@@ -101,12 +101,6 @@ public class BaseCoreVisitorScreen extends AbstractContainerScreen<BaseCoreVisit
             if (currentTierConfig != null) {
                 java.util.List<Component> tooltipLines = new java.util.ArrayList<>();
                 tooltipLines.add(Component.translatable("r3ct_base_core.gui.tier.format", Component.translatable(currentTierConfig.title), currentTierConfig.tierLevel).withStyle(net.minecraft.ChatFormatting.GOLD));
-                if (currentTierConfig.bonusRadius > 0) {
-                    tooltipLines.add(Component.literal("+ " + currentTierConfig.bonusRadius + " ").append(Component.translatable("r3ct_base_core.gui.stats.area")).withStyle(net.minecraft.ChatFormatting.AQUA));
-                }
-                if (currentTierConfig.bonusSlots > 0) {
-                    tooltipLines.add(Component.literal("+ " + currentTierConfig.bonusSlots + " ").append(Component.translatable("r3ct_base_core.gui.stats.slots")).withStyle(net.minecraft.ChatFormatting.GREEN));
-                }
                 graphics.setComponentTooltipForNextFrame(this.font, tooltipLines, mouseX, mouseY);
             }
         }
@@ -119,7 +113,7 @@ public class BaseCoreVisitorScreen extends AbstractContainerScreen<BaseCoreVisit
         graphics.text(this.font, Component.translatable("r3ct_base_core.gui.stats.area"), infoX, infoY, 0xFFEFEBE9, true);
 
         int size = 32;
-        int boxX = this.leftPos + 20;
+        int boxX = this.leftPos + 38;
         int boxY = this.topPos + 94;
         int lineColor = 0xFF1E90FF;
         int redColor = 0xFFFF5555;
