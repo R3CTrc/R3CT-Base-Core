@@ -321,7 +321,18 @@ public class BaseCoreServerLogic {
             if (slot < 0 || slot >= 27) return;
 
             if (!mailboxBE.getMessages().get(slot).isEmpty()) {
-                player.sendSystemMessage(Component.literal("Ten slot jest już zajęty!").withStyle(ChatFormatting.RED));
+                player.sendSystemMessage(Component.translatable("r3ct_base_core.message.slot_occupied").withStyle(ChatFormatting.RED));
+                return;
+            }
+
+            int sentMessages = 0;
+            String playerUUID = player.getUUID().toString();
+            for (MailMessage existingMsg : mailboxBE.getMessages()) {
+                if (!existingMsg.isEmpty() && existingMsg.getSenderId().toString().equals(playerUUID)) {
+                    sentMessages++;
+                }
+            }
+            if (sentMessages >= 3) {
                 return;
             }
 
@@ -335,10 +346,10 @@ public class BaseCoreServerLogic {
                 }
             }
 
-            MailMessage message = new MailMessage(player.getName().getString(), payload.message(), attachedItems);
+            MailMessage message = new MailMessage(player.getName().getString(), player.getUUID(), payload.message(), attachedItems, System.currentTimeMillis());
 
             if (message.isEmpty()) {
-                player.sendSystemMessage(Component.literal("Nie możesz wysłać pustego listu!").withStyle(ChatFormatting.RED));
+                player.sendSystemMessage(Component.translatable("r3ct_base_core.message.empty_mail").withStyle(ChatFormatting.RED));
                 return;
             }
 
@@ -361,8 +372,6 @@ public class BaseCoreServerLogic {
             }
 
             player.level().playSound(null, pos, SoundEvents.BOOK_PUT, SoundSource.BLOCKS, 1.0F, 1.0F);
-            player.sendSystemMessage(Component.literal("Wiadomość została wysłana!").withStyle(ChatFormatting.GREEN));
-            player.closeContainer();
         }
     }
 

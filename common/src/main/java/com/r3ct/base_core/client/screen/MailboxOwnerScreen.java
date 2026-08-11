@@ -33,12 +33,12 @@ public class MailboxOwnerScreen extends AbstractContainerScreen<MailboxOwnerMenu
         super.init();
 
         this.messageBox = MultiLineEditBox.builder()
-                .setX(this.leftPos + 18)
+                .setX(this.leftPos + 7)
                 .setY(this.topPos + 24)
                 .setShowBackground(false)
                 .setTextColor(0xFF333333)
                 .setTextShadow(false)
-                .build(this.font, 140, 42, Component.empty());
+                .build(this.font, 162, 54, Component.empty());
 
         this.messageBox.visible = false;
         this.messageBox.active = false;
@@ -85,11 +85,14 @@ public class MailboxOwnerScreen extends AbstractContainerScreen<MailboxOwnerMenu
         this.messageBox.visible = false;
         com.r3ct.base_core.block.MailboxBlockEntity mailbox = getMailboxEntity();
 
+        graphics.text(this.font, Component.translatable("r3ct_base_core.gui.inbox"),
+                this.leftPos + 8, this.topPos + 34, 0xFFEFEBE9, true);
+
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 int index = row * 9 + col;
                 int sx = this.leftPos + 7 + col * 18;
-                int sy = this.topPos + 24 + row * 18;
+                int sy = this.topPos + 46 + row * 18;
 
                 drawSlotBackground(graphics, sx, sy);
 
@@ -118,36 +121,37 @@ public class MailboxOwnerScreen extends AbstractContainerScreen<MailboxOwnerMenu
         com.r3ct.base_core.block.MailboxBlockEntity mailbox = getMailboxEntity();
         if (mailbox == null) return;
 
-        drawPaperBackground(graphics, this.leftPos + 18, this.topPos + 24, 140, 42);
+        drawPaperBackground(graphics, this.leftPos + 7, this.topPos + 24, 162, 54);
 
         MailMessage msg = mailbox.getMessages().get(this.selectedMessageIndex);
 
-        graphics.text(this.font, Component.literal("Od: ").withStyle(ChatFormatting.GRAY)
+        graphics.text(this.font, Component.translatable("r3ct_base_core.gui.from").withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(msg.getSenderName()).withStyle(ChatFormatting.GOLD)),
-                this.leftPos + 18, this.topPos + 12, 0xFFFFFF, false);
+                this.leftPos + 8, this.topPos + 12, 0xFFFFFF, false);
 
         for (int i = 0; i < 3; i++) {
             net.minecraft.world.inventory.Slot slot = this.menu.getSlot(i);
             drawSlotBackground(graphics, this.leftPos + slot.x, this.topPos + slot.y);
         }
 
-        int btnCollectX = this.leftPos + 96;
-        int btnCollectY = this.topPos + 68;
+        int btnCollectX = this.leftPos + 109;
+        int btnCollectY = this.topPos + 98;
+        int btnCancelX = this.leftPos + 109;
+        int btnCancelY = this.topPos + 118;
+
         boolean hoverCollect = mouseX >= btnCollectX && mouseX < btnCollectX + 60 && mouseY >= btnCollectY && mouseY < btnCollectY + 16;
         int collectColor = hoverCollect ? 0xFFC27E4D : 0xFFB06A3B;
 
         graphics.fill(btnCollectX, btnCollectY, btnCollectX + 60, btnCollectY + 16, collectColor);
         drawThickOutline(graphics, btnCollectX, btnCollectY, 60, 16, 1, 0xFF4A2511);
-        centeredText(graphics, Component.literal("Odbierz"), btnCollectX + 30, btnCollectY + 4, 0xFFFFFFFF);
+        centeredText(graphics, Component.translatable("r3ct_base_core.gui.collect"), btnCollectX + 30, btnCollectY + 4, 0xFFFFFFFF);
 
-        int btnCancelX = this.leftPos + 96;
-        int btnCancelY = this.topPos + 88;
         boolean hoverCancel = mouseX >= btnCancelX && mouseX < btnCancelX + 60 && mouseY >= btnCancelY && mouseY < btnCancelY + 16;
         int cancelColor = hoverCancel ? 0xFFC27E4D : 0xFFB06A3B;
 
         graphics.fill(btnCancelX, btnCancelY, btnCancelX + 60, btnCancelY + 16, cancelColor);
         drawThickOutline(graphics, btnCancelX, btnCancelY, 60, 16, 1, 0xFF4A2511);
-        centeredText(graphics, Component.literal("Anuluj"), btnCancelX + 30, btnCancelY + 4, 0xFFFFFFFF);
+        centeredText(graphics, Component.translatable("r3ct_base_core.gui.cancel"), btnCancelX + 30, btnCancelY + 4, 0xFFFFFFFF);
     }
 
     @Override
@@ -162,7 +166,7 @@ public class MailboxOwnerScreen extends AbstractContainerScreen<MailboxOwnerMenu
                     for (int col = 0; col < 9; col++) {
                         int index = row * 9 + col;
                         int sx = this.leftPos + 7 + col * 18;
-                        int sy = this.topPos + 24 + row * 18;
+                        int sy = this.topPos + 46 + row * 18;
 
                         if (mouseX >= sx && mouseX < sx + 18 && mouseY >= sy && mouseY < sy + 18) {
                             boolean isOccupied = mailbox != null && !mailbox.getMessages().get(index).isEmpty();
@@ -181,10 +185,10 @@ public class MailboxOwnerScreen extends AbstractContainerScreen<MailboxOwnerMenu
                     }
                 }
             } else {
-                int btnCollectX = this.leftPos + 96;
-                int btnCollectY = this.topPos + 68;
-                int btnCancelX = this.leftPos + 96;
-                int btnCancelY = this.topPos + 88;
+                int btnCollectX = this.leftPos + 109;
+                int btnCollectY = this.topPos + 98;
+                int btnCancelX = this.leftPos + 109;
+                int btnCancelY = this.topPos + 118;
 
                 if (mouseX >= btnCollectX && mouseX < btnCollectX + 60 && mouseY >= btnCollectY && mouseY < btnCollectY + 16) {
                     if (this.selectedMessageIndex != -1) {

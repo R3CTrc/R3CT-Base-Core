@@ -40,7 +40,14 @@ public class BaseCoreNeoForge {
             .stacksTo(16)
     );
 
-    public static final Item ARCANE_LECTERN_ITEM = new BlockItem(ModBlocks.ARCANE_LECTERN, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":arcane_lectern"))));
+    public static final Item ARCANE_LECTERN_ITEM = new BlockItem(ModBlocks.ARCANE_LECTERN, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":arcane_lectern")))) {
+        @Override
+        public void appendHoverText(ItemStack itemStack, Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> builder, net.minecraft.world.item.TooltipFlag tooltipFlag) {
+            super.appendHoverText(itemStack, context, display, builder, tooltipFlag);
+            builder.accept(Component.translatable("item.r3ct_base_core.arcane_lectern.desc.1").withStyle(net.minecraft.ChatFormatting.GRAY));
+            builder.accept(Component.translatable("item.r3ct_base_core.arcane_lectern.desc.2").withStyle(net.minecraft.ChatFormatting.GRAY));
+        }
+    };
     public static final Item MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":mailbox"))));
 
     public static final Item MAGIC_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":magic_tome"))));

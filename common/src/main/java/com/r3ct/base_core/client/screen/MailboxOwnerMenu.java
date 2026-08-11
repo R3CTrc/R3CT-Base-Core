@@ -35,7 +35,7 @@ public class MailboxOwnerMenu extends AbstractContainerMenu {
         this.attachmentContainer = new SimpleContainer(3);
 
         for (int i = 0; i < 3; ++i) {
-            this.addSlot(new Slot(this.attachmentContainer, i, 24 + (i * 20), 76) {
+            this.addSlot(new Slot(this.attachmentContainer, i, 8 + (i * 34), 108) {
                 @Override
                 public boolean isActive() {
                     return isMessageView;

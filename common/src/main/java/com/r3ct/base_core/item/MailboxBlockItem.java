@@ -65,9 +65,9 @@ public class MailboxBlockItem extends BlockItem {
                     }
 
                     if (mailboxExists) {
-                        serverPlayer.sendSystemMessage(Component.literal("Posiadasz już skrzynkę pocztową! Koordynaty: " + data.mailboxX + ", " + data.mailboxY + ", " + data.mailboxZ).withStyle(ChatFormatting.RED));
+                        serverPlayer.sendSystemMessage(Component.translatable("r3ct_base_core.message.mailbox_exists", data.mailboxX, data.mailboxY, data.mailboxZ).withStyle(ChatFormatting.RED));
                         if (targetLevel != null && !targetLevel.isLoaded(targetPos)) {
-                            serverPlayer.sendSystemMessage(Component.literal("Skrzynka znajduje się w niezaładowanym chunku.").withStyle(ChatFormatting.GRAY));
+                            serverPlayer.sendSystemMessage(Component.translatable("r3ct_base_core.message.mailbox_unloaded").withStyle(ChatFormatting.GRAY));
                         }
                         return InteractionResult.FAIL;
                     } else {
@@ -88,7 +88,7 @@ public class MailboxBlockItem extends BlockItem {
     @Override
     public void appendHoverText(ItemStack itemStack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
         super.appendHoverText(itemStack, context, display, builder, tooltipFlag);
-        builder.accept(Component.literal("Limit: ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal("1 na Gracza").withStyle(ChatFormatting.AQUA)));
+        builder.accept(Component.translatable("item.r3ct_base_core.mailbox.desc.1").withStyle(ChatFormatting.GRAY));
+        builder.accept(Component.translatable("item.r3ct_base_core.mailbox.desc.2").withStyle(ChatFormatting.GRAY));
     }
 }

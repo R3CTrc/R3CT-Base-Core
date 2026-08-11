@@ -136,7 +136,7 @@ public class MailboxBlock extends Block implements EntityBlock {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof MailboxBlockEntity mailboxBE) {
                 if (mailboxBE.getOwnerUUID().equals(player.getUUID().toString()) && !mailboxBE.isCompletelyEmpty()) {
-                    player.sendSystemMessage(Component.literal("Skrzynka pocztowa nie jest pusta! Odbierz wszystkie listy przed zniszczeniem.").withStyle(ChatFormatting.RED));
+                    player.sendSystemMessage(Component.translatable("r3ct_base_core.message.mailbox_not_empty").withStyle(ChatFormatting.RED));
                 }
             }
         }
@@ -203,11 +203,7 @@ public class MailboxBlock extends Block implements EntityBlock {
                 if (mailboxBE.getOwnerUUID().equals(player.getUUID().toString())) {
                     serverPlayer.openMenu(mailboxBE);
                 } else {
-                    if (mailboxBE.isFull()) {
-                        serverPlayer.sendSystemMessage(Component.literal("Ta skrzynka pocztowa jest pełna!").withStyle(ChatFormatting.RED), true);
-                    } else {
-                        serverPlayer.openMenu(mailboxBE.getVisitorMenuProvider());
-                    }
+                    serverPlayer.openMenu(mailboxBE.getVisitorMenuProvider());
                 }
             }
         }

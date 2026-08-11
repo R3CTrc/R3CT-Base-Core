@@ -33,12 +33,12 @@ public class MailboxVisitorScreen extends AbstractContainerScreen<MailboxVisitor
         super.init();
 
         this.messageBox = MultiLineEditBox.builder()
-                .setX(this.leftPos + 18)
+                .setX(this.leftPos + 7)
                 .setY(this.topPos + 24)
                 .setShowBackground(false)
                 .setTextColor(0xFF333333)
                 .setTextShadow(false)
-                .build(this.font, 140, 42, Component.empty());
+                .build(this.font, 162, 54, Component.empty());
 
         this.messageBox.setCharacterLimit(256);
         this.messageBox.visible = false;
@@ -95,11 +95,24 @@ public class MailboxVisitorScreen extends AbstractContainerScreen<MailboxVisitor
         this.messageBox.visible = false;
         com.r3ct.base_core.block.MailboxBlockEntity mailbox = getMailboxEntity();
 
+        graphics.text(this.font, Component.translatable("r3ct_base_core.gui.select_empty"),
+                this.leftPos + 8, this.topPos + 34, 0xFFEFEBE9, true);
+
+        int mySentCount = 0;
+        if (mailbox != null && this.minecraft.player != null) {
+            java.util.UUID myUuid = this.minecraft.player.getUUID();
+            for (com.r3ct.base_core.data.MailMessage msg : mailbox.getMessages()) {
+                if (!msg.isEmpty() && msg.getSenderId().equals(myUuid)) {
+                    mySentCount++;
+                }
+            }
+        }
+
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 int index = row * 9 + col;
                 int sx = this.leftPos + 7 + col * 18;
-                int sy = this.topPos + 24 + row * 18;
+                int sy = this.topPos + 46 + row * 18;
 
                 drawSlotBackground(graphics, sx, sy);
 
@@ -114,12 +127,17 @@ public class MailboxVisitorScreen extends AbstractContainerScreen<MailboxVisitor
 
                     if (isOccupied) {
                         String sender = mailbox.getMessages().get(index).getSenderName();
-                        Component tooltip = Component.literal("Zajęte: ").withStyle(ChatFormatting.RED)
+                        Component tooltip = Component.translatable("r3ct_base_core.gui.occupied").withStyle(ChatFormatting.RED)
                                 .append(Component.literal(sender).withStyle(ChatFormatting.GOLD));
                         graphics.setTooltipForNextFrame(this.font, tooltip, mouseX, mouseY);
                     } else {
-                        Component tooltip = Component.literal("Pusto").withStyle(ChatFormatting.DARK_GRAY);
-                        graphics.setTooltipForNextFrame(this.font, tooltip, mouseX, mouseY);
+                        if (mySentCount >= 3) {
+                            Component tooltip = Component.translatable("r3ct_base_core.message.mail_limit_reached").withStyle(ChatFormatting.RED);
+                            graphics.setTooltipForNextFrame(this.font, tooltip, mouseX, mouseY);
+                        } else {
+                            Component tooltip = Component.translatable("r3ct_base_core.gui.empty_slot").withStyle(ChatFormatting.DARK_GRAY);
+                            graphics.setTooltipForNextFrame(this.font, tooltip, mouseX, mouseY);
+                        }
                     }
                 }
             }
@@ -129,7 +147,7 @@ public class MailboxVisitorScreen extends AbstractContainerScreen<MailboxVisitor
     private void renderComposeView(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         this.messageBox.visible = true;
 
-        drawPaperBackground(graphics, this.leftPos + 18, this.topPos + 24, 140, 42);
+        drawPaperBackground(graphics, this.leftPos + 7, this.topPos + 24, 162, 54);
 
         for (int i = 0; i < 3; i++) {
             net.minecraft.world.inventory.Slot slot = this.menu.getSlot(i);
@@ -140,8 +158,11 @@ public class MailboxVisitorScreen extends AbstractContainerScreen<MailboxVisitor
         boolean hasItems = !this.menu.getSlot(0).getItem().isEmpty() || !this.menu.getSlot(1).getItem().isEmpty() || !this.menu.getSlot(2).getItem().isEmpty();
         boolean canSend = hasText || hasItems;
 
-        int btnSendX = this.leftPos + 96;
-        int btnSendY = this.topPos + 68;
+        int btnSendX = this.leftPos + 109;
+        int btnSendY = this.topPos + 98;
+        int btnCancelX = this.leftPos + 109;
+        int btnCancelY = this.topPos + 118;
+
         boolean hoverSend = mouseX >= btnSendX && mouseX < btnSendX + 60 && mouseY >= btnSendY && mouseY < btnSendY + 16;
 
         int sendColor = 0xFFB06A3B;
@@ -160,16 +181,14 @@ public class MailboxVisitorScreen extends AbstractContainerScreen<MailboxVisitor
 
         graphics.fill(btnSendX, btnSendY, btnSendX + 60, btnSendY + 16, sendColor);
         drawThickOutline(graphics, btnSendX, btnSendY, 60, 16, 1, 0xFF4A2511);
-        centeredText(graphics, Component.literal("Wyślij"), btnSendX + 30, btnSendY + 4, canSend ? 0xFFFFFFFF : 0xFFBBBBBB);
+        centeredText(graphics, Component.translatable("r3ct_base_core.gui.send"), btnSendX + 30, btnSendY + 4, canSend ? 0xFFFFFFFF : 0xFFBBBBBB);
 
-        int btnCancelX = this.leftPos + 96;
-        int btnCancelY = this.topPos + 88;
         boolean hoverCancel = mouseX >= btnCancelX && mouseX < btnCancelX + 60 && mouseY >= btnCancelY && mouseY < btnCancelY + 16;
         int cancelColor = hoverCancel ? 0xFFC27E4D : 0xFFB06A3B;
 
         graphics.fill(btnCancelX, btnCancelY, btnCancelX + 60, btnCancelY + 16, cancelColor);
         drawThickOutline(graphics, btnCancelX, btnCancelY, 60, 16, 1, 0xFF4A2511);
-        centeredText(graphics, Component.literal("Anuluj"), btnCancelX + 30, btnCancelY + 4, 0xFFFFFFFF);
+        centeredText(graphics, Component.translatable("r3ct_base_core.gui.cancel"), btnCancelX + 30, btnCancelY + 4, 0xFFFFFFFF);
     }
 
     @Override
@@ -180,19 +199,35 @@ public class MailboxVisitorScreen extends AbstractContainerScreen<MailboxVisitor
 
             if (!this.menu.isComposeView) {
                 com.r3ct.base_core.block.MailboxBlockEntity mailbox = getMailboxEntity();
+
+                int mySentCount = 0;
+                if (mailbox != null && this.minecraft.player != null) {
+                    java.util.UUID myUuid = this.minecraft.player.getUUID();
+                    for (com.r3ct.base_core.data.MailMessage msg : mailbox.getMessages()) {
+                        if (!msg.isEmpty() && msg.getSenderId().equals(myUuid)) {
+                            mySentCount++;
+                        }
+                    }
+                }
+
                 for (int row = 0; row < 3; row++) {
                     for (int col = 0; col < 9; col++) {
                         int index = row * 9 + col;
                         int sx = this.leftPos + 7 + col * 18;
-                        int sy = this.topPos + 24 + row * 18;
+                        int sy = this.topPos + 46 + row * 18;
 
                         if (mouseX >= sx && mouseX < sx + 18 && mouseY >= sy && mouseY < sy + 18) {
                             boolean isOccupied = mailbox != null && !mailbox.getMessages().get(index).isEmpty();
 
                             if (!isOccupied) {
-                                this.selectedSlotIndex = index;
-                                this.menu.isComposeView = true;
-                                this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                                if (mySentCount >= 3) {
+                                    this.minecraft.player.sendOverlayMessage(Component.translatable("r3ct_base_core.message.mail_limit_reached").withStyle(ChatFormatting.RED));
+                                    this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 0.5F));
+                                } else {
+                                    this.selectedSlotIndex = index;
+                                    this.menu.isComposeView = true;
+                                    this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                                }
                             } else {
                                 this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 0.5F));
                             }
@@ -201,10 +236,10 @@ public class MailboxVisitorScreen extends AbstractContainerScreen<MailboxVisitor
                     }
                 }
             } else {
-                int btnSendX = this.leftPos + 96;
-                int btnSendY = this.topPos + 68;
-                int btnCancelX = this.leftPos + 96;
-                int btnCancelY = this.topPos + 88;
+                int btnSendX = this.leftPos + 109;
+                int btnSendY = this.topPos + 98;
+                int btnCancelX = this.leftPos + 109;
+                int btnCancelY = this.topPos + 118;
 
                 boolean hasText = !this.messageBox.getValue().trim().isEmpty();
                 boolean hasItems = !this.menu.getSlot(0).getItem().isEmpty() || !this.menu.getSlot(1).getItem().isEmpty() || !this.menu.getSlot(2).getItem().isEmpty();
@@ -212,6 +247,7 @@ public class MailboxVisitorScreen extends AbstractContainerScreen<MailboxVisitor
                 if (mouseX >= btnSendX && mouseX < btnSendX + 60 && mouseY >= btnSendY && mouseY < btnSendY + 16) {
                     if (hasText || hasItems) {
                         Services.PLATFORM.sendToServer(new SendMailPayload(this.menu.getMailboxPos(), this.selectedSlotIndex, this.messageBox.getValue()));
+
                         this.messageBox.setValue("");
                         this.menu.isComposeView = false;
                         this.selectedSlotIndex = -1;
