@@ -8,9 +8,7 @@ import com.r3ct.base_core.network.*;
 import com.r3ct.base_core.logic.BaseCoreServerLogic;
 import com.r3ct.base_core.item.BlueprintItem;
 import com.r3ct.base_core.registry.ModDataComponents;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -20,7 +18,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ItemLore;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -34,8 +31,6 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
-import java.util.List;
-
 @Mod(Constants.MOD_ID)
 public class BaseCoreNeoForge {
 
@@ -46,6 +41,8 @@ public class BaseCoreNeoForge {
     );
 
     public static final Item ARCANE_LECTERN_ITEM = new BlockItem(ModBlocks.ARCANE_LECTERN, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":arcane_lectern"))));
+    public static final Item MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":mailbox"))));
+
     public static final Item MAGIC_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":magic_tome"))));
     public static final Item DARK_MAGIC_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":dark_magic_tome"))));
     public static final Item ALCHEMY_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":alchemy_tome"))));
@@ -71,6 +68,14 @@ public class BaseCoreNeoForge {
 
         registrar.playToClient(ConfigSyncPayload.TYPE, ConfigSyncPayload.CODEC, (payload, context) -> {
             context.enqueueWork(() -> BaseCoreNeoForgeClient.ClientPayloadHandlers.handleConfigSync(payload));
+        });
+
+        registrar.playToClient(SyncCoreStatePayload.TYPE, SyncCoreStatePayload.CODEC, (payload, context) -> {
+            context.enqueueWork(() -> BaseCoreNeoForgeClient.ClientPayloadHandlers.handleCoreStateSync(payload));
+        });
+
+        registrar.playToClient(SyncMailboxStatePayload.TYPE, SyncMailboxStatePayload.CODEC, (payload, context) -> {
+            context.enqueueWork(() -> BaseCoreNeoForgeClient.ClientPayloadHandlers.handleMailboxStateSync(payload));
         });
 
         registrar.playToServer(UpgradeBaseCorePayload.TYPE, UpgradeBaseCorePayload.CODEC, (payload, context) -> {
@@ -113,8 +118,28 @@ public class BaseCoreNeoForge {
             });
         });
 
-        registrar.playToClient(SyncCoreStatePayload.TYPE, SyncCoreStatePayload.CODEC, (payload, context) -> {
-            context.enqueueWork(() -> BaseCoreNeoForgeClient.ClientPayloadHandlers.handleCoreStateSync(payload));
+        registrar.playToServer(SendMailPayload.TYPE, SendMailPayload.CODEC, (payload, context) -> {
+            context.enqueueWork(() -> {
+                if (context.player() instanceof ServerPlayer player) {
+                    BaseCoreServerLogic.handleSendMail(player, payload);
+                }
+            });
+        });
+
+        registrar.playToServer(CollectMailPayload.TYPE, CollectMailPayload.CODEC, (payload, context) -> {
+            context.enqueueWork(() -> {
+                if (context.player() instanceof ServerPlayer player) {
+                    BaseCoreServerLogic.handleCollectMail(player, payload);
+                }
+            });
+        });
+
+        registrar.playToServer(CancelMailPayload.TYPE, CancelMailPayload.CODEC, (payload, context) -> {
+            context.enqueueWork(() -> {
+                if (context.player() instanceof ServerPlayer player) {
+                    BaseCoreServerLogic.handleCancelMail(player, payload);
+                }
+            });
         });
     }
 
@@ -136,11 +161,13 @@ public class BaseCoreNeoForge {
         event.register(Registries.BLOCK, helper -> {
             helper.register(ModBlocks.BASE_CORE_KEY, ModBlocks.BASE_CORE);
             helper.register(ModBlocks.ARCANE_LECTERN_KEY, ModBlocks.ARCANE_LECTERN);
+            helper.register(ModBlocks.MAILBOX_KEY, ModBlocks.MAILBOX);
         });
         event.register(Registries.ITEM, helper -> {
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":base_core")), BASE_CORE_ITEM);
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":blueprint")), BLUEPRINT_ITEM);
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":arcane_lectern")), ARCANE_LECTERN_ITEM);
+            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":mailbox")), MAILBOX_ITEM);
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":magic_tome")), MAGIC_TOME);
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":dark_magic_tome")), DARK_MAGIC_TOME);
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":alchemy_tome")), ALCHEMY_TOME);
@@ -149,11 +176,15 @@ public class BaseCoreNeoForge {
         event.register(Registries.BLOCK_ENTITY_TYPE, helper -> {
             helper.register(ModBlocks.BASE_CORE_BE_KEY, ModBlocks.BASE_CORE_BE_TYPE);
             helper.register(ModBlocks.ARCANE_LECTERN_BE_KEY, ModBlocks.ARCANE_LECTERN_BE_TYPE);
+            helper.register(ModBlocks.MAILBOX_BE_KEY, ModBlocks.MAILBOX_BE_TYPE);
         });
         event.register(Registries.MENU, helper -> {
             helper.register(ResourceKey.create(Registries.MENU, Identifier.parse(Constants.MOD_ID + ":base_core_menu")), ModMenuTypes.BASE_CORE_MENU);
             helper.register(ResourceKey.create(Registries.MENU, Identifier.parse(Constants.MOD_ID + ":base_core_visitor_menu")), ModMenuTypes.BASE_CORE_VISITOR_MENU);
             helper.register(ResourceKey.create(Registries.MENU, Identifier.parse(Constants.MOD_ID + ":arcane_lectern_menu")), ModMenuTypes.ARCANE_LECTERN_MENU);
+
+            helper.register(ResourceKey.create(Registries.MENU, Identifier.parse(Constants.MOD_ID + ":mailbox_visitor_menu")), ModMenuTypes.MAILBOX_VISITOR_MENU);
+            helper.register(ResourceKey.create(Registries.MENU, Identifier.parse(Constants.MOD_ID + ":mailbox_owner_menu")), ModMenuTypes.MAILBOX_OWNER_MENU);
         });
         event.register(Registries.CREATIVE_MODE_TAB, helper -> {
             helper.register(Identifier.parse(Constants.MOD_ID + ":main_tab"),
@@ -162,6 +193,7 @@ public class BaseCoreNeoForge {
                             .icon(() -> new ItemStack(BASE_CORE_ITEM))
                             .displayItems((context, output) -> {
                                 output.accept(BASE_CORE_ITEM);
+                                output.accept(MAILBOX_ITEM);
                                 output.accept(BLUEPRINT_ITEM);
                                 output.accept(ARCANE_LECTERN_ITEM);
                                 output.accept(MAGIC_TOME);
@@ -184,10 +216,16 @@ public class BaseCoreNeoForge {
         if (event.getEntity() instanceof ServerPlayer player) {
             String serverJson = BaseCoreServerConfig.getServerConfigString();
             PacketDistributor.sendToPlayer(player, new ConfigSyncPayload(serverJson));
+
             com.r3ct.base_core.data.PlayerData data = com.r3ct.base_core.data.ModState.getPlayerData(player.level().getServer(), player.getUUID());
-            BlockPos pos = data.hasPlacedCore ? new BlockPos(data.coreX, data.coreY, data.coreZ) : BlockPos.ZERO;
-            String dim = data.hasPlacedCore ? data.coreDimension : "";
-            PacketDistributor.sendToPlayer(player, new SyncCoreStatePayload(data.hasPlacedCore, pos, dim));
+
+            BlockPos corePos = data.hasPlacedCore ? new BlockPos(data.coreX, data.coreY, data.coreZ) : BlockPos.ZERO;
+            String coreDim = data.hasPlacedCore ? data.coreDimension : "";
+            PacketDistributor.sendToPlayer(player, new SyncCoreStatePayload(data.hasPlacedCore, corePos, coreDim));
+
+            BlockPos mailPos = data.hasPlacedMailbox ? new BlockPos(data.mailboxX, data.mailboxY, data.mailboxZ) : BlockPos.ZERO;
+            String mailDim = data.hasPlacedMailbox ? data.mailboxDimension : "";
+            PacketDistributor.sendToPlayer(player, new SyncMailboxStatePayload(data.hasPlacedMailbox, mailPos, mailDim));
         }
     }
 }

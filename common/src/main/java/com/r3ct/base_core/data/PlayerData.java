@@ -19,6 +19,12 @@ public class PlayerData {
 
     public String lastKnownName = "Unknown";
 
+    public boolean hasPlacedMailbox = false;
+    public String mailboxDimension = "";
+    public int mailboxX = 0;
+    public int mailboxY = 0;
+    public int mailboxZ = 0;
+
     public static final Codec<PlayerData> CODEC = CompoundTag.CODEC.xmap(PlayerData::fromNbt, PlayerData::toNbt);
 
     public PlayerData() {
@@ -37,6 +43,12 @@ public class PlayerData {
         nbt.putString("activeSlotsStr", String.join(",", activeSlots));
 
         nbt.putString("lastKnownName", lastKnownName != null ? lastKnownName : "Unknown");
+
+        nbt.putBoolean("hasPlacedMailbox", hasPlacedMailbox);
+        nbt.putString("mailboxDimension", mailboxDimension != null ? mailboxDimension : "");
+        nbt.putInt("mailboxX", mailboxX);
+        nbt.putInt("mailboxY", mailboxY);
+        nbt.putInt("mailboxZ", mailboxZ);
 
         return nbt;
     }
@@ -58,6 +70,12 @@ public class PlayerData {
         }
 
         data.lastKnownName = nbt.getString("lastKnownName").orElse("Unknown");
+
+        data.hasPlacedMailbox = nbt.getBoolean("hasPlacedMailbox").orElse(false);
+        data.mailboxDimension = nbt.getString("mailboxDimension").orElse("");
+        data.mailboxX = nbt.getInt("mailboxX").orElse(0);
+        data.mailboxY = nbt.getInt("mailboxY").orElse(0);
+        data.mailboxZ = nbt.getInt("mailboxZ").orElse(0);
 
         return data;
     }

@@ -58,4 +58,27 @@ public class ModBlocks {
             (pos, state) -> new ArcaneLecternBlockEntity(pos, state),
             ARCANE_LECTERN
     );
+
+    public static final ResourceKey<Block> MAILBOX_KEY = ResourceKey.create(
+            Registries.BLOCK,
+            Identifier.parse(Constants.MOD_ID + ":mailbox")
+    );
+
+    public static final Block MAILBOX = new MailboxBlock(BlockBehaviour.Properties.of()
+            .setId(MAILBOX_KEY)
+            .strength(3.0f, 1200.0f)
+            .noOcclusion()
+            .isViewBlocking((state, getter, pos) -> false)
+            .sound(SoundType.WOOD)
+    );
+
+    public static final ResourceKey<BlockEntityType<?>> MAILBOX_BE_KEY = ResourceKey.create(
+            Registries.BLOCK_ENTITY_TYPE,
+            Identifier.parse(Constants.MOD_ID + ":mailbox_be")
+    );
+
+    public static final BlockEntityType<MailboxBlockEntity> MAILBOX_BE_TYPE = Services.PLATFORM.createBlockEntityType(
+            (pos, state) -> new MailboxBlockEntity(pos, state),
+            MAILBOX
+    );
 }

@@ -13,10 +13,8 @@ import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -27,9 +25,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ItemLore;
-
-import java.util.List;
 
 public class BaseCoreFabric implements ModInitializer {
 
@@ -40,6 +35,8 @@ public class BaseCoreFabric implements ModInitializer {
 	);
 
 	public static final Item ARCANE_LECTERN_ITEM = new BlockItem(ModBlocks.ARCANE_LECTERN, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":arcane_lectern"))));
+	public static final Item MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":mailbox"))));
+
 	public static final Item MAGIC_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":magic_tome"))));
 	public static final Item DARK_MAGIC_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":dark_magic_tome"))));
 	public static final Item ALCHEMY_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":alchemy_tome"))));
@@ -68,13 +65,20 @@ public class BaseCoreFabric implements ModInitializer {
 		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":base_core"), BASE_CORE_ITEM);
 		Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, ModBlocks.BASE_CORE_BE_KEY, ModBlocks.BASE_CORE_BE_TYPE);
 		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":blueprint"), BLUEPRINT_ITEM);
+
 		Registry.register(BuiltInRegistries.MENU, Identifier.parse(Constants.MOD_ID + ":base_core_menu"), ModMenuTypes.BASE_CORE_MENU);
 		Registry.register(BuiltInRegistries.MENU, Identifier.parse(Constants.MOD_ID + ":base_core_visitor_menu"), ModMenuTypes.BASE_CORE_VISITOR_MENU);
+		Registry.register(BuiltInRegistries.MENU, Identifier.parse(Constants.MOD_ID + ":arcane_lectern_menu"), ModMenuTypes.ARCANE_LECTERN_MENU);
+		Registry.register(BuiltInRegistries.MENU, Identifier.parse(Constants.MOD_ID + ":mailbox_visitor_menu"), ModMenuTypes.MAILBOX_VISITOR_MENU);
+		Registry.register(BuiltInRegistries.MENU, Identifier.parse(Constants.MOD_ID + ":mailbox_owner_menu"), ModMenuTypes.MAILBOX_OWNER_MENU);
 
 		Registry.register(BuiltInRegistries.BLOCK, ModBlocks.ARCANE_LECTERN_KEY, ModBlocks.ARCANE_LECTERN);
 		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":arcane_lectern"), ARCANE_LECTERN_ITEM);
 		Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, ModBlocks.ARCANE_LECTERN_BE_KEY, ModBlocks.ARCANE_LECTERN_BE_TYPE);
-		Registry.register(BuiltInRegistries.MENU, Identifier.parse(Constants.MOD_ID + ":arcane_lectern_menu"), ModMenuTypes.ARCANE_LECTERN_MENU);
+
+		Registry.register(BuiltInRegistries.BLOCK, ModBlocks.MAILBOX_KEY, ModBlocks.MAILBOX);
+		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":mailbox"), MAILBOX_ITEM);
+		Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, ModBlocks.MAILBOX_BE_KEY, ModBlocks.MAILBOX_BE_TYPE);
 
 		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":magic_tome"), MAGIC_TOME);
 		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":dark_magic_tome"), DARK_MAGIC_TOME);
@@ -88,6 +92,7 @@ public class BaseCoreFabric implements ModInitializer {
 				.icon(() -> new ItemStack(BASE_CORE_ITEM))
 				.displayItems((context, output) -> {
 					output.accept(BASE_CORE_ITEM);
+					output.accept(MAILBOX_ITEM);
 					output.accept(BLUEPRINT_ITEM);
 					output.accept(ARCANE_LECTERN_ITEM);
 					output.accept(MAGIC_TOME);
@@ -104,12 +109,18 @@ public class BaseCoreFabric implements ModInitializer {
 		);
 
 		PayloadTypeRegistry.clientboundPlay().register(ConfigSyncPayload.TYPE, ConfigSyncPayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(SyncCoreStatePayload.TYPE, SyncCoreStatePayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(SyncMailboxStatePayload.TYPE, SyncMailboxStatePayload.CODEC);
+
 		PayloadTypeRegistry.serverboundPlay().register(UpgradeBaseCorePayload.TYPE, UpgradeBaseCorePayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ToggleBorderPayload.TYPE, ToggleBorderPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(LecternAutoFillPayload.TYPE, LecternAutoFillPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ApplyEffectsPayload.TYPE, ApplyEffectsPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(RemoveEffectPayload.TYPE, RemoveEffectPayload.CODEC);
-		PayloadTypeRegistry.clientboundPlay().register(SyncCoreStatePayload.TYPE, SyncCoreStatePayload.CODEC);
+
+		PayloadTypeRegistry.serverboundPlay().register(SendMailPayload.TYPE, SendMailPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(CollectMailPayload.TYPE, CollectMailPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(CancelMailPayload.TYPE, CancelMailPayload.CODEC);
 
 		ServerPlayNetworking.registerGlobalReceiver(UpgradeBaseCorePayload.TYPE, (payload, context) -> {
 			context.server().execute(() -> {
@@ -139,14 +150,31 @@ public class BaseCoreFabric implements ModInitializer {
 			context.server().execute(() -> BaseCoreServerLogic.handleLecternAutoFill(context.player(), payload));
 		});
 
+		ServerPlayNetworking.registerGlobalReceiver(SendMailPayload.TYPE, (payload, context) -> {
+			context.server().execute(() -> BaseCoreServerLogic.handleSendMail(context.player(), payload));
+		});
+
+		ServerPlayNetworking.registerGlobalReceiver(CollectMailPayload.TYPE, (payload, context) -> {
+			context.server().execute(() -> BaseCoreServerLogic.handleCollectMail(context.player(), payload));
+		});
+
+		ServerPlayNetworking.registerGlobalReceiver(CancelMailPayload.TYPE, (payload, context) -> {
+			context.server().execute(() -> BaseCoreServerLogic.handleCancelMail(context.player(), payload));
+		});
+
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			ServerPlayer player = handler.getPlayer();
 			String serverJson = BaseCoreServerConfig.getServerConfigString();
 			ServerPlayNetworking.send(player, new ConfigSyncPayload(serverJson));
 			com.r3ct.base_core.data.PlayerData data = com.r3ct.base_core.data.ModState.getPlayerData(server, player.getUUID());
+
 			BlockPos pos = data.hasPlacedCore ? new BlockPos(data.coreX, data.coreY, data.coreZ) : BlockPos.ZERO;
 			String dim = data.hasPlacedCore ? data.coreDimension : "";
 			ServerPlayNetworking.send(player, new SyncCoreStatePayload(data.hasPlacedCore, pos, dim));
+
+			BlockPos mailPos = data.hasPlacedMailbox ? new BlockPos(data.mailboxX, data.mailboxY, data.mailboxZ) : BlockPos.ZERO;
+			String mailDim = data.hasPlacedMailbox ? data.mailboxDimension : "";
+			ServerPlayNetworking.send(player, new SyncMailboxStatePayload(data.hasPlacedMailbox, mailPos, mailDim));
 		});
 	}
 }

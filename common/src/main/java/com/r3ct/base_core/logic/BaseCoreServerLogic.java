@@ -2,9 +2,11 @@ package com.r3ct.base_core.logic;
 
 import com.r3ct.base_core.block.BaseCoreBlock;
 import com.r3ct.base_core.block.BaseCoreBlockEntity;
+import com.r3ct.base_core.block.MailboxBlockEntity;
 import com.r3ct.base_core.client.screen.ArcaneLecternMenu;
 import com.r3ct.base_core.client.screen.BaseCoreMenu;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
+import com.r3ct.base_core.data.MailMessage;
 import com.r3ct.base_core.data.ModState;
 import com.r3ct.base_core.data.PlayerData;
 import com.r3ct.base_core.network.*;
@@ -18,6 +20,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
@@ -305,6 +308,116 @@ public class BaseCoreServerLogic {
                 int take = Math.min(stack.getCount(), left);
                 slot.remove(take);
                 left -= take;
+            }
+        }
+    }
+
+    public static void handleSendMail(ServerPlayer player, SendMailPayload payload) {
+        net.minecraft.core.BlockPos pos = payload.pos();
+        BlockEntity be = player.level().getBlockEntity(pos);
+
+        if (be instanceof MailboxBlockEntity mailboxBE) {
+            int slot = payload.slotIndex();
+            if (slot < 0 || slot >= 27) return;
+
+            if (!mailboxBE.getMessages().get(slot).isEmpty()) {
+                player.sendSystemMessage(Component.literal("Ten slot jest już zajęty!").withStyle(ChatFormatting.RED));
+                return;
+            }
+
+            net.minecraft.core.NonNullList<ItemStack> attachedItems = net.minecraft.core.NonNullList.withSize(3, ItemStack.EMPTY);
+
+            for (int i = 0; i < 3; i++) {
+                ItemStack stackInSlot = player.containerMenu.getSlot(i).getItem();
+                if (!stackInSlot.isEmpty()) {
+                    attachedItems.set(i, stackInSlot.copy());
+                    player.containerMenu.getSlot(i).set(ItemStack.EMPTY);
+                }
+            }
+
+            MailMessage message = new MailMessage(player.getName().getString(), payload.message(), attachedItems);
+
+            if (message.isEmpty()) {
+                player.sendSystemMessage(Component.literal("Nie możesz wysłać pustego listu!").withStyle(ChatFormatting.RED));
+                return;
+            }
+
+            boolean wasEmpty = true;
+            for (MailMessage m : mailboxBE.getMessages()) {
+                if (!m.isEmpty()) {
+                    wasEmpty = false;
+                    break;
+                }
+            }
+
+            mailboxBE.getMessages().set(slot, message);
+            mailboxBE.forceSync();
+
+            if (wasEmpty) {
+                BlockState state = player.level().getBlockState(pos);
+                if (state.getBlock() instanceof com.r3ct.base_core.block.MailboxBlock) {
+                    player.level().setBlock(pos, state.setValue(com.r3ct.base_core.block.MailboxBlock.HAS_MAIL, true), 3);
+                }
+            }
+
+            player.level().playSound(null, pos, SoundEvents.BOOK_PUT, SoundSource.BLOCKS, 1.0F, 1.0F);
+            player.sendSystemMessage(Component.literal("Wiadomość została wysłana!").withStyle(ChatFormatting.GREEN));
+            player.closeContainer();
+        }
+    }
+
+    public static void handleCollectMail(ServerPlayer player, CollectMailPayload payload) {
+        net.minecraft.core.BlockPos pos = payload.pos();
+        BlockEntity be = player.level().getBlockEntity(pos);
+
+        if (be instanceof MailboxBlockEntity mailboxBE) {
+            if (!mailboxBE.getOwnerUUID().equals(player.getUUID().toString())) return;
+
+            int index = payload.messageIndex();
+            if (index >= 0 && index < 27) {
+                MailMessage msg = mailboxBE.getMessages().get(index);
+                if (msg.isEmpty()) return;
+
+                for (ItemStack stack : msg.getAttachedItems()) {
+                    if (!stack.isEmpty()) {
+                        if (!player.getInventory().add(stack)) {
+                            ItemEntity drop = player.drop(stack, false);
+                            if (drop != null) drop.setNoPickUpDelay();
+                        }
+                    }
+                }
+
+                mailboxBE.getMessages().set(index, MailMessage.EMPTY);
+                mailboxBE.forceSync();
+
+                boolean isNowEmpty = true;
+                for (MailMessage m : mailboxBE.getMessages()) {
+                    if (!m.isEmpty()) {
+                        isNowEmpty = false;
+                        break;
+                    }
+                }
+
+                if (isNowEmpty) {
+                    BlockState state = player.level().getBlockState(pos);
+                    if (state.getBlock() instanceof com.r3ct.base_core.block.MailboxBlock && state.getValue(com.r3ct.base_core.block.MailboxBlock.HAS_MAIL)) {
+                        player.level().setBlock(pos, state.setValue(com.r3ct.base_core.block.MailboxBlock.HAS_MAIL, false), 3);
+                    }
+                }
+
+                player.level().playSound(null, pos, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.5F, 1.2F);
+            }
+        }
+    }
+
+    public static void handleCancelMail(ServerPlayer player, com.r3ct.base_core.network.CancelMailPayload payload) {
+        if (player.containerMenu instanceof com.r3ct.base_core.client.screen.MailboxVisitorMenu menu) {
+            for (int i = 0; i < 3; i++) {
+                net.minecraft.world.inventory.Slot slot = menu.getSlot(i);
+                if (slot.hasItem()) {
+                    player.getInventory().placeItemBackInInventory(slot.getItem().copy());
+                    slot.set(net.minecraft.world.item.ItemStack.EMPTY);
+                }
             }
         }
     }

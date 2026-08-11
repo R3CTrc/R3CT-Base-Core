@@ -1,0 +1,33 @@
+{
+  "variants": {
+    "face=floor,facing=north,has_mail=false": { "model": "r3ct_base_core:block/mailbox_floor_empty" },
+    "face=floor,facing=east,has_mail=false": { "model": "r3ct_base_core:block/mailbox_floor_empty", "y": 90 },
+    "face=floor,facing=south,has_mail=false": { "model": "r3ct_base_core:block/mailbox_floor_empty", "y": 180 },
+    "face=floor,facing=west,has_mail=false": { "model": "r3ct_base_core:block/mailbox_floor_empty", "y": 270 },
+
+    "face=floor,facing=north,has_mail=true": { "model": "r3ct_base_core:block/mailbox_floor_full" },
+    "face=floor,facing=east,has_mail=true": { "model": "r3ct_base_core:block/mailbox_floor_full", "y": 90 },
+    "face=floor,facing=south,has_mail=true": { "model": "r3ct_base_core:block/mailbox_floor_full", "y": 180 },
+    "face=floor,facing=west,has_mail=true": { "model": "r3ct_base_core:block/mailbox_floor_full", "y": 270 },
+
+    "face=wall,facing=north,has_mail=false": { "model": "r3ct_base_core:block/mailbox_wall_empty" },
+    "face=wall,facing=east,has_mail=false": { "model": "r3ct_base_core:block/mailbox_wall_empty", "y": 90 },
+    "face=wall,facing=south,has_mail=false": { "model": "r3ct_base_core:block/mailbox_wall_empty", "y": 180 },
+    "face=wall,facing=west,has_mail=false": { "model": "r3ct_base_core:block/mailbox_wall_empty", "y": 270 },
+
+    "face=wall,facing=north,has_mail=true": { "model": "r3ct_base_core:block/mailbox_wall_full" },
+    "face=wall,facing=east,has_mail=true": { "model": "r3ct_base_core:block/mailbox_wall_full", "y": 90 },
+    "face=wall,facing=south,has_mail=true": { "model": "r3ct_base_core:block/mailbox_wall_full", "y": 180 },
+    "face=wall,facing=west,has_mail=true": { "model": "r3ct_base_core:block/mailbox_wall_full", "y": 270 },
+
+    "face=ceiling,facing=north,has_mail=false": { "model": "r3ct_base_core:block/mailbox_floor_empty" },
+    "face=ceiling,facing=east,has_mail=false": { "model": "r3ct_base_core:block/mailbox_floor_empty", "y": 90 },
+    "face=ceiling,facing=south,has_mail=false": { "model": "r3ct_base_core:block/mailbox_floor_empty", "y": 180 },
+    "face=ceiling,facing=west,has_mail=false": { "model": "r3ct_base_core:block/mailbox_floor_empty", "y": 270 },
+
+    "face=ceiling,facing=north,has_mail=true": { "model": "r3ct_base_core:block/mailbox_floor_full" },
+    "face=ceiling,facing=east,has_mail=true": { "model": "r3ct_base_core:block/mailbox_floor_full", "y": 90 },
+    "face=ceiling,facing=south,has_mail=true": { "model": "r3ct_base_core:block/mailbox_floor_full", "y": 180 },
+    "face=ceiling,facing=west,has_mail=true": { "model": "r3ct_base_core:block/mailbox_floor_full", "y": 270 }
+  }
+}
