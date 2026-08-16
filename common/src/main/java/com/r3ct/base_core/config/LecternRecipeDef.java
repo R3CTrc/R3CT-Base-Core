@@ -15,8 +15,7 @@ public record LecternRecipeDef(
         String ingredientItem,
         int ingredientAmount,
         String outputItem,
-        String effectId,
-        String colorHex
+        String effectId
 ) {
     public Item getInputItem() {
         return BuiltInRegistries.ITEM.get(Identifier.parse(this.inputItem)).map(Holder::value).orElse(Items.AIR);

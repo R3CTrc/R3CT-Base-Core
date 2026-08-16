@@ -45,6 +45,7 @@
   "r3ct_base_core.gui.stats.slots": "Dostępne sloty: ",
   "r3ct_base_core.gui.stats.effects": "Efekty: ",
   "r3ct_base_core.gui.stats.active_effects": "Aktywne efekty:",
+  "r3ct_base_core.gui.active": "Aktywny",
   "r3ct_base_core.gui.stats.blocks": "bloków",
   "r3ct_base_core.gui.toggle_border.tooltip": "Pokaż/ukryj zasięg bazy",
   "r3ct_base_core.gui.apply": "ZASTOSUJ",

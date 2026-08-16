@@ -1,0 +1,6 @@
+{
+  "parent": "r3ct_base_core:item/magic_tome",
+  "textures": {
+    "1115": "minecraft:item/iron_chestplate"
+  }
+}

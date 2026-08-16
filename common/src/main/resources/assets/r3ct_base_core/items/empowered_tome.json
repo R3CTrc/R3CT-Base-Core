@@ -5,42 +5,28 @@
     "index": 0,
     "fallback": {
       "type": "minecraft:model",
-      "model": "minecraft:item/book"
+      "model": "r3ct_base_core:item/magic_tome"
     },
     "cases": [
-      {
-        "when": "1",
-        "model": {
-          "type": "minecraft:model",
-          "model": "r3ct_base_core:item/magic_tome",
-          "tints": [
-            { "type": "minecraft:constant", "value": -1 },
-            { "type": "minecraft:custom_model_data", "index": 0, "default": -1 }
-          ]
-        }
-      },
-      {
-        "when": "2",
-        "model": {
-          "type": "minecraft:model",
-          "model": "r3ct_base_core:item/alchemy_tome",
-          "tints": [
-            { "type": "minecraft:constant", "value": -1 },
-            { "type": "minecraft:custom_model_data", "index": 0, "default": -1 }
-          ]
-        }
-      },
-      {
-        "when": "3",
-        "model": {
-          "type": "minecraft:model",
-          "model": "r3ct_base_core:item/dark_magic_tome",
-          "tints": [
-            { "type": "minecraft:constant", "value": -1 },
-            { "type": "minecraft:custom_model_data", "index": 0, "default": -1 }
-          ]
-        }
-      }
+      { "when": "crop_growth", "model": { "type": "minecraft:model", "model": "r3ct_base_core:item/empowered_crop_growth" } },
+      { "when": "anti_trample", "model": { "type": "minecraft:model", "model": "r3ct_base_core:item/empowered_anti_trample" } },
+      { "when": "livestock_boost", "model": { "type": "minecraft:model", "model": "r3ct_base_core:item/empowered_livestock_boost" } },
+      { "when": "twin_breeding", "model": { "type": "minecraft:model", "model": "r3ct_base_core:item/empowered_twin_breeding" } },
+      { "when": "industrial_overclock", "model": { "type": "minecraft:model", "model": "r3ct_base_core:item/empowered_industrial_overclock" } },
+      { "when": "fuel_efficiency", "model": { "type": "minecraft:model", "model": "r3ct_base_core:item/empowered_fuel_efficiency" } },
+      { "when": "anti_explosion", "model": { "type": "minecraft:model", "model": "r3ct_base_core:item/empowered_anti_explosion" } },
+      { "when": "pvp_protection", "model": { "type": "minecraft:model", "model": "r3ct_base_core:item/empowered_pvp_protection" } },
+
+      { "when": "fall_resistance", "model": { "type": "minecraft:model", "model": "r3ct_base_core:item/empowered_fall_resistance" } },
+      { "when": "satiation", "model": { "type": "minecraft:model", "model": "r3ct_base_core:item/empowered_satiation" } },
+      { "when": "pet_protection", "model": { "type": "minecraft:model", "model": "r3ct_base_core:item/empowered_pet_protection" } },
+      { "when": "hostile_slowness", "model": { "type": "minecraft:model", "model": "r3ct_base_core:item/empowered_hostile_slowness" } },
+      { "when": "fire_immunity", "model": { "type": "minecraft:model", "model": "r3ct_base_core:item/empowered_fire_immunity" } },
+      { "when": "night_vision", "model": { "type": "minecraft:model", "model": "r3ct_base_core:item/empowered_night_vision" } },
+
+      { "when": "extended_reach", "model": { "type": "minecraft:model", "model": "r3ct_base_core:item/empowered_extended_reach" } },
+      { "when": "anti_spawn", "model": { "type": "minecraft:model", "model": "r3ct_base_core:item/empowered_anti_spawn" } },
+      { "when": "mending_pulse", "model": { "type": "minecraft:model", "model": "r3ct_base_core:item/empowered_mending_pulse" } }
     ]
   }
 }

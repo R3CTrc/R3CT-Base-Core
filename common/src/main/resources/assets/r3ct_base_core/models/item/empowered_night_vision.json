@@ -1,0 +1,6 @@
+{
+  "parent": "r3ct_base_core:item/alchemy_tome",
+  "textures": {
+    "1115": "minecraft:item/ender_eye"
+  }
+}

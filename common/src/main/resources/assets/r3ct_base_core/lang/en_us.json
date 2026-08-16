@@ -45,6 +45,7 @@
   "r3ct_base_core.gui.stats.slots": "Available Slots: ",
   "r3ct_base_core.gui.stats.effects": "Effects: ",
   "r3ct_base_core.gui.stats.active_effects": "Active effects:",
+  "r3ct_base_core.gui.active": "Active",
   "r3ct_base_core.gui.stats.blocks": "blocks",
   "r3ct_base_core.gui.toggle_border.tooltip": "Toggle base area visibility",
   "r3ct_base_core.gui.apply": "APPLY",

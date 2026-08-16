@@ -1,0 +1,9 @@
+{
+  "sources": [
+    {
+      "type": "single",
+      "resource": "minecraft:block/cobweb",
+      "sprite": "r3ct_base_core:item/cobweb"
+    }
+  ]
+}

@@ -610,7 +610,7 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
         if (activeEffects.isEmpty()) return;
 
         int maxTextWidth = 0;
-        Component statusText = Component.literal("Aktywny");
+        Component statusText = Component.translatable("r3ct_base_core.gui.active");
         int statusWidth = this.font.width(statusText);
 
         for (String effectId : activeEffects) {

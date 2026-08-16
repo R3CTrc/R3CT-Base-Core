@@ -1,6 +1,6 @@
 {
   "_comment_version": "Do not change the version number! It is used for automatic config updates.",
-  "version": 1,
+  "version": 2,
 
   "activationCostPercentMagic": 75,
   "activationCostPercentAlchemy": 50,
@@ -143,8 +143,7 @@
       "ingredientItem": "minecraft:lapis_lazuli",
       "ingredientAmount": 16,
       "outputItem": "r3ct_base_core:magic_tome",
-      "effectId": "",
-      "colorHex": "#00FFFF"
+      "effectId": ""
     },
     {
       "id": "base_alchemy",
@@ -155,8 +154,7 @@
       "ingredientItem": "minecraft:nether_wart",
       "ingredientAmount": 16,
       "outputItem": "r3ct_base_core:alchemy_tome",
-      "effectId": "",
-      "colorHex": "#55FF55"
+      "effectId": ""
     },
     {
       "id": "base_dark_magic",
@@ -167,8 +165,7 @@
       "ingredientItem": "minecraft:wither_skeleton_skull",
       "ingredientAmount": 1,
       "outputItem": "r3ct_base_core:dark_magic_tome",
-      "effectId": "",
-      "colorHex": "#AA00AA"
+      "effectId": ""
     },
     {
       "id": "crop_growth",
@@ -179,8 +176,7 @@
       "ingredientItem": "minecraft:bone_meal",
       "ingredientAmount": 64,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "crop_growth",
-      "colorHex": "#33CC33"
+      "effectId": "crop_growth"
     },
     {
       "id": "anti_trample",
@@ -191,8 +187,7 @@
       "ingredientItem": "minecraft:slime_ball",
       "ingredientAmount": 16,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "anti_trample",
-      "colorHex": "#88FF88"
+      "effectId": "anti_trample"
     },
     {
       "id": "livestock_boost",
@@ -203,8 +198,7 @@
       "ingredientItem": "minecraft:hay_block",
       "ingredientAmount": 32,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "livestock_boost",
-      "colorHex": "#E6C229"
+      "effectId": "livestock_boost"
     },
     {
       "id": "twin_breeding",
@@ -215,8 +209,7 @@
       "ingredientItem": "minecraft:golden_apple",
       "ingredientAmount": 4,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "twin_breeding",
-      "colorHex": "#FF77AA"
+      "effectId": "twin_breeding"
     },
     {
       "id": "industrial_overclock",
@@ -227,8 +220,7 @@
       "ingredientItem": "minecraft:redstone_block",
       "ingredientAmount": 16,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "industrial_overclock",
-      "colorHex": "#FF3300"
+      "effectId": "industrial_overclock"
     },
     {
       "id": "fuel_efficiency",
@@ -239,8 +231,7 @@
       "ingredientItem": "minecraft:magma_block",
       "ingredientAmount": 16,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "fuel_efficiency",
-      "colorHex": "#FF6600"
+      "effectId": "fuel_efficiency"
     },
     {
       "id": "anti_explosion",
@@ -251,8 +242,7 @@
       "ingredientItem": "minecraft:obsidian",
       "ingredientAmount": 32,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "anti_explosion",
-      "colorHex": "#443355"
+      "effectId": "anti_explosion"
     },
     {
       "id": "pvp_protection",
@@ -263,8 +253,7 @@
       "ingredientItem": "minecraft:shield",
       "ingredientAmount": 1,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "pvp_protection",
-      "colorHex": "#3366FF"
+      "effectId": "pvp_protection"
     },
     {
       "id": "fall_resistance",
@@ -275,8 +264,7 @@
       "ingredientItem": "minecraft:phantom_membrane",
       "ingredientAmount": 8,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "fall_resistance",
-      "colorHex": "#DDFFFF"
+      "effectId": "fall_resistance"
     },
     {
       "id": "satiation",
@@ -287,8 +275,7 @@
       "ingredientItem": "minecraft:honey_block",
       "ingredientAmount": 8,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "satiation",
-      "colorHex": "#FFBB00"
+      "effectId": "satiation"
     },
     {
       "id": "pet_protection",
@@ -299,8 +286,7 @@
       "ingredientItem": "minecraft:diamond_horse_armor",
       "ingredientAmount": 1,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "pet_protection",
-      "colorHex": "#55FFFF"
+      "effectId": "pet_protection"
     },
     {
       "id": "hostile_slowness",
@@ -311,8 +297,7 @@
       "ingredientItem": "minecraft:cobweb",
       "ingredientAmount": 16,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "hostile_slowness",
-      "colorHex": "#DDDDDD"
+      "effectId": "hostile_slowness"
     },
     {
       "id": "fire_immunity",
@@ -323,8 +308,7 @@
       "ingredientItem": "minecraft:magma_cream",
       "ingredientAmount": 32,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "fire_immunity",
-      "colorHex": "#FF4422"
+      "effectId": "fire_immunity"
     },
     {
       "id": "night_vision",
@@ -335,8 +319,7 @@
       "ingredientItem": "minecraft:glowstone",
       "ingredientAmount": 32,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "night_vision",
-      "colorHex": "#FFEE55"
+      "effectId": "night_vision"
     },
     {
       "id": "extended_reach",
@@ -347,8 +330,7 @@
       "ingredientItem": "minecraft:chorus_fruit",
       "ingredientAmount": 32,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "extended_reach",
-      "colorHex": "#9955FF"
+      "effectId": "extended_reach"
     },
     {
       "id": "anti_spawn",
@@ -359,8 +341,7 @@
       "ingredientItem": "minecraft:soul_lantern",
       "ingredientAmount": 16,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "anti_spawn",
-      "colorHex": "#33DDFF"
+      "effectId": "anti_spawn"
     },
     {
       "id": "mending_pulse",
@@ -371,8 +352,7 @@
       "ingredientItem": "minecraft:nether_star",
       "ingredientAmount": 1,
       "outputItem": "r3ct_base_core:empowered_tome",
-      "effectId": "mending_pulse",
-      "colorHex": "#44FF44"
+      "effectId": "mending_pulse"
     }
   ]
 }
