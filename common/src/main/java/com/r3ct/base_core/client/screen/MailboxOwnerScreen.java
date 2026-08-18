@@ -139,18 +139,20 @@ public class MailboxOwnerScreen extends AbstractContainerScreen<MailboxOwnerMenu
         int btnCancelX = this.leftPos + 109;
         int btnCancelY = this.topPos + 118;
 
+        int[] pal = getCopperPalette();
+
         boolean hoverCollect = mouseX >= btnCollectX && mouseX < btnCollectX + 60 && mouseY >= btnCollectY && mouseY < btnCollectY + 16;
-        int collectColor = hoverCollect ? 0xFFC27E4D : 0xFFB06A3B;
+        int collectColor = hoverCollect ? pal[1] : pal[0];
 
         graphics.fill(btnCollectX, btnCollectY, btnCollectX + 60, btnCollectY + 16, collectColor);
-        drawThickOutline(graphics, btnCollectX, btnCollectY, 60, 16, 1, 0xFF4A2511);
+        drawThickOutline(graphics, btnCollectX, btnCollectY, 60, 16, 1, pal[3]);
         centeredText(graphics, Component.translatable("r3ct_base_core.gui.collect"), btnCollectX + 30, btnCollectY + 4, 0xFFFFFFFF);
 
         boolean hoverCancel = mouseX >= btnCancelX && mouseX < btnCancelX + 60 && mouseY >= btnCancelY && mouseY < btnCancelY + 16;
-        int cancelColor = hoverCancel ? 0xFFC27E4D : 0xFFB06A3B;
+        int cancelColor = hoverCancel ? pal[1] : pal[0];
 
         graphics.fill(btnCancelX, btnCancelY, btnCancelX + 60, btnCancelY + 16, cancelColor);
-        drawThickOutline(graphics, btnCancelX, btnCancelY, 60, 16, 1, 0xFF4A2511);
+        drawThickOutline(graphics, btnCancelX, btnCancelY, 60, 16, 1, pal[3]);
         centeredText(graphics, Component.translatable("r3ct_base_core.gui.cancel"), btnCancelX + 30, btnCancelY + 4, 0xFFFFFFFF);
     }
 
@@ -233,28 +235,41 @@ public class MailboxOwnerScreen extends AbstractContainerScreen<MailboxOwnerMenu
         graphics.fill(sx, sy, sx + 16, sy + 16, 0xFF8B8B8B);
     }
 
+    private int[] getCopperPalette() {
+        int[] colors = new int[]{0xFFB96C4D, 0xFFD2825E, 0xFF914E36, 0xFF54291B};
+
+        if (this.minecraft != null && this.minecraft.level != null) {
+            net.minecraft.world.level.block.Block block = this.minecraft.level.getBlockState(this.menu.getMailboxPos()).getBlock();
+
+            if (block == com.r3ct.base_core.block.ModBlocks.EXPOSED_MAILBOX || block == com.r3ct.base_core.block.ModBlocks.WAXED_EXPOSED_MAILBOX) {
+                colors = new int[]{0xFFA07361, 0xFFBA8A75, 0xFF7E5748, 0xFF4A3127};
+            } else if (block == com.r3ct.base_core.block.ModBlocks.WEATHERED_MAILBOX || block == com.r3ct.base_core.block.ModBlocks.WAXED_WEATHERED_MAILBOX) {
+                colors = new int[]{0xFF5D9078, 0xFF71A78B, 0xFF456D59, 0xFF2A4235};
+            } else if (block == com.r3ct.base_core.block.ModBlocks.OXIDIZED_MAILBOX || block == com.r3ct.base_core.block.ModBlocks.WAXED_OXIDIZED_MAILBOX) {
+                colors = new int[]{0xFF3BA18B, 0xFF4BB59D, 0xFF297C6A, 0xFF174C40};
+            }
+        }
+        return colors;
+    }
+
     private void drawCopperPanel(GuiGraphicsExtractor graphics, int x, int y, int w, int h) {
-        graphics.fill(x, y, x + w, y + h, 0xFFB06A3B);
+        int[] pal = getCopperPalette();
+        graphics.fill(x, y, x + w, y + h, pal[0]);
+        graphics.fill(x, y, x + w, y + 2, pal[1]);
+        graphics.fill(x, y, x + 2, y + h, pal[1]);
+        graphics.fill(x, y + h - 2, x + w, y + h, pal[2]);
+        graphics.fill(x + w - 2, y, x + w, y + h, pal[2]);
 
-        graphics.fill(x, y, x + w, y + 2, 0xFFC27E4D);
-        graphics.fill(x, y, x + 2, y + h, 0xFFC27E4D);
+        graphics.fill(x + 4, y + 4, x + 6, y + 6, pal[3]);
+        graphics.fill(x + 5, y + 5, x + 7, y + 7, pal[1]);
+        graphics.fill(x + w - 6, y + 4, x + w - 4, y + 6, pal[3]);
+        graphics.fill(x + w - 5, y + 5, x + w - 3, y + 7, pal[1]);
+        graphics.fill(x + 4, y + h - 6, x + 6, y + h - 4, pal[3]);
+        graphics.fill(x + 5, y + h - 5, x + 7, y + h - 3, pal[1]);
+        graphics.fill(x + w - 6, y + h - 6, x + w - 4, y + h - 4, pal[3]);
+        graphics.fill(x + w - 5, y + h - 5, x + w - 3, y + h - 3, pal[1]);
 
-        graphics.fill(x, y + h - 2, x + w, y + h, 0xFF7A4526);
-        graphics.fill(x + w - 2, y, x + w, y + h, 0xFF7A4526);
-
-        int rivetShadow = 0xFF4A2511;
-        int rivetLight = 0xFFC27E4D;
-
-        graphics.fill(x + 4, y + 4, x + 6, y + 6, rivetShadow);
-        graphics.fill(x + 5, y + 5, x + 7, y + 7, rivetLight);
-        graphics.fill(x + w - 6, y + 4, x + w - 4, y + 6, rivetShadow);
-        graphics.fill(x + w - 5, y + 5, x + w - 3, y + 7, rivetLight);
-        graphics.fill(x + 4, y + h - 6, x + 6, y + h - 4, rivetShadow);
-        graphics.fill(x + 5, y + h - 5, x + 7, y + h - 3, rivetLight);
-        graphics.fill(x + w - 6, y + h - 6, x + w - 4, y + h - 4, rivetShadow);
-        graphics.fill(x + w - 5, y + h - 5, x + w - 3, y + h - 3, rivetLight);
-
-        drawThickOutline(graphics, x, y, w, h, 2, 0xFF4A2511);
+        drawThickOutline(graphics, x, y, w, h, 2, pal[3]);
     }
 
     private void drawPaperBackground(GuiGraphicsExtractor graphics, int x, int y, int w, int h) {
