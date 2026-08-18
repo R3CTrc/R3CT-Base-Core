@@ -1,1 +1,6 @@
-{"model": {"type": "minecraft:model", "model": "r3ct_base_core:block/mailbox_floor_empty"}}
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "r3ct_base_core:block/mailbox_empty"
+  }
+}

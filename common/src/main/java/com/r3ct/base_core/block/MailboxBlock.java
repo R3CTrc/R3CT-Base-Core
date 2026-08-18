@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
@@ -38,22 +37,20 @@ import java.util.function.BiConsumer;
 public class MailboxBlock extends Block implements EntityBlock {
 
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
-    public static final EnumProperty<AttachFace> ATTACH_FACE = BlockStateProperties.ATTACH_FACE;
     public static final BooleanProperty HAS_MAIL = BooleanProperty.create("has_mail");
 
-    private static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+    private static final VoxelShape SHAPE = Block.box(3.0D, 0.0D, 3.0D, 13.0D, 14.0D, 13.0D);
 
     public MailboxBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
-                .setValue(ATTACH_FACE, AttachFace.FLOOR)
                 .setValue(HAS_MAIL, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, ATTACH_FACE, HAS_MAIL);
+        builder.add(FACING, HAS_MAIL);
     }
 
     @Override
@@ -64,22 +61,8 @@ public class MailboxBlock extends Block implements EntityBlock {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        Direction clickedFace = context.getClickedFace();
-
-        if (clickedFace == Direction.DOWN) {
-            return null;
-        }
-
-        if (clickedFace == Direction.UP) {
-            return this.defaultBlockState()
-                    .setValue(ATTACH_FACE, AttachFace.FLOOR)
-                    .setValue(FACING, context.getHorizontalDirection().getOpposite());
-        }
-        else {
-            return this.defaultBlockState()
-                    .setValue(ATTACH_FACE, AttachFace.WALL)
-                    .setValue(FACING, clickedFace);
-        }
+        return this.defaultBlockState()
+                .setValue(FACING, context.getHorizontalDirection());
     }
 
     @Nullable
