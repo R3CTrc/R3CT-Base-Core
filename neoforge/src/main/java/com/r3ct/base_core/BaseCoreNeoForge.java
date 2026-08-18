@@ -49,6 +49,13 @@ public class BaseCoreNeoForge {
         }
     };
     public static final Item MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":mailbox"))));
+    public static final Item EXPOSED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.EXPOSED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":exposed_mailbox"))));
+    public static final Item WEATHERED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.WEATHERED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":weathered_mailbox"))));
+    public static final Item OXIDIZED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.OXIDIZED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":oxidized_mailbox"))));
+    public static final Item WAXED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.WAXED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_mailbox"))));
+    public static final Item WAXED_EXPOSED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.WAXED_EXPOSED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_exposed_mailbox"))));
+    public static final Item WAXED_WEATHERED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.WAXED_WEATHERED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_weathered_mailbox"))));
+    public static final Item WAXED_OXIDIZED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.WAXED_OXIDIZED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_oxidized_mailbox"))));
 
     public static final Item MAGIC_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":magic_tome"))));
     public static final Item DARK_MAGIC_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":dark_magic_tome"))));
@@ -169,12 +176,26 @@ public class BaseCoreNeoForge {
             helper.register(ModBlocks.BASE_CORE_KEY, ModBlocks.BASE_CORE);
             helper.register(ModBlocks.ARCANE_LECTERN_KEY, ModBlocks.ARCANE_LECTERN);
             helper.register(ModBlocks.MAILBOX_KEY, ModBlocks.MAILBOX);
+            helper.register(ModBlocks.EXPOSED_MAILBOX_KEY, ModBlocks.EXPOSED_MAILBOX);
+            helper.register(ModBlocks.WEATHERED_MAILBOX_KEY, ModBlocks.WEATHERED_MAILBOX);
+            helper.register(ModBlocks.OXIDIZED_MAILBOX_KEY, ModBlocks.OXIDIZED_MAILBOX);
+            helper.register(ModBlocks.WAXED_MAILBOX_KEY, ModBlocks.WAXED_MAILBOX);
+            helper.register(ModBlocks.WAXED_EXPOSED_MAILBOX_KEY, ModBlocks.WAXED_EXPOSED_MAILBOX);
+            helper.register(ModBlocks.WAXED_WEATHERED_MAILBOX_KEY, ModBlocks.WAXED_WEATHERED_MAILBOX);
+            helper.register(ModBlocks.WAXED_OXIDIZED_MAILBOX_KEY, ModBlocks.WAXED_OXIDIZED_MAILBOX);
         });
         event.register(Registries.ITEM, helper -> {
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":base_core")), BASE_CORE_ITEM);
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":blueprint")), BLUEPRINT_ITEM);
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":arcane_lectern")), ARCANE_LECTERN_ITEM);
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":mailbox")), MAILBOX_ITEM);
+            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":exposed_mailbox")), EXPOSED_MAILBOX_ITEM);
+            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":weathered_mailbox")), WEATHERED_MAILBOX_ITEM);
+            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":oxidized_mailbox")), OXIDIZED_MAILBOX_ITEM);
+            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_mailbox")), WAXED_MAILBOX_ITEM);
+            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_exposed_mailbox")), WAXED_EXPOSED_MAILBOX_ITEM);
+            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_weathered_mailbox")), WAXED_WEATHERED_MAILBOX_ITEM);
+            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_oxidized_mailbox")), WAXED_OXIDIZED_MAILBOX_ITEM);
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":magic_tome")), MAGIC_TOME);
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":dark_magic_tome")), DARK_MAGIC_TOME);
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":alchemy_tome")), ALCHEMY_TOME);
@@ -201,6 +222,13 @@ public class BaseCoreNeoForge {
                             .displayItems((context, output) -> {
                                 output.accept(BASE_CORE_ITEM);
                                 output.accept(MAILBOX_ITEM);
+                                output.accept(EXPOSED_MAILBOX_ITEM);
+                                output.accept(WEATHERED_MAILBOX_ITEM);
+                                output.accept(OXIDIZED_MAILBOX_ITEM);
+                                output.accept(WAXED_MAILBOX_ITEM);
+                                output.accept(WAXED_EXPOSED_MAILBOX_ITEM);
+                                output.accept(WAXED_WEATHERED_MAILBOX_ITEM);
+                                output.accept(WAXED_OXIDIZED_MAILBOX_ITEM);
                                 output.accept(BLUEPRINT_ITEM);
                                 output.accept(ARCANE_LECTERN_ITEM);
                                 output.accept(MAGIC_TOME);

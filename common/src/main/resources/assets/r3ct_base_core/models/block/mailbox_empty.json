@@ -5,7 +5,7 @@
     "110": "block/vault_top_ejecting",
     "193": "block/red_wool",
     "902": "block/copper_block",
-    "particle": "block/copper_block"
+    "particle": "#902"
   },
   "elements": [
     {

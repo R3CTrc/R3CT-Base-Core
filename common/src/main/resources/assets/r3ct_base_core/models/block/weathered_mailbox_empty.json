@@ -1,0 +1,6 @@
+{
+  "parent": "r3ct_base_core:block/mailbox_empty",
+  "textures": {
+    "902": "block/weathered_copper"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "facing=north,has_mail=false": { "model": "r3ct_base_core:block/oxidized_mailbox_empty" },
+    "facing=east,has_mail=false":  { "model": "r3ct_base_core:block/oxidized_mailbox_empty", "y": 90 },
+    "facing=south,has_mail=false": { "model": "r3ct_base_core:block/oxidized_mailbox_empty", "y": 180 },
+    "facing=west,has_mail=false":  { "model": "r3ct_base_core:block/oxidized_mailbox_empty", "y": 270 },
+
+    "facing=north,has_mail=true": { "model": "r3ct_base_core:block/oxidized_mailbox_full" },
+    "facing=east,has_mail=true":  { "model": "r3ct_base_core:block/oxidized_mailbox_full", "y": 90 },
+    "facing=south,has_mail=true": { "model": "r3ct_base_core:block/oxidized_mailbox_full", "y": 180 },
+    "facing=west,has_mail=true":  { "model": "r3ct_base_core:block/oxidized_mailbox_full", "y": 270 }
+  }
+}

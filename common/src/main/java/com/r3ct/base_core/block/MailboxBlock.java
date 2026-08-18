@@ -192,4 +192,75 @@ public class MailboxBlock extends Block implements EntityBlock {
         }
         return InteractionResult.SUCCESS;
     }
+
+    @Override
+    public boolean isRandomlyTicking(BlockState state) {
+        return ModBlocks.getOxidized(state.getBlock()) != null;
+    }
+
+    @Override
+    public void randomTick(BlockState state, ServerLevel level, BlockPos pos, net.minecraft.util.RandomSource random) {
+        Block nextBlock = ModBlocks.getOxidized(state.getBlock());
+        if (nextBlock != null && random.nextFloat() < 0.056F) {
+            changeBlockWithData(state, nextBlock.defaultBlockState(), level, pos);
+        }
+    }
+
+    @Override
+    protected net.minecraft.world.InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, net.minecraft.world.InteractionHand hand, BlockHitResult hitResult) {
+        Block currentBlock = state.getBlock();
+        Block nextBlock = null;
+
+        if (stack.getItem() == net.minecraft.world.item.Items.HONEYCOMB) {
+            nextBlock = ModBlocks.getWaxed(currentBlock);
+        }
+        else if (stack.getItem() instanceof net.minecraft.world.item.AxeItem) {
+            nextBlock = ModBlocks.getUnwaxed(currentBlock);
+            if (nextBlock == null) {
+                nextBlock = ModBlocks.getUnoxidized(currentBlock);
+            }
+        }
+
+        if (nextBlock != null) {
+            if (player instanceof ServerPlayer serverPlayer) {
+                if (stack.getItem() == net.minecraft.world.item.Items.HONEYCOMB) {
+                    stack.consume(1, serverPlayer);
+                } else {
+                    stack.hurtAndBreak(1, serverPlayer, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
+                }
+            }
+            changeBlockWithData(state, nextBlock.defaultBlockState(), level, pos);
+            level.levelEvent(player, stack.getItem() == net.minecraft.world.item.Items.HONEYCOMB ? 3003 : 3004, pos, 0);
+            return net.minecraft.world.InteractionResult.SUCCESS;
+        }
+
+        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+    }
+
+    private void changeBlockWithData(BlockState oldState, BlockState newState, Level level, BlockPos pos) {
+        BlockEntity oldBe = level.getBlockEntity(pos);
+        String savedOwner = "";
+
+        net.minecraft.core.NonNullList<com.r3ct.base_core.data.MailMessage> savedMessages =
+                net.minecraft.core.NonNullList.withSize(27, com.r3ct.base_core.data.MailMessage.EMPTY);
+
+        if (oldBe instanceof MailboxBlockEntity oldMailbox) {
+            savedOwner = oldMailbox.getOwnerUUID();
+            for (int i = 0; i < 27; i++) {
+                savedMessages.set(i, oldMailbox.getMessages().get(i));
+            }
+        }
+
+        level.setBlock(pos, newState.setValue(FACING, oldState.getValue(FACING)).setValue(HAS_MAIL, oldState.getValue(HAS_MAIL)), 3);
+
+        BlockEntity newBe = level.getBlockEntity(pos);
+
+        if (newBe instanceof MailboxBlockEntity newMailbox) {
+            newMailbox.setOwnerUUID(savedOwner);
+            for (int i = 0; i < 27; i++) {
+                newMailbox.getMessages().set(i, savedMessages.get(i));
+            }
+            newMailbox.setChanged();
+        }
+    }
 }
