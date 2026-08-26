@@ -37,16 +37,6 @@ public class BaseCoreClientLogic {
         clientCoreDim = payload.dimension();
     }
 
-    public static boolean clientHasMailbox = false;
-    public static net.minecraft.core.BlockPos clientMailboxPos = net.minecraft.core.BlockPos.ZERO;
-    public static String clientMailboxDim = "";
-
-    public static void handleMailboxStateSync(com.r3ct.base_core.network.SyncMailboxStatePayload payload) {
-        clientHasMailbox = payload.hasMailbox();
-        clientMailboxPos = payload.pos();
-        clientMailboxDim = payload.dimension();
-    }
-
     public static void trackCore(BaseCoreBlockEntity core) {
         TRACKED_CORES.add(core);
     }

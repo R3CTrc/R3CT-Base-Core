@@ -35,22 +35,13 @@ public class BaseCoreFabric implements ModInitializer {
 	);
 
 	public static final Item ARCANE_LECTERN_ITEM = new BlockItem(ModBlocks.ARCANE_LECTERN, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":arcane_lectern")))) {
-        @Override
-        public void appendHoverText(ItemStack itemStack, Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> builder, net.minecraft.world.item.TooltipFlag tooltipFlag) {
-            super.appendHoverText(itemStack, context, display, builder, tooltipFlag);
-            builder.accept(Component.translatable("item.r3ct_base_core.arcane_lectern.desc.1").withStyle(net.minecraft.ChatFormatting.GRAY));
-            builder.accept(Component.translatable("item.r3ct_base_core.arcane_lectern.desc.2").withStyle(net.minecraft.ChatFormatting.GRAY));
-        }
-    };
-
-	public static final Item MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":mailbox"))));
-	public static final Item EXPOSED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.EXPOSED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":exposed_mailbox"))));
-	public static final Item WEATHERED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.WEATHERED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":weathered_mailbox"))));
-	public static final Item OXIDIZED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.OXIDIZED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":oxidized_mailbox"))));
-	public static final Item WAXED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.WAXED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_mailbox"))));
-	public static final Item WAXED_EXPOSED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.WAXED_EXPOSED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_exposed_mailbox"))));
-	public static final Item WAXED_WEATHERED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.WAXED_WEATHERED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_weathered_mailbox"))));
-	public static final Item WAXED_OXIDIZED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.WAXED_OXIDIZED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_oxidized_mailbox"))));
+		@Override
+		public void appendHoverText(ItemStack itemStack, Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> builder, net.minecraft.world.item.TooltipFlag tooltipFlag) {
+			super.appendHoverText(itemStack, context, display, builder, tooltipFlag);
+			builder.accept(Component.translatable("item.r3ct_base_core.arcane_lectern.desc.1").withStyle(net.minecraft.ChatFormatting.GRAY));
+			builder.accept(Component.translatable("item.r3ct_base_core.arcane_lectern.desc.2").withStyle(net.minecraft.ChatFormatting.GRAY));
+		}
+	};
 
 	public static final Item MAGIC_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":magic_tome"))));
 	public static final Item DARK_MAGIC_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":dark_magic_tome"))));
@@ -84,37 +75,10 @@ public class BaseCoreFabric implements ModInitializer {
 		Registry.register(BuiltInRegistries.MENU, Identifier.parse(Constants.MOD_ID + ":base_core_menu"), ModMenuTypes.BASE_CORE_MENU);
 		Registry.register(BuiltInRegistries.MENU, Identifier.parse(Constants.MOD_ID + ":base_core_visitor_menu"), ModMenuTypes.BASE_CORE_VISITOR_MENU);
 		Registry.register(BuiltInRegistries.MENU, Identifier.parse(Constants.MOD_ID + ":arcane_lectern_menu"), ModMenuTypes.ARCANE_LECTERN_MENU);
-		Registry.register(BuiltInRegistries.MENU, Identifier.parse(Constants.MOD_ID + ":mailbox_visitor_menu"), ModMenuTypes.MAILBOX_VISITOR_MENU);
-		Registry.register(BuiltInRegistries.MENU, Identifier.parse(Constants.MOD_ID + ":mailbox_owner_menu"), ModMenuTypes.MAILBOX_OWNER_MENU);
 
 		Registry.register(BuiltInRegistries.BLOCK, ModBlocks.ARCANE_LECTERN_KEY, ModBlocks.ARCANE_LECTERN);
 		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":arcane_lectern"), ARCANE_LECTERN_ITEM);
 		Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, ModBlocks.ARCANE_LECTERN_BE_KEY, ModBlocks.ARCANE_LECTERN_BE_TYPE);
-
-		Registry.register(BuiltInRegistries.BLOCK, ModBlocks.MAILBOX_KEY, ModBlocks.MAILBOX);
-		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":mailbox"), MAILBOX_ITEM);
-		Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, ModBlocks.MAILBOX_BE_KEY, ModBlocks.MAILBOX_BE_TYPE);
-
-		Registry.register(BuiltInRegistries.BLOCK, ModBlocks.EXPOSED_MAILBOX_KEY, ModBlocks.EXPOSED_MAILBOX);
-		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":exposed_mailbox"), EXPOSED_MAILBOX_ITEM);
-
-		Registry.register(BuiltInRegistries.BLOCK, ModBlocks.WEATHERED_MAILBOX_KEY, ModBlocks.WEATHERED_MAILBOX);
-		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":weathered_mailbox"), WEATHERED_MAILBOX_ITEM);
-
-		Registry.register(BuiltInRegistries.BLOCK, ModBlocks.OXIDIZED_MAILBOX_KEY, ModBlocks.OXIDIZED_MAILBOX);
-		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":oxidized_mailbox"), OXIDIZED_MAILBOX_ITEM);
-
-		Registry.register(BuiltInRegistries.BLOCK, ModBlocks.WAXED_MAILBOX_KEY, ModBlocks.WAXED_MAILBOX);
-		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_mailbox"), WAXED_MAILBOX_ITEM);
-
-		Registry.register(BuiltInRegistries.BLOCK, ModBlocks.WAXED_EXPOSED_MAILBOX_KEY, ModBlocks.WAXED_EXPOSED_MAILBOX);
-		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_exposed_mailbox"), WAXED_EXPOSED_MAILBOX_ITEM);
-
-		Registry.register(BuiltInRegistries.BLOCK, ModBlocks.WAXED_WEATHERED_MAILBOX_KEY, ModBlocks.WAXED_WEATHERED_MAILBOX);
-		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_weathered_mailbox"), WAXED_WEATHERED_MAILBOX_ITEM);
-
-		Registry.register(BuiltInRegistries.BLOCK, ModBlocks.WAXED_OXIDIZED_MAILBOX_KEY, ModBlocks.WAXED_OXIDIZED_MAILBOX);
-		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_oxidized_mailbox"), WAXED_OXIDIZED_MAILBOX_ITEM);
 
 		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":magic_tome"), MAGIC_TOME);
 		Registry.register(BuiltInRegistries.ITEM, Identifier.parse(Constants.MOD_ID + ":dark_magic_tome"), DARK_MAGIC_TOME);
@@ -128,14 +92,6 @@ public class BaseCoreFabric implements ModInitializer {
 				.icon(() -> new ItemStack(BASE_CORE_ITEM))
 				.displayItems((context, output) -> {
 					output.accept(BASE_CORE_ITEM);
-					output.accept(MAILBOX_ITEM);
-					output.accept(EXPOSED_MAILBOX_ITEM);
-					output.accept(WEATHERED_MAILBOX_ITEM);
-					output.accept(OXIDIZED_MAILBOX_ITEM);
-					output.accept(WAXED_MAILBOX_ITEM);
-					output.accept(WAXED_EXPOSED_MAILBOX_ITEM);
-					output.accept(WAXED_WEATHERED_MAILBOX_ITEM);
-					output.accept(WAXED_OXIDIZED_MAILBOX_ITEM);
 					output.accept(BLUEPRINT_ITEM);
 					output.accept(ARCANE_LECTERN_ITEM);
 					output.accept(MAGIC_TOME);
@@ -153,17 +109,12 @@ public class BaseCoreFabric implements ModInitializer {
 
 		PayloadTypeRegistry.clientboundPlay().register(ConfigSyncPayload.TYPE, ConfigSyncPayload.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(SyncCoreStatePayload.TYPE, SyncCoreStatePayload.CODEC);
-		PayloadTypeRegistry.clientboundPlay().register(SyncMailboxStatePayload.TYPE, SyncMailboxStatePayload.CODEC);
 
 		PayloadTypeRegistry.serverboundPlay().register(UpgradeBaseCorePayload.TYPE, UpgradeBaseCorePayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ToggleBorderPayload.TYPE, ToggleBorderPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(LecternAutoFillPayload.TYPE, LecternAutoFillPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ApplyEffectsPayload.TYPE, ApplyEffectsPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(RemoveEffectPayload.TYPE, RemoveEffectPayload.CODEC);
-
-		PayloadTypeRegistry.serverboundPlay().register(SendMailPayload.TYPE, SendMailPayload.CODEC);
-		PayloadTypeRegistry.serverboundPlay().register(CollectMailPayload.TYPE, CollectMailPayload.CODEC);
-		PayloadTypeRegistry.serverboundPlay().register(CancelMailPayload.TYPE, CancelMailPayload.CODEC);
 
 		ServerPlayNetworking.registerGlobalReceiver(UpgradeBaseCorePayload.TYPE, (payload, context) -> {
 			context.server().execute(() -> {
@@ -193,18 +144,6 @@ public class BaseCoreFabric implements ModInitializer {
 			context.server().execute(() -> BaseCoreServerLogic.handleLecternAutoFill(context.player(), payload));
 		});
 
-		ServerPlayNetworking.registerGlobalReceiver(SendMailPayload.TYPE, (payload, context) -> {
-			context.server().execute(() -> BaseCoreServerLogic.handleSendMail(context.player(), payload));
-		});
-
-		ServerPlayNetworking.registerGlobalReceiver(CollectMailPayload.TYPE, (payload, context) -> {
-			context.server().execute(() -> BaseCoreServerLogic.handleCollectMail(context.player(), payload));
-		});
-
-		ServerPlayNetworking.registerGlobalReceiver(CancelMailPayload.TYPE, (payload, context) -> {
-			context.server().execute(() -> BaseCoreServerLogic.handleCancelMail(context.player(), payload));
-		});
-
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			ServerPlayer player = handler.getPlayer();
 			String serverJson = BaseCoreServerConfig.getServerConfigString();
@@ -214,10 +153,6 @@ public class BaseCoreFabric implements ModInitializer {
 			BlockPos pos = data.hasPlacedCore ? new BlockPos(data.coreX, data.coreY, data.coreZ) : BlockPos.ZERO;
 			String dim = data.hasPlacedCore ? data.coreDimension : "";
 			ServerPlayNetworking.send(player, new SyncCoreStatePayload(data.hasPlacedCore, pos, dim));
-
-			BlockPos mailPos = data.hasPlacedMailbox ? new BlockPos(data.mailboxX, data.mailboxY, data.mailboxZ) : BlockPos.ZERO;
-			String mailDim = data.hasPlacedMailbox ? data.mailboxDimension : "";
-			ServerPlayNetworking.send(player, new SyncMailboxStatePayload(data.hasPlacedMailbox, mailPos, mailDim));
 		});
 	}
 }

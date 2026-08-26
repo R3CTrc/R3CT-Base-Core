@@ -6,7 +6,6 @@ import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.logic.BaseCoreClientLogic;
 import com.r3ct.base_core.network.ConfigSyncPayload;
 import com.r3ct.base_core.network.SyncCoreStatePayload;
-import com.r3ct.base_core.network.SyncMailboxStatePayload;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -35,9 +34,6 @@ public class BaseCoreNeoForgeClient {
             event.register(ModMenuTypes.BASE_CORE_MENU, BaseCoreScreen::new);
             event.register(ModMenuTypes.BASE_CORE_VISITOR_MENU, BaseCoreVisitorScreen::new);
             event.register(ModMenuTypes.ARCANE_LECTERN_MENU, ArcaneLecternScreen::new);
-
-            event.register(ModMenuTypes.MAILBOX_VISITOR_MENU, MailboxVisitorScreen::new);
-            event.register(ModMenuTypes.MAILBOX_OWNER_MENU, MailboxOwnerScreen::new);
         }
     }
 
@@ -48,7 +44,6 @@ public class BaseCoreNeoForgeClient {
         public static void onClientLoggedOut(ClientPlayerNetworkEvent.LoggingOut event) {
             BaseCoreServerConfig.load();
             BaseCoreClientLogic.clientHasCore = false;
-            BaseCoreClientLogic.clientHasMailbox = false;
         }
 
         @SubscribeEvent
@@ -64,10 +59,6 @@ public class BaseCoreNeoForgeClient {
 
         public static void handleCoreStateSync(SyncCoreStatePayload payload) {
             BaseCoreClientLogic.handleCoreStateSync(payload);
-        }
-
-        public static void handleMailboxStateSync(SyncMailboxStatePayload payload) {
-            BaseCoreClientLogic.handleMailboxStateSync(payload);
         }
     }
 }

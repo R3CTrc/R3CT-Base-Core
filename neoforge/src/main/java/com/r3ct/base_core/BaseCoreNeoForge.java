@@ -48,14 +48,6 @@ public class BaseCoreNeoForge {
             builder.accept(Component.translatable("item.r3ct_base_core.arcane_lectern.desc.2").withStyle(net.minecraft.ChatFormatting.GRAY));
         }
     };
-    public static final Item MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":mailbox"))));
-    public static final Item EXPOSED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.EXPOSED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":exposed_mailbox"))));
-    public static final Item WEATHERED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.WEATHERED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":weathered_mailbox"))));
-    public static final Item OXIDIZED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.OXIDIZED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":oxidized_mailbox"))));
-    public static final Item WAXED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.WAXED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_mailbox"))));
-    public static final Item WAXED_EXPOSED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.WAXED_EXPOSED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_exposed_mailbox"))));
-    public static final Item WAXED_WEATHERED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.WAXED_WEATHERED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_weathered_mailbox"))));
-    public static final Item WAXED_OXIDIZED_MAILBOX_ITEM = new com.r3ct.base_core.item.MailboxBlockItem(ModBlocks.WAXED_OXIDIZED_MAILBOX, new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_oxidized_mailbox"))));
 
     public static final Item MAGIC_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":magic_tome"))));
     public static final Item DARK_MAGIC_TOME = new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":dark_magic_tome"))));
@@ -86,10 +78,6 @@ public class BaseCoreNeoForge {
 
         registrar.playToClient(SyncCoreStatePayload.TYPE, SyncCoreStatePayload.CODEC, (payload, context) -> {
             context.enqueueWork(() -> BaseCoreNeoForgeClient.ClientPayloadHandlers.handleCoreStateSync(payload));
-        });
-
-        registrar.playToClient(SyncMailboxStatePayload.TYPE, SyncMailboxStatePayload.CODEC, (payload, context) -> {
-            context.enqueueWork(() -> BaseCoreNeoForgeClient.ClientPayloadHandlers.handleMailboxStateSync(payload));
         });
 
         registrar.playToServer(UpgradeBaseCorePayload.TYPE, UpgradeBaseCorePayload.CODEC, (payload, context) -> {
@@ -131,30 +119,6 @@ public class BaseCoreNeoForge {
                 }
             });
         });
-
-        registrar.playToServer(SendMailPayload.TYPE, SendMailPayload.CODEC, (payload, context) -> {
-            context.enqueueWork(() -> {
-                if (context.player() instanceof ServerPlayer player) {
-                    BaseCoreServerLogic.handleSendMail(player, payload);
-                }
-            });
-        });
-
-        registrar.playToServer(CollectMailPayload.TYPE, CollectMailPayload.CODEC, (payload, context) -> {
-            context.enqueueWork(() -> {
-                if (context.player() instanceof ServerPlayer player) {
-                    BaseCoreServerLogic.handleCollectMail(player, payload);
-                }
-            });
-        });
-
-        registrar.playToServer(CancelMailPayload.TYPE, CancelMailPayload.CODEC, (payload, context) -> {
-            context.enqueueWork(() -> {
-                if (context.player() instanceof ServerPlayer player) {
-                    BaseCoreServerLogic.handleCancelMail(player, payload);
-                }
-            });
-        });
     }
 
     private void onRegister(RegisterEvent event) {
@@ -175,27 +139,11 @@ public class BaseCoreNeoForge {
         event.register(Registries.BLOCK, helper -> {
             helper.register(ModBlocks.BASE_CORE_KEY, ModBlocks.BASE_CORE);
             helper.register(ModBlocks.ARCANE_LECTERN_KEY, ModBlocks.ARCANE_LECTERN);
-            helper.register(ModBlocks.MAILBOX_KEY, ModBlocks.MAILBOX);
-            helper.register(ModBlocks.EXPOSED_MAILBOX_KEY, ModBlocks.EXPOSED_MAILBOX);
-            helper.register(ModBlocks.WEATHERED_MAILBOX_KEY, ModBlocks.WEATHERED_MAILBOX);
-            helper.register(ModBlocks.OXIDIZED_MAILBOX_KEY, ModBlocks.OXIDIZED_MAILBOX);
-            helper.register(ModBlocks.WAXED_MAILBOX_KEY, ModBlocks.WAXED_MAILBOX);
-            helper.register(ModBlocks.WAXED_EXPOSED_MAILBOX_KEY, ModBlocks.WAXED_EXPOSED_MAILBOX);
-            helper.register(ModBlocks.WAXED_WEATHERED_MAILBOX_KEY, ModBlocks.WAXED_WEATHERED_MAILBOX);
-            helper.register(ModBlocks.WAXED_OXIDIZED_MAILBOX_KEY, ModBlocks.WAXED_OXIDIZED_MAILBOX);
         });
         event.register(Registries.ITEM, helper -> {
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":base_core")), BASE_CORE_ITEM);
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":blueprint")), BLUEPRINT_ITEM);
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":arcane_lectern")), ARCANE_LECTERN_ITEM);
-            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":mailbox")), MAILBOX_ITEM);
-            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":exposed_mailbox")), EXPOSED_MAILBOX_ITEM);
-            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":weathered_mailbox")), WEATHERED_MAILBOX_ITEM);
-            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":oxidized_mailbox")), OXIDIZED_MAILBOX_ITEM);
-            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_mailbox")), WAXED_MAILBOX_ITEM);
-            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_exposed_mailbox")), WAXED_EXPOSED_MAILBOX_ITEM);
-            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_weathered_mailbox")), WAXED_WEATHERED_MAILBOX_ITEM);
-            helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":waxed_oxidized_mailbox")), WAXED_OXIDIZED_MAILBOX_ITEM);
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":magic_tome")), MAGIC_TOME);
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":dark_magic_tome")), DARK_MAGIC_TOME);
             helper.register(ResourceKey.create(Registries.ITEM, Identifier.parse(Constants.MOD_ID + ":alchemy_tome")), ALCHEMY_TOME);
@@ -204,15 +152,11 @@ public class BaseCoreNeoForge {
         event.register(Registries.BLOCK_ENTITY_TYPE, helper -> {
             helper.register(ModBlocks.BASE_CORE_BE_KEY, ModBlocks.BASE_CORE_BE_TYPE);
             helper.register(ModBlocks.ARCANE_LECTERN_BE_KEY, ModBlocks.ARCANE_LECTERN_BE_TYPE);
-            helper.register(ModBlocks.MAILBOX_BE_KEY, ModBlocks.MAILBOX_BE_TYPE);
         });
         event.register(Registries.MENU, helper -> {
             helper.register(ResourceKey.create(Registries.MENU, Identifier.parse(Constants.MOD_ID + ":base_core_menu")), ModMenuTypes.BASE_CORE_MENU);
             helper.register(ResourceKey.create(Registries.MENU, Identifier.parse(Constants.MOD_ID + ":base_core_visitor_menu")), ModMenuTypes.BASE_CORE_VISITOR_MENU);
             helper.register(ResourceKey.create(Registries.MENU, Identifier.parse(Constants.MOD_ID + ":arcane_lectern_menu")), ModMenuTypes.ARCANE_LECTERN_MENU);
-
-            helper.register(ResourceKey.create(Registries.MENU, Identifier.parse(Constants.MOD_ID + ":mailbox_visitor_menu")), ModMenuTypes.MAILBOX_VISITOR_MENU);
-            helper.register(ResourceKey.create(Registries.MENU, Identifier.parse(Constants.MOD_ID + ":mailbox_owner_menu")), ModMenuTypes.MAILBOX_OWNER_MENU);
         });
         event.register(Registries.CREATIVE_MODE_TAB, helper -> {
             helper.register(Identifier.parse(Constants.MOD_ID + ":main_tab"),
@@ -221,14 +165,6 @@ public class BaseCoreNeoForge {
                             .icon(() -> new ItemStack(BASE_CORE_ITEM))
                             .displayItems((context, output) -> {
                                 output.accept(BASE_CORE_ITEM);
-                                output.accept(MAILBOX_ITEM);
-                                output.accept(EXPOSED_MAILBOX_ITEM);
-                                output.accept(WEATHERED_MAILBOX_ITEM);
-                                output.accept(OXIDIZED_MAILBOX_ITEM);
-                                output.accept(WAXED_MAILBOX_ITEM);
-                                output.accept(WAXED_EXPOSED_MAILBOX_ITEM);
-                                output.accept(WAXED_WEATHERED_MAILBOX_ITEM);
-                                output.accept(WAXED_OXIDIZED_MAILBOX_ITEM);
                                 output.accept(BLUEPRINT_ITEM);
                                 output.accept(ARCANE_LECTERN_ITEM);
                                 output.accept(MAGIC_TOME);
@@ -257,10 +193,6 @@ public class BaseCoreNeoForge {
             BlockPos corePos = data.hasPlacedCore ? new BlockPos(data.coreX, data.coreY, data.coreZ) : BlockPos.ZERO;
             String coreDim = data.hasPlacedCore ? data.coreDimension : "";
             PacketDistributor.sendToPlayer(player, new SyncCoreStatePayload(data.hasPlacedCore, corePos, coreDim));
-
-            BlockPos mailPos = data.hasPlacedMailbox ? new BlockPos(data.mailboxX, data.mailboxY, data.mailboxZ) : BlockPos.ZERO;
-            String mailDim = data.hasPlacedMailbox ? data.mailboxDimension : "";
-            PacketDistributor.sendToPlayer(player, new SyncMailboxStatePayload(data.hasPlacedMailbox, mailPos, mailDim));
         }
     }
 }

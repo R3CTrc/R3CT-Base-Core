@@ -1,6 +1,0 @@
-{
-  "parent": "r3ct_base_core:block/mailbox_full",
-  "textures": {
-    "902": "block/oxidized_copper"
-  }
-}
