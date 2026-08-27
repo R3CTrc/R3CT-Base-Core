@@ -78,6 +78,10 @@
   "r3ct_base_core.recipe.base_alchemy": "Basic Alchemy Tome",
   "r3ct_base_core.recipe.base_dark_magic": "Basic Dark Magic Tome",
 
+  "r3ct_base_core.recipe.base_magic.desc": "Creates a Basic Magic Tome",
+  "r3ct_base_core.recipe.base_alchemy.desc": "Creates a Basic Alchemy Tome",
+  "r3ct_base_core.recipe.base_dark_magic.desc": "Creates a Basic Dark Magic Tome",
+
   "r3ct_base_core.effect.crop_growth.name": "Nature's Blessing",
   "r3ct_base_core.effect.crop_growth.desc.1": "Accelerates the growth of crops",
   "r3ct_base_core.effect.crop_growth.desc.2": "and plants by 25% within the base.",

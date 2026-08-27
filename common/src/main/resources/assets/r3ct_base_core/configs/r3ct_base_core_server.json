@@ -137,7 +137,7 @@
     {
       "id": "base_magic",
       "nameKey": "r3ct_base_core.recipe.base_magic",
-      "descKey": "Tworzy Podstawową Księgę Magii",
+      "descKey": "r3ct_base_core.recipe.base_magic.desc",
       "xpCost": 150,
       "inputItem": "minecraft:book",
       "ingredientItem": "minecraft:lapis_lazuli",
@@ -148,7 +148,7 @@
     {
       "id": "base_alchemy",
       "nameKey": "r3ct_base_core.recipe.base_alchemy",
-      "descKey": "Tworzy Podstawową Księgę Alchemii",
+      "descKey": "r3ct_base_core.recipe.base_alchemy.desc",
       "xpCost": 200,
       "inputItem": "minecraft:book",
       "ingredientItem": "minecraft:nether_wart",
@@ -159,7 +159,7 @@
     {
       "id": "base_dark_magic",
       "nameKey": "r3ct_base_core.recipe.base_dark_magic",
-      "descKey": "Tworzy Podstawową Księgę Czarnej Magii",
+      "descKey": "r3ct_base_core.recipe.base_dark_magic.desc",
       "xpCost": 250,
       "inputItem": "minecraft:book",
       "ingredientItem": "minecraft:wither_skeleton_skull",

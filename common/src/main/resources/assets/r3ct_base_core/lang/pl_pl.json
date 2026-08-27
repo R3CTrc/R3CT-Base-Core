@@ -78,6 +78,10 @@
   "r3ct_base_core.recipe.base_alchemy": "Podstawowa Księga Alchemii",
   "r3ct_base_core.recipe.base_dark_magic": "Podstawowa Księga Czarnej Magii",
 
+  "r3ct_base_core.recipe.base_magic.desc": "Tworzy Podstawową Księgę Magii",
+  "r3ct_base_core.recipe.base_alchemy.desc": "Tworzy Podstawową Księgę Alchemii",
+  "r3ct_base_core.recipe.base_dark_magic.desc": "Tworzy Podstawową Księgę Czarnej Magii",
+
   "r3ct_base_core.effect.crop_growth.name": "Błogosławieństwo Natury",
   "r3ct_base_core.effect.crop_growth.desc.1": "Przyspiesza wzrost upraw i roślin",
   "r3ct_base_core.effect.crop_growth.desc.2": "o 25% w obrębie bazy.",
