@@ -120,6 +120,7 @@ public class BaseCoreBlock extends Block implements EntityBlock {
                 ));
 
                 level.setBlock(pos, state.setValue(TIER, coreBE.getTier()), 3);
+                BaseCoreServerLogic.broadcastAllCores(level.getServer());
             }
         }
     }
@@ -191,6 +192,7 @@ public class BaseCoreBlock extends Block implements EntityBlock {
                                         new com.r3ct.base_core.network.SyncCoreStatePayload(false, BlockPos.ZERO, "")
                                 ));
                             }
+                            BaseCoreServerLogic.broadcastAllCores(level.getServer());
                         }
                     } catch (IllegalArgumentException ignored) {}
                 }

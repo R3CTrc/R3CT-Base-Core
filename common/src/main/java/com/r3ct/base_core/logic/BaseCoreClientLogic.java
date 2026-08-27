@@ -37,6 +37,12 @@ public class BaseCoreClientLogic {
         clientCoreDim = payload.dimension();
     }
 
+    public static java.util.List<com.r3ct.base_core.network.SyncAllCoresPayload.CoreData> allServerCores = new java.util.ArrayList<>();
+
+    public static void handleSyncAllCores(com.r3ct.base_core.network.SyncAllCoresPayload payload) {
+        allServerCores = payload.cores();
+    }
+
     public static void trackCore(BaseCoreBlockEntity core) {
         TRACKED_CORES.add(core);
     }
@@ -81,6 +87,22 @@ public class BaseCoreClientLogic {
                         core.getBlockPos().getY() - cameraPos.y,
                         core.getBlockPos().getZ() - cameraPos.z,
                         ARGB.colorFromFloat(1.0F, 0.0F, 0.5F, 1.0F),
+                        2.0F
+                );
+            }
+
+            if (holdsBlueprint) {
+                int maxRadius = BaseCoreServerConfig.calculateRangeUpToTier(11);
+                AABB maxAabb = new AABB(-maxRadius, -maxRadius, -maxRadius, 1 + maxRadius, 1 + maxRadius, 1 + maxRadius);
+
+                ShapeRenderer.renderShape(
+                        poseStack,
+                        vertexConsumer,
+                        Shapes.create(maxAabb),
+                        core.getBlockPos().getX() - cameraPos.x,
+                        core.getBlockPos().getY() - cameraPos.y,
+                        core.getBlockPos().getZ() - cameraPos.z,
+                        ARGB.colorFromFloat(1.0F, 0.5F, 0.5F, 0.5F),
                         2.0F
                 );
             }

@@ -309,6 +309,23 @@ public class BaseCoreServerLogic {
         }
     }
 
+    public static com.r3ct.base_core.network.SyncAllCoresPayload getAllCoresPayload(net.minecraft.server.MinecraftServer server) {
+        ModState state = ModState.get(server);
+        java.util.List<com.r3ct.base_core.network.SyncAllCoresPayload.CoreData> list = new java.util.ArrayList<>();
+        for (PlayerData data : state.players.values()) {
+            if (data.hasPlacedCore) {
+                list.add(new com.r3ct.base_core.network.SyncAllCoresPayload.CoreData(data.coreDimension, new net.minecraft.core.BlockPos(data.coreX, data.coreY, data.coreZ)));
+            }
+        }
+        return new com.r3ct.base_core.network.SyncAllCoresPayload(list);
+    }
+
+    public static void broadcastAllCores(net.minecraft.server.MinecraftServer server) {
+        com.r3ct.base_core.network.SyncAllCoresPayload payload = getAllCoresPayload(server);
+        net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket packet = new net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket(payload);
+        server.getPlayerList().getPlayers().forEach(p -> p.connection.send(packet));
+    }
+
     public static void grantAdvancement(ServerPlayer player, String advancementName) {
         Identifier id = Identifier.parse("r3ct_base_core:" + advancementName);
         AdvancementHolder advancement = player.level().getServer().getAdvancements().get(id);

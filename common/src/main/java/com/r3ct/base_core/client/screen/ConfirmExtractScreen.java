@@ -38,7 +38,7 @@ public class ConfirmExtractScreen extends Screen {
             }
         }).bounds(centerX - 105, btnY, 100, 20).build());
 
-        this.addRenderableWidget(Button.builder(Component.translatable("r3ct_base_core.gui.confirm_extract.no").withStyle(ChatFormatting.RED), button -> {
+        this.addRenderableWidget(Button.builder(Component.translatable("r3ct_base_core.gui.cancel").withStyle(ChatFormatting.RED), button -> {
             this.onClose();
         }).bounds(centerX + 5, btnY, 100, 20).build());
     }

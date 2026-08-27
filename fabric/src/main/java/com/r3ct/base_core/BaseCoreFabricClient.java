@@ -5,6 +5,7 @@ import com.r3ct.base_core.config.BaseCoreClientConfig;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.logic.BaseCoreClientLogic;
 import com.r3ct.base_core.network.ConfigSyncPayload;
+import com.r3ct.base_core.network.SyncAllCoresPayload;
 import com.r3ct.base_core.network.SyncCoreStatePayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -27,6 +28,12 @@ public class BaseCoreFabricClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(SyncCoreStatePayload.TYPE, (payload, context) -> {
 			context.client().execute(() -> {
 				BaseCoreClientLogic.handleCoreStateSync(payload);
+			});
+		});
+
+		ClientPlayNetworking.registerGlobalReceiver(SyncAllCoresPayload.TYPE, (payload, context) -> {
+			context.client().execute(() -> {
+				BaseCoreClientLogic.handleSyncAllCores(payload);
 			});
 		});
 

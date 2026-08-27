@@ -45,6 +45,31 @@ public class BaseCoreBlockItem extends BlockItem {
                 if (BaseCoreClientLogic.clientHasCore) {
                     return InteractionResult.FAIL;
                 }
+
+                boolean preventInside = BaseCoreServerConfig.getInstance().preventPlacementInsideOtherBase;
+                boolean preventOverlap = BaseCoreServerConfig.getInstance().preventOverlappingBases;
+
+                if (preventInside || preventOverlap) {
+                    BlockPos clickPos = context.getClickedPos();
+                    String currentDim = level.dimension().identifier().toString();
+                    int maxRadius = BaseCoreServerConfig.calculateRangeUpToTier(11);
+
+                    for (com.r3ct.base_core.network.SyncAllCoresPayload.CoreData core : BaseCoreClientLogic.allServerCores) {
+                        if (currentDim.equals(core.dimension())) {
+                            int distX = Math.abs(core.pos().getX() - clickPos.getX());
+                            int distY = Math.abs(core.pos().getY() - clickPos.getY());
+                            int distZ = Math.abs(core.pos().getZ() - clickPos.getZ());
+                            int dist = Math.max(Math.max(distX, distY), distZ);
+
+                            if (preventOverlap && dist <= (maxRadius * 2)) {
+                                return InteractionResult.FAIL;
+                            }
+                            if (preventInside && dist <= maxRadius) {
+                                return InteractionResult.FAIL;
+                            }
+                        }
+                    }
+                }
             }
             else if (player instanceof ServerPlayer serverPlayer) {
                 ModState state = ModState.get(level.getServer());
@@ -95,8 +120,9 @@ public class BaseCoreBlockItem extends BlockItem {
                         if (otherData.hasPlacedCore && currentDim.equals(otherData.coreDimension)) {
 
                             int distX = Math.abs(otherData.coreX - clickPos.getX());
+                            int distY = Math.abs(otherData.coreY - clickPos.getY());
                             int distZ = Math.abs(otherData.coreZ - clickPos.getZ());
-                            int dist = Math.max(distX, distZ);
+                            int dist = Math.max(Math.max(distX, distY), distZ);
 
                             if (preventOverlap) {
                                 if (dist <= (maxRadius * 2)) {

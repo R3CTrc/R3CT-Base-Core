@@ -80,6 +80,10 @@ public class BaseCoreNeoForge {
             context.enqueueWork(() -> BaseCoreNeoForgeClient.ClientPayloadHandlers.handleCoreStateSync(payload));
         });
 
+        registrar.playToClient(SyncAllCoresPayload.TYPE, SyncAllCoresPayload.CODEC, (payload, context) -> {
+            context.enqueueWork(() -> BaseCoreNeoForgeClient.ClientPayloadHandlers.handleSyncAllCores(payload));
+        });
+
         registrar.playToServer(UpgradeBaseCorePayload.TYPE, UpgradeBaseCorePayload.CODEC, (payload, context) -> {
             context.enqueueWork(() -> {
                 if (context.player() instanceof ServerPlayer player) {
@@ -193,6 +197,7 @@ public class BaseCoreNeoForge {
             BlockPos corePos = data.hasPlacedCore ? new BlockPos(data.coreX, data.coreY, data.coreZ) : BlockPos.ZERO;
             String coreDim = data.hasPlacedCore ? data.coreDimension : "";
             PacketDistributor.sendToPlayer(player, new SyncCoreStatePayload(data.hasPlacedCore, corePos, coreDim));
+            PacketDistributor.sendToPlayer(player, BaseCoreServerLogic.getAllCoresPayload(player.level().getServer()));
         }
     }
 }

@@ -109,6 +109,7 @@ public class BaseCoreFabric implements ModInitializer {
 
 		PayloadTypeRegistry.clientboundPlay().register(ConfigSyncPayload.TYPE, ConfigSyncPayload.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(SyncCoreStatePayload.TYPE, SyncCoreStatePayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(SyncAllCoresPayload.TYPE, SyncAllCoresPayload.CODEC);
 
 		PayloadTypeRegistry.serverboundPlay().register(UpgradeBaseCorePayload.TYPE, UpgradeBaseCorePayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ToggleBorderPayload.TYPE, ToggleBorderPayload.CODEC);
@@ -153,6 +154,7 @@ public class BaseCoreFabric implements ModInitializer {
 			BlockPos pos = data.hasPlacedCore ? new BlockPos(data.coreX, data.coreY, data.coreZ) : BlockPos.ZERO;
 			String dim = data.hasPlacedCore ? data.coreDimension : "";
 			ServerPlayNetworking.send(player, new SyncCoreStatePayload(data.hasPlacedCore, pos, dim));
+			ServerPlayNetworking.send(player, BaseCoreServerLogic.getAllCoresPayload(server));
 		});
 	}
 }

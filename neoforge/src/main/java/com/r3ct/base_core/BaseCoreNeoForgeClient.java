@@ -5,6 +5,7 @@ import com.r3ct.base_core.config.BaseCoreClientConfig;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
 import com.r3ct.base_core.logic.BaseCoreClientLogic;
 import com.r3ct.base_core.network.ConfigSyncPayload;
+import com.r3ct.base_core.network.SyncAllCoresPayload;
 import com.r3ct.base_core.network.SyncCoreStatePayload;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -59,6 +60,10 @@ public class BaseCoreNeoForgeClient {
 
         public static void handleCoreStateSync(SyncCoreStatePayload payload) {
             BaseCoreClientLogic.handleCoreStateSync(payload);
+        }
+
+        public static void handleSyncAllCores(SyncAllCoresPayload payload) {
+            BaseCoreClientLogic.handleSyncAllCores(payload);
         }
     }
 }
