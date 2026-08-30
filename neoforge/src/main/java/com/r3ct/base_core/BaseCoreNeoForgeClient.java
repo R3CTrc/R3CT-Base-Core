@@ -46,11 +46,6 @@ public class BaseCoreNeoForgeClient {
             BaseCoreServerConfig.load();
             BaseCoreClientLogic.clientHasCore = false;
         }
-
-        @SubscribeEvent
-        public static void onRenderLevelStage(RenderLevelStageEvent.AfterTranslucentParticles event) {
-            BaseCoreClientLogic.renderBorders(event.getPoseStack(), event.getLevelRenderState().cameraRenderState);
-        }
     }
 
     public static class ClientPayloadHandlers {

@@ -227,7 +227,7 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
                                 final int slotToExtract = i;
                                 ItemStack activeStack = coreBE.getItem(i).copy();
                                 this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-                                this.minecraft.setScreen(new ConfirmExtractScreen(this, activeStack, () -> {
+                                this.minecraft.gui.setScreen(new ConfirmExtractScreen(this, activeStack, () -> {
                                     Services.PLATFORM.sendToServer(new com.r3ct.base_core.network.RemoveEffectPayload(this.menu.getCorePos(), slotToExtract));
                                 }));
                                 return true;
@@ -358,7 +358,7 @@ public class BaseCoreScreen extends AbstractContainerScreen<BaseCoreMenu> {
 
         graphics.fill(toggleButtonX, toggleButtonY, toggleButtonX + toggleButtonSize, toggleButtonY + toggleButtonSize, isHoveringToggle ? 0xFF634631 : 0xFF4A3424);
         drawThickOutline(graphics, toggleButtonX, toggleButtonY, toggleButtonSize, toggleButtonSize, 1, 0xFF2E1F14);
-        graphics.fakeItem(new ItemStack(Items.LIGHT_BLUE_STAINED_GLASS), toggleButtonX + 2, toggleButtonY + 2);
+        graphics.fakeItem(new ItemStack(Items.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.LIGHT_BLUE)), toggleButtonX + 2, toggleButtonY + 2);
 
         if (currentBorderEnabled) {
             centeredText(graphics, "✔", toggleButtonX + toggleButtonSize - 3, toggleButtonY + toggleButtonSize - 7, 0xFF55FF55);

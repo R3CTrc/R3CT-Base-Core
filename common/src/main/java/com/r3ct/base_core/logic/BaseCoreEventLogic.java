@@ -17,9 +17,9 @@ public class BaseCoreEventLogic {
 
     public static boolean shouldCancelMobSpawn(ServerLevelAccessor level, EntityType<?> type, EntitySpawnReason reason, BlockPos pos) {
 
-        if (type == net.minecraft.world.entity.EntityType.WITHER ||
-                type == net.minecraft.world.entity.EntityType.ENDER_DRAGON ||
-                type == net.minecraft.world.entity.EntityType.WARDEN) {
+        if (type == net.minecraft.world.entity.EntityTypes.WITHER ||
+                type == net.minecraft.world.entity.EntityTypes.ENDER_DRAGON ||
+                type == net.minecraft.world.entity.EntityTypes.WARDEN) {
             return false;
         }
 

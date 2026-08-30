@@ -34,7 +34,7 @@ public class ConfirmExtractScreen extends Screen {
         this.addRenderableWidget(Button.builder(Component.translatable("r3ct_base_core.gui.confirm_extract.yes").withStyle(ChatFormatting.GREEN), button -> {
             this.onConfirm.run();
             if (this.minecraft != null) {
-                this.minecraft.setScreen(parent);
+                this.minecraft.gui.setScreen(parent);
             }
         }).bounds(centerX - 105, btnY, 100, 20).build());
 
@@ -67,7 +67,7 @@ public class ConfirmExtractScreen extends Screen {
     public void onClose() {
         if (this.minecraft != null) {
             this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            this.minecraft.setScreen(parent);
+            this.minecraft.gui.setScreen(parent);
         }
     }
 

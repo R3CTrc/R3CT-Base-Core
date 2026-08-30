@@ -42,10 +42,6 @@ public class BaseCoreFabricClient implements ClientModInitializer {
 			BaseCoreClientLogic.clientHasCore = false;
 		});
 
-		LevelRenderEvents.END_MAIN.register(context -> {
-			BaseCoreClientLogic.renderBorders(context.poseStack(), context.levelState().cameraRenderState);
-		});
-
 		MenuScreens.register(ModMenuTypes.BASE_CORE_MENU, BaseCoreScreen::new);
 		MenuScreens.register(ModMenuTypes.BASE_CORE_VISITOR_MENU, BaseCoreVisitorScreen::new);
 		MenuScreens.register(ModMenuTypes.ARCANE_LECTERN_MENU, ArcaneLecternScreen::new);

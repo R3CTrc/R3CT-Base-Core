@@ -1,13 +1,10 @@
 package com.r3ct.base_core.logic;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.r3ct.base_core.block.BaseCoreBlockEntity;
 import com.r3ct.base_core.config.BaseCoreServerConfig;
-import com.r3ct.base_core.network.SyncCoreStatePayload;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.ShapeRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector; // WAŻNA ZMIANA
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
@@ -15,6 +12,7 @@ import net.minecraft.util.ARGB;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +45,7 @@ public class BaseCoreClientLogic {
         TRACKED_CORES.add(core);
     }
 
-    public static void renderBorders(PoseStack poseStack, CameraRenderState cameraState) {
+    public static void renderBorders(CameraRenderState cameraState, SubmitNodeCollector storage) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) return;
 
@@ -56,8 +54,7 @@ public class BaseCoreClientLogic {
         boolean holdsBlueprint = mc.player.getMainHandItem().getItem() instanceof com.r3ct.base_core.item.BlueprintItem ||
                 mc.player.getOffhandItem().getItem() instanceof com.r3ct.base_core.item.BlueprintItem;
 
-        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderTypes.lines());
+        PoseStack poseStack = new PoseStack();
 
         for (BaseCoreBlockEntity core : TRACKED_CORES) {
             if (core.isRemoved() || core.getLevel() != mc.level) continue;
@@ -67,58 +64,29 @@ public class BaseCoreClientLogic {
 
             boolean isOwner = core.getOwnerUUID() != null && core.getOwnerUUID().equals(mc.player.getUUID().toString());
 
+            double ox = core.getBlockPos().getX() - cameraPos.x;
+            double oy = core.getBlockPos().getY() - cameraPos.y;
+            double oz = core.getBlockPos().getZ() - cameraPos.z;
+
             if (core.getShowBorder() && isOwner) {
-                ShapeRenderer.renderShape(
-                        poseStack,
-                        vertexConsumer,
-                        Shapes.create(localAabb),
-                        core.getBlockPos().getX() - cameraPos.x,
-                        core.getBlockPos().getY() - cameraPos.y,
-                        core.getBlockPos().getZ() - cameraPos.z,
-                        ARGB.colorFromFloat(1.0F, 0.0F, 1.0F, 0.0F),
-                        2.0F
-                );
+                VoxelShape shape = Shapes.create(localAabb).move(ox, oy, oz);
+                storage.submitShapeOutline(poseStack, shape, RenderTypes.lines(), ARGB.colorFromFloat(1.0F, 0.0F, 1.0F, 0.0F), 2.0F, true);
             } else if (holdsBlueprint) {
-                ShapeRenderer.renderShape(
-                        poseStack,
-                        vertexConsumer,
-                        Shapes.create(localAabb),
-                        core.getBlockPos().getX() - cameraPos.x,
-                        core.getBlockPos().getY() - cameraPos.y,
-                        core.getBlockPos().getZ() - cameraPos.z,
-                        ARGB.colorFromFloat(1.0F, 0.0F, 0.5F, 1.0F),
-                        2.0F
-                );
+                VoxelShape shape = Shapes.create(localAabb).move(ox, oy, oz);
+                storage.submitShapeOutline(poseStack, shape, RenderTypes.lines(), ARGB.colorFromFloat(1.0F, 0.0F, 0.5F, 1.0F), 2.0F, true);
             }
 
             if (holdsBlueprint) {
                 int maxRadius = BaseCoreServerConfig.calculateRangeUpToTier(11);
                 AABB maxAabb = new AABB(-maxRadius, -maxRadius, -maxRadius, 1 + maxRadius, 1 + maxRadius, 1 + maxRadius);
-
-                ShapeRenderer.renderShape(
-                        poseStack,
-                        vertexConsumer,
-                        Shapes.create(maxAabb),
-                        core.getBlockPos().getX() - cameraPos.x,
-                        core.getBlockPos().getY() - cameraPos.y,
-                        core.getBlockPos().getZ() - cameraPos.z,
-                        ARGB.colorFromFloat(1.0F, 0.5F, 0.5F, 0.5F),
-                        2.0F
-                );
+                VoxelShape maxShape = Shapes.create(maxAabb).move(ox, oy, oz);
+                storage.submitShapeOutline(poseStack, maxShape, RenderTypes.lines(), ARGB.colorFromFloat(1.0F, 0.5F, 0.5F, 0.5F), 2.0F, true);
             }
         }
 
         for (AABB scannerBox : scannerBorders) {
-            ShapeRenderer.renderShape(
-                    poseStack,
-                    vertexConsumer,
-                    Shapes.create(scannerBox),
-                    -cameraPos.x, -cameraPos.y, -cameraPos.z,
-                    ARGB.colorFromFloat(1.0F, 0.0F, 0.5F, 1.0F),
-                    2.0F
-            );
+            VoxelShape shape = Shapes.create(scannerBox).move(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+            storage.submitShapeOutline(poseStack, shape, RenderTypes.lines(), ARGB.colorFromFloat(1.0F, 0.0F, 0.5F, 1.0F), 2.0F, true);
         }
-
-        bufferSource.endBatch(RenderTypes.lines());
     }
 }

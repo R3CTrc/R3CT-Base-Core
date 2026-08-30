@@ -31,7 +31,7 @@ public abstract class BlueprintHandRendererMixin {
     @Shadow protected abstract void renderMapHand(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, HumanoidArm arm);
     @Shadow protected abstract void renderPlayerArm(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, float inverseArmHeight, float attackValue, HumanoidArm arm);
 
-    @Inject(method = "renderArmWithItem", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "submitArmWithItem", at = @At("HEAD"), cancellable = true)
     private void renderBlueprintAsMap(AbstractClientPlayer player, float frameInterp, float xRot, InteractionHand hand, float attack, ItemStack itemStack, float inverseArmHeight, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, CallbackInfo ci) {
 
         if (!itemStack.isEmpty() && itemStack.getItem() instanceof BlueprintItem) {

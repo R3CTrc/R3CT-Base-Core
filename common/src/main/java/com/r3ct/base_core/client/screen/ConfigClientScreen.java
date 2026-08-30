@@ -53,7 +53,7 @@ public class ConfigClientScreen extends Screen {
         BaseCoreClientConfig.save();
 
         if (this.minecraft != null) {
-            this.minecraft.setScreen(this.parent);
+            this.minecraft.gui.setScreen(this.parent);
         }
     }
 }
